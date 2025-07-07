@@ -3,8 +3,10 @@ package com.prm.flightbooking;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,8 +23,9 @@ import retrofit2.Response;
 
 public class Login extends AppCompatActivity {
 
-    private TextInputEditText etEmail, etPassword;
+    private TextInputEditText etUsernameOrEmail, etPassword;
     private Button btnLogin;
+    private TextView tvSignUp;
     private AuthApiEndpoint authApi;
 
     @Override
@@ -33,36 +36,34 @@ public class Login extends AppCompatActivity {
         // Khởi tạo API service
         authApi = ApiServiceProvider.getAuthApi();
 
-        // Ánh xạ views
-        initViews();
-
-        // Thiết lập sự kiện click
-        setupClickListeners();
+        // Ánh xạ views và thiết lập sự kiện
+        bindingView();
+        bindingAction();
     }
 
-    private void initViews() {
-        etEmail = findViewById(R.id.et_email);
+    private void bindingView() {
+        etUsernameOrEmail = findViewById(R.id.et_username_or_email);
         etPassword = findViewById(R.id.et_password);
         btnLogin = findViewById(R.id.btn_login);
+        tvSignUp = findViewById(R.id.tv_sign_up);
     }
 
-    private void setupClickListeners() {
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                performLogin();
-            }
+    private void bindingAction() {
+        btnLogin.setOnClickListener(v -> performLogin());
+        tvSignUp.setOnClickListener(v -> {
+            Intent intent = new Intent(Login.this, Signup.class);
+            startActivity(intent);
         });
     }
 
     private void performLogin() {
-        String email = etEmail.getText().toString().trim();
+        String usernameOrEmail = etUsernameOrEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
         // Validate input
-        if (TextUtils.isEmpty(email)) {
-            etEmail.setError("Vui lòng nhập email");
-            etEmail.requestFocus();
+        if (TextUtils.isEmpty(usernameOrEmail)) {
+            etUsernameOrEmail.setError("Vui lòng nhập email hoặc username");
+            etUsernameOrEmail.requestFocus();
             return;
         }
 
@@ -77,7 +78,7 @@ public class Login extends AppCompatActivity {
         btnLogin.setText("Đang đăng nhập...");
 
         // Tạo LoginDto
-        LoginDto loginDto = new LoginDto(email, password);
+        LoginDto loginDto = new LoginDto(usernameOrEmail, password);
 
         // Gọi API
         Call<UserProfileDto> call = authApi.login(loginDto);
@@ -127,7 +128,7 @@ public class Login extends AppCompatActivity {
             String errorMessage = "Đăng nhập thất bại";
 
             if (response.code() == 401) {
-                errorMessage = "Email hoặc mật khẩu không đúng";
+                errorMessage = "Email/Username hoặc mật khẩu không đúng";
             } else if (response.code() == 400) {
                 errorMessage = "Thông tin đăng nhập không hợp lệ";
             } else if (response.code() >= 500) {
