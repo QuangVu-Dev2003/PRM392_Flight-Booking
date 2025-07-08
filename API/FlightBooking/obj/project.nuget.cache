@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "4yl2UXhV+4M=",
+  "dgSpecHash": "wZqL78f76MI=",
   "success": true,
-  "projectFilePath": "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Project Mobile\\FlightBooking\\FlightBooking.csproj",
+  "projectFilePath": "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Mobile-Flight-Booking\\API\\FlightBooking\\FlightBooking.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\vunuo\\.nuget\\packages\\automapper\\10.0.0\\automapper.10.0.0.nupkg.sha512",
     "C:\\Users\\vunuo\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\8.0.1\\automapper.extensions.microsoft.dependencyinjection.8.0.1.nupkg.sha512",

@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using FlightBooking.Models;
+using FlightBooking.Services;
+using FlightBooking.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +22,26 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<FlightBookingContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
+// Add services
+builder.Services.AddScoped<IFlightService, FlightService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IAdvancedSearchService, AdvancedSearchService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ISMSService, SMSService>();
+builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
+
+// Add configuration for payment gateways
+//builder.Services.Configure<VNPayConfig>(builder.Configuration.GetSection("VNPay"));
+builder.Services.Configure<MoMoConfig>(builder.Configuration.GetSection("MoMo"));
+builder.Services.Configure<ZaloPayConfig>(builder.Configuration.GetSection("ZaloPay"));
+
+// Add background services
+builder.Services.AddHostedService<FlightStatusUpdateService>();
 
 // Add CORS
 builder.Services.AddCors(options =>

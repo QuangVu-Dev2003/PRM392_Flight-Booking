@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Project Mobile\\FlightBooking\\FlightBooking.csproj": {}
+    "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Mobile-Flight-Booking\\API\\FlightBooking\\FlightBooking.csproj": {}
   },
   "projects": {
-    "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Project Mobile\\FlightBooking\\FlightBooking.csproj": {
+    "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Mobile-Flight-Booking\\API\\FlightBooking\\FlightBooking.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Project Mobile\\FlightBooking\\FlightBooking.csproj",
+        "projectUniqueName": "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Mobile-Flight-Booking\\API\\FlightBooking\\FlightBooking.csproj",
         "projectName": "FlightBooking",
-        "projectPath": "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Project Mobile\\FlightBooking\\FlightBooking.csproj",
+        "projectPath": "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Mobile-Flight-Booking\\API\\FlightBooking\\FlightBooking.csproj",
         "packagesPath": "C:\\Users\\vunuo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Project Mobile\\FlightBooking\\obj\\",
+        "outputPath": "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Mobile-Flight-Booking\\API\\FlightBooking\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
