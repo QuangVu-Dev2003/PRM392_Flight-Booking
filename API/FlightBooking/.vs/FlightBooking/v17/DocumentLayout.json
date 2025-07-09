@@ -1,12 +1,71 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\vunuo\\OneDrive\\Desktop\\CAi lai win\\New folder\\Mobile-Flight-Booking\\API\\FlightBooking\\",
-  "Documents": [],
+  "WorkspaceRootPath": "C:\\Users\\vunuo\\OneDrive\\Desktop\\Project_Hoc_Tap\\PRM392_Flight-Booking\\API\\FlightBooking\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E24FCED1-DA9D-400B-8402-772F5DC4B1E3}|FlightBooking.csproj|c:\\users\\vunuo\\onedrive\\desktop\\project_hoc_tap\\prm392_flight-booking\\api\\flightbooking\\controllers\\user\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E24FCED1-DA9D-400B-8402-772F5DC4B1E3}|FlightBooking.csproj|solutionrelative:controllers\\user\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E24FCED1-DA9D-400B-8402-772F5DC4B1E3}|FlightBooking.csproj|c:\\users\\vunuo\\onedrive\\desktop\\project_hoc_tap\\prm392_flight-booking\\api\\flightbooking\\services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E24FCED1-DA9D-400B-8402-772F5DC4B1E3}|FlightBooking.csproj|solutionrelative:services\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E24FCED1-DA9D-400B-8402-772F5DC4B1E3}|FlightBooking.csproj|c:\\users\\vunuo\\onedrive\\desktop\\project_hoc_tap\\prm392_flight-booking\\api\\flightbooking\\services\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E24FCED1-DA9D-400B-8402-772F5DC4B1E3}|FlightBooking.csproj|solutionrelative:services\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\vunuo\\OneDrive\\Desktop\\Project_Hoc_Tap\\PRM392_Flight-Booking\\API\\FlightBooking\\Controllers\\User\\AuthController.cs",
+              "RelativeDocumentMoniker": "Controllers\\User\\AuthController.cs",
+              "ToolTip": "C:\\Users\\vunuo\\OneDrive\\Desktop\\Project_Hoc_Tap\\PRM392_Flight-Booking\\API\\FlightBooking\\Controllers\\User\\AuthController.cs",
+              "RelativeToolTip": "Controllers\\User\\AuthController.cs",
+              "ViewState": "AgIAAHEAAAAAAAAAAAAAAJUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-09T18:26:25.488Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "C:\\Users\\vunuo\\OneDrive\\Desktop\\Project_Hoc_Tap\\PRM392_Flight-Booking\\API\\FlightBooking\\Services\\UserService.cs",
+              "RelativeDocumentMoniker": "Services\\UserService.cs",
+              "ToolTip": "C:\\Users\\vunuo\\OneDrive\\Desktop\\Project_Hoc_Tap\\PRM392_Flight-Booking\\API\\FlightBooking\\Services\\UserService.cs",
+              "RelativeToolTip": "Services\\UserService.cs",
+              "ViewState": "AgIAAO8AAAAAAAAAAAAAABMBAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-09T18:26:00.064Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IUserService.cs",
+              "DocumentMoniker": "C:\\Users\\vunuo\\OneDrive\\Desktop\\Project_Hoc_Tap\\PRM392_Flight-Booking\\API\\FlightBooking\\Services\\IUserService.cs",
+              "RelativeDocumentMoniker": "Services\\IUserService.cs",
+              "ToolTip": "C:\\Users\\vunuo\\OneDrive\\Desktop\\Project_Hoc_Tap\\PRM392_Flight-Booking\\API\\FlightBooking\\Services\\IUserService.cs",
+              "RelativeToolTip": "Services\\IUserService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-09T18:25:46.191Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
