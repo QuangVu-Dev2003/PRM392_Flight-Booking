@@ -12,5 +12,6 @@ namespace FlightBooking.Services
         Task<List<UserBookingHistoryDto>> GetBookingHistoryAsync(int userId, int page = 1, int pageSize = 10);
         Task<BookingDetailDto> GetBookingDetailAsync(int userId, int bookingId);
         Task<bool> CancelBookingAsync(int userId, int bookingId);
+        Task<bool> DeleteAccountAsync(int userId, string password);
     }
 }

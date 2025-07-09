@@ -244,5 +244,35 @@ namespace FlightBooking.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+
+        public async Task<bool> DeleteAccountAsync(int userId, string password)
+        {
+            if (_context == null)
+                throw new InvalidOperationException("Database context is null");
+
+            var user = await _context.Users
+                .Include(u => u.Bookings)
+                    .ThenInclude(b => b.Flight)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+                throw new ArgumentException("User not found");
+
+            if (!BCrypt.Net.BCrypt.Verify(password, user.Password))
+                throw new UnauthorizedAccessException("Incorrect password");
+
+            // Check if user has any active bookings
+            var hasActiveBookings = user.Bookings != null && user.Bookings.Any(b => b.BookingStatus == "CONFIRMED" && b.Flight != null && b.Flight.DepartureTime > DateTime.Now);
+            if (hasActiveBookings)
+                throw new InvalidOperationException("Cannot delete account with active bookings");
+
+            // Soft Delete: Set IsActive to false
+            user.IsActive = false;
+            user.UpdatedAt = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

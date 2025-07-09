@@ -1,6 +1,7 @@
 ﻿using FlightBooking.DTOs.User;
 using FlightBooking.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace FlightBooking.Controllers.User
 {
@@ -110,5 +111,39 @@ namespace FlightBooking.Controllers.User
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("delete-account/{userId}")]
+        public async Task<ActionResult> DeleteAccount(int userId, [FromBody] DeleteAccountDto deleteDto)
+        {
+            try
+            {
+                var result = await _userService.DeleteAccountAsync(userId, deleteDto.Password);
+                if (result)
+                    return Ok(new { message = "Account deleted successfully" });
+                return BadRequest(new { message = "Failed to delete account" });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+    }
+
+    public class DeleteAccountDto
+    {
+        [Required]
+        public string Password { get; set; } = null!;
     }
 }
