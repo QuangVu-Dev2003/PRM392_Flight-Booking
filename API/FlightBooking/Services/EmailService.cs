@@ -286,5 +286,61 @@ namespace FlightBooking.Services
 </body>
 </html>";
         }
+
+        public async Task SendPasswordResetOtpEmailAsync(string recipientEmail, string otpCode, string recipientName)
+        {
+            var subject = "✈️ Mã xác thực đặt lại mật khẩu của bạn";
+            var body = GeneratePasswordResetOtpHtml(otpCode, recipientName);
+            await SendEmailAsync(recipientEmail, subject, body, true);
+        }
+
+        private string GeneratePasswordResetOtpHtml(string otpCode, string recipientName)
+        {
+            return $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: linear-gradient(135deg, #f0ad4e 0%, #eb9316 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
+        .content {{ background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }}
+        .otp-box {{ background: white; padding: 25px; border-radius: 8px; margin: 25px 0; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }}
+        .otp-code {{ font-size: 48px; font-weight: bold; color: #f0ad4e; letter-spacing: 5px; }}
+        .message {{ font-size: 16px; margin-bottom: 20px; }}
+        .footer {{ text-align: center; margin-top: 30px; color: #666; font-size: 14px; }}
+        .disclaimer {{ font-size: 12px; color: #999; margin-top: 20px; }}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>🔑 Yêu cầu đặt lại mật khẩu</h1>
+            <p>Mã xác thực của bạn cho Flight Booking System</p>
+        </div>
+        
+        <div class='content'>
+            <h2>Xin chào {(string.IsNullOrEmpty(recipientName) ? "bạn" : recipientName)},</h2>
+            <p class='message'>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Vui lòng sử dụng mã xác thực dưới đây để hoàn tất quá trình:</p>
+            
+            <div class='otp-box'>
+                <p>Mã xác thực của bạn là:</p>
+                <div class='otp-code'>{otpCode}</div>
+            </div>
+            
+            <p>Mã này sẽ hết hạn sau <strong>5 phút</strong>. Vui lòng không chia sẻ mã này với bất kỳ ai.</p>
+            <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
+        </div>
+        
+        <div class='footer'>
+            <p>Trân trọng,</p>
+            <p>Đội ngũ Flight Booking System</p>
+            <p class='disclaimer'>Email này được gửi tự động. Vui lòng không trả lời email này.</p>
+        </div>
+    </div>
+</body>
+</html>";
+        }
     }
 }

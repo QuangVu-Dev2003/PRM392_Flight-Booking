@@ -1,4 +1,5 @@
-﻿using FlightBooking.DTOs.User;
+﻿using FlightBooking.DTOs;
+using FlightBooking.DTOs.User;
 using FlightBooking.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -131,6 +132,66 @@ namespace FlightBooking.Controllers.User
                 return NotFound(new { message = ex.Message });
             }
             catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<ActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto request)
+        {
+            try
+            {
+                await _userService.SendPasswordResetOtpAsync(request.Email);
+                return Ok(new { message = "Mã xác thực đã được gửi đến email của bạn." });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("verify-otp")]
+        public async Task<ActionResult> VerifyOtp([FromBody] VerifyOtpDto request)
+        {
+            try
+            {
+                var isValid = await _userService.VerifyPasswordResetOtpAsync(request.Email, request.OtpCode);
+                if (!isValid)
+                    return BadRequest(new { message = "Mã xác thực không hợp lệ hoặc đã hết hạn." });
+
+                return Ok(new { message = "Mã xác thực hợp lệ." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<ActionResult> ResetPassword([FromBody] ResetPasswordDto request)
+        {
+            try
+            {
+                var result = await _userService.ResetPasswordAsync(request.Email, request.OtpCode, request.NewPassword);
+                if (result)
+                    return Ok(new { message = "Đổi mật khẩu thành công." });
+
+                return BadRequest(new { message = "Không thể đổi mật khẩu." });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
             {
                 return BadRequest(new { message = ex.Message });
             }

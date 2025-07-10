@@ -13,5 +13,8 @@ namespace FlightBooking.Services
         Task<BookingDetailDto> GetBookingDetailAsync(int userId, int bookingId);
         Task<bool> CancelBookingAsync(int userId, int bookingId);
         Task<bool> DeleteAccountAsync(int userId, string password);
+        Task SendPasswordResetOtpAsync(string email);
+        Task<bool> VerifyPasswordResetOtpAsync(string email, string otpCode);
+        Task<bool> ResetPasswordAsync(string email, string otpCode, string newPassword);
     }
 }
