@@ -5,13 +5,13 @@ import com.google.gson.annotations.SerializedName;
 import java.math.BigDecimal;
 
 public class BookingStatusStatsDto {
-    @SerializedName("Status")
+    @SerializedName("status")
     private String status;
 
-    @SerializedName("Count")
+    @SerializedName("count")
     private int count;
 
-    @SerializedName("Percentage")
+    @SerializedName("percentage")
     private BigDecimal percentage;
 
     public BookingStatusStatsDto() {

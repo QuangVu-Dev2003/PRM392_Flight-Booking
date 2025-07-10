@@ -5,31 +5,31 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Date;
 
 public class UserProfileDto {
-    @SerializedName("UserId")
+    @SerializedName("userId")
     private int userId;
 
-    @SerializedName("Username")
+    @SerializedName("username")
     private String username;
 
-    @SerializedName("Email")
+    @SerializedName("email")
     private String email;
 
-    @SerializedName("FullName")
+    @SerializedName("fullName")
     private String fullName;
 
-    @SerializedName("Phone")
+    @SerializedName("phone")
     private String phone;
 
-    @SerializedName("DateOfBirth")
+    @SerializedName("dateOfBirth")
     private String dateOfBirth; // định dạng "yyyy-MM-dd"
 
-    @SerializedName("Gender")
+    @SerializedName("gender")
     private String gender;
 
-    @SerializedName("CreatedAt")
+    @SerializedName("createdAt")
     private Date createdAt;
 
-    @SerializedName("TotalBookings")
+    @SerializedName("totalBookings")
     private int totalBookings;
 
     public UserProfileDto() {
@@ -117,5 +117,20 @@ public class UserProfileDto {
 
     public void setTotalBookings(int totalBookings) {
         this.totalBookings = totalBookings;
+    }
+
+    @Override
+    public String toString() {
+        return "UserProfileDto{" +
+                "userId=" + userId +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", fullName='" + fullName + '\'' +
+                ", phone='" + phone + '\'' +
+                ", dateOfBirth='" + dateOfBirth + '\'' +
+                ", gender='" + gender + '\'' +
+                ", createdAt=" + createdAt +
+                ", totalBookings=" + totalBookings +
+                '}';
     }
 }

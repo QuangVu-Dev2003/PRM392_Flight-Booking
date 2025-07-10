@@ -3,25 +3,25 @@ package com.prm.flightbooking.dto.aircrafttype;
 import com.google.gson.annotations.SerializedName;
 
 public class CreateAircraftTypeDto {
-    @SerializedName("AircraftModel")
+    @SerializedName("aircraftModel")
     private String aircraftModel;
 
-    @SerializedName("Manufacturer")
+    @SerializedName("manufacturer")
     private String manufacturer;
 
-    @SerializedName("TotalSeats")
+    @SerializedName("totalSeats")
     private int totalSeats;
 
-    @SerializedName("EconomySeats")
+    @SerializedName("economySeats")
     private int economySeats;
 
-    @SerializedName("BusinessSeats")
+    @SerializedName("businessSeats")
     private int businessSeats;
 
     @SerializedName("FirstClassSeats")
     private int firstClassSeats;
 
-    @SerializedName("SeatMapLayout")
+    @SerializedName("seatMapLayout")
     private String seatMapLayout;
 
     public CreateAircraftTypeDto() {

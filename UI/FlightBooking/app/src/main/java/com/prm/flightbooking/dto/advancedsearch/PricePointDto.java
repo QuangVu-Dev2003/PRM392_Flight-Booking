@@ -6,19 +6,19 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class PricePointDto {
-    @SerializedName("Date")
+    @SerializedName("date")
     private Date date;
 
-    @SerializedName("MinPrice")
+    @SerializedName("minPrice")
     private BigDecimal minPrice;
 
-    @SerializedName("MaxPrice")
+    @SerializedName("maxPrice")
     private BigDecimal maxPrice;
 
-    @SerializedName("AvgPrice")
+    @SerializedName("avgPrice")
     private BigDecimal avgPrice;
 
-    @SerializedName("FlightCount")
+    @SerializedName("flightCount")
     private int flightCount;
 
     public PricePointDto() {

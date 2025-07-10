@@ -3,19 +3,19 @@ package com.prm.flightbooking.dto.airport;
 import com.google.gson.annotations.SerializedName;
 
 public class UpdateAirportDto {
-    @SerializedName("AirportCode")
+    @SerializedName("airportCode")
     private String airportCode;
 
-    @SerializedName("AirportName")
+    @SerializedName("airportName")
     private String airportName;
 
-    @SerializedName("City")
+    @SerializedName("city")
     private String city;
 
-    @SerializedName("Country")
+    @SerializedName("country")
     private String country;
 
-    @SerializedName("Timezone")
+    @SerializedName("timezone")
     private String timezone;
 
     public UpdateAirportDto() {

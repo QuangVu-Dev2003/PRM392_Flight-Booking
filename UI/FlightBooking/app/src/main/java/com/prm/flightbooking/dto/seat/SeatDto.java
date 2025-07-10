@@ -5,37 +5,37 @@ import com.google.gson.annotations.SerializedName;
 import java.math.BigDecimal;
 
 public class SeatDto {
-    @SerializedName("SeatId")
+    @SerializedName("seatId")
     private int seatId;
 
-    @SerializedName("SeatNumber")
+    @SerializedName("seatNumber")
     private String seatNumber;
 
-    @SerializedName("SeatRow")
+    @SerializedName("seatRow")
     private int seatRow;
 
-    @SerializedName("SeatColumn")
+    @SerializedName("seatColumn")
     private String seatColumn;
 
-    @SerializedName("SeatClassName")
+    @SerializedName("seatClassName")
     private String seatClassName;
 
-    @SerializedName("IsWindow")
+    @SerializedName("isWindow")
     private boolean isWindow;
 
-    @SerializedName("IsAisle")
+    @SerializedName("isAisle")
     private boolean isAisle;
 
-    @SerializedName("IsEmergencyExit")
+    @SerializedName("isEmergencyExit")
     private boolean isEmergencyExit;
 
-    @SerializedName("ExtraFee")
+    @SerializedName("extraFee")
     private BigDecimal extraFee;
 
-    @SerializedName("IsAvailable")
+    @SerializedName("isAvailable")
     private boolean isAvailable;
 
-    @SerializedName("TotalPrice")
+    @SerializedName("totalPrice")
     private BigDecimal totalPrice;
 
     public SeatDto() {

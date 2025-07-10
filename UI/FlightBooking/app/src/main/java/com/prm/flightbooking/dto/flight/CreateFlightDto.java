@@ -6,31 +6,31 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class CreateFlightDto {
-    @SerializedName("FlightNumber")
+    @SerializedName("flightNumber")
     private String flightNumber;
 
-    @SerializedName("AirlineId")
+    @SerializedName("airlineId")
     private int airlineId;
 
-    @SerializedName("AircraftTypeId")
+    @SerializedName("aircraftTypeId")
     private int aircraftTypeId;
 
-    @SerializedName("DepartureAirportId")
+    @SerializedName("departureAirportId")
     private int departureAirportId;
 
-    @SerializedName("ArrivalAirportId")
+    @SerializedName("arrivalAirportId")
     private int arrivalAirportId;
 
-    @SerializedName("DepartureTime")
+    @SerializedName("departureTime")
     private Date departureTime;
 
-    @SerializedName("ArrivalTime")
+    @SerializedName("arrivalTime")
     private Date arrivalTime;
 
-    @SerializedName("BasePrice")
+    @SerializedName("basePrice")
     private BigDecimal basePrice;
 
-    @SerializedName("Gate")
+    @SerializedName("gate")
     private String gate;
 
     public CreateFlightDto() {

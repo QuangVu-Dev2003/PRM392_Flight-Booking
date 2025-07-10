@@ -3,16 +3,16 @@ package com.prm.flightbooking.dto.user;
 import com.google.gson.annotations.SerializedName;
 
 public class UpdateProfileDto {
-    @SerializedName("FullName")
+    @SerializedName("fullName")
     private String fullName;
 
-    @SerializedName("Phone")
+    @SerializedName("phone")
     private String phone;
 
-    @SerializedName("DateOfBirth")
+    @SerializedName("dateOfBirth")
     private String dateOfBirth; // định dạng "yyyy-MM-dd"
 
-    @SerializedName("Gender")
+    @SerializedName("gender")
     private String gender;
 
     public UpdateProfileDto() {

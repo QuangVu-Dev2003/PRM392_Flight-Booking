@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -39,7 +38,7 @@
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_person_travel"
                     android:scaleType="centerCrop"
-                    android:background="@color/travel_orange_light" />
+                    android:background="#FFE0B2"/>
 
             </androidx.cardview.widget.CardView>
 
@@ -54,10 +53,10 @@
                     android:id="@+id/tv_passenger_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="John Doe"
+                    android:text="Passenger Name"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#1A1A1A" />
+                    android:textColor="#1A1A1A"/>
 
                 <TextView
                     android:id="@+id/tv_passenger_type"
@@ -69,7 +68,7 @@
                     android:background="@drawable/passenger_type_bg"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="2dp"
-                    android:layout_marginTop="2dp" />
+                    android:layout_marginTop="2dp"/>
 
             </LinearLayout>
 
@@ -79,8 +78,8 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="@drawable/btn_options_circle"
-                android:src="@drawable/ic_more_vert"
-                android:contentDescription="Options" />
+                android:src="@android:drawable/ic_menu_more"
+                android:contentDescription="Options"/>
 
         </LinearLayout>
 
@@ -102,31 +101,31 @@
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/ic_airline_seat"
-                    android:layout_marginBottom="4dp" />
+                    android:src="@android:drawable/ic_menu_view"
+                    android:layout_marginBottom="4dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Seat"
                     android:textSize="10sp"
-                    android:textColor="#999999" />
+                    android:textColor="#999999"/>
 
                 <TextView
                     android:id="@+id/tv_seat_number"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="12A"
+                    android:text="Seat Number"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="#1A1A1A" />
+                    android:textColor="#1A1A1A"/>
 
             </LinearLayout>
 
             <View
                 android:layout_width="1dp"
                 android:layout_height="50dp"
-                android:background="#E0E0E0" />
+                android:background="#E0E0E0"/>
 
             <!-- Seat Class -->
             <LinearLayout
@@ -140,30 +139,30 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_class"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="4dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Class"
                     android:textSize="10sp"
-                    android:textColor="#999999" />
+                    android:textColor="#999999"/>
 
                 <TextView
                     android:id="@+id/tv_seat_class"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Economy"
+                    android:text="Seat Class"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="#1A1A1A" />
+                    android:textColor="#1A1A1A"/>
 
             </LinearLayout>
 
             <View
                 android:layout_width="1dp"
                 android:layout_height="50dp"
-                android:background="#E0E0E0" />
+                android:background="#E0E0E0"/>
 
             <!-- Seat Type -->
             <LinearLayout
@@ -176,27 +175,26 @@
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/ic_seat_type"
-                    android:layout_marginBottom="4dp" />
+                    android:src="@android:drawable/ic_menu_mapmode"
+                    android:layout_marginBottom="4dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Type"
                     android:textSize="10sp"
-                    android:textColor="#999999" />
+                    android:textColor="#999999"/>
 
                 <TextView
                     android:id="@+id/tv_seat_type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Window"
+                    android:text="Seat Type"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="#1A1A1A" />
+                    android:textColor="#1A1A1A"/>
 
             </LinearLayout>
-
         </LinearLayout>
 
         <!-- Price Information -->
@@ -214,19 +212,17 @@
                 android:layout_weight="1"
                 android:text="Ticket Price"
                 android:textSize="14sp"
-                android:textColor="#666666" />
+                android:textColor="#666666"/>
 
             <TextView
                 android:id="@+id/tv_seat_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="$415.00"
+                android:text="Seat Price"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/travel_orange" />
+                android:textColor="#FF9800"/>
 
         </LinearLayout>
-
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>

@@ -32,13 +32,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <TextView
         android:id="@+id/user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
-        android:text="Alex Johnson"
+        android:text="Guest"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -46,413 +45,375 @@
         app:layout_constraintTop_toTopOf="@id/user_avatar"
         app:layout_constraintBottom_toBottomOf="@id/user_avatar" />
 
-    <!-- Main Form Card -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/card_booking_form"
+    <!-- ScrollView for the form content -->
+    <ScrollView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="100dp"
-        android:background="#FFFFFF"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
-        app:cardUseCompatPadding="true"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/header_background"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:orientation="vertical">
 
-            <!-- From Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="From"
-                android:textColor="#666666"
-                android:textSize="14sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/spinner_bg"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginEnd="12dp"
-                    android:src="@drawable/ic_flight_takeoff" />
-
-                <TextView
-                    android:id="@+id/tv_from"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="NewYork"
-                    android:textColor="#1A1A1A"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_arrow_drop_down" />
-
-            </LinearLayout>
-
-            <!-- To Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="To"
-                android:textColor="#666666"
-                android:textSize="14sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/spinner_bg"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginEnd="12dp"
-                    android:src="@drawable/ic_flight_land" />
-
-                <TextView
-                    android:id="@+id/tv_to"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="LosAngeles"
-                    android:textColor="#1A1A1A"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_arrow_drop_down" />
-
-            </LinearLayout>
-
-            <!-- Passengers Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="Passengers"
-                android:textColor="#666666"
-                android:textSize="14sp" />
-
-            <!-- Container cho passengers với layout dọc -->
-            <LinearLayout
+            <!-- Main Form Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_booking_form"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:background="@drawable/passenger_container_bg"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="20dp"
+                android:background="#FFFFFF"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="8dp"
+                app:cardUseCompatPadding="true">
 
-                <!-- Adult Section -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="20dp">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_marginEnd="12dp"
-                        android:src="@drawable/ic_person" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Adults"
-                        android:textColor="#1A1A1A"
-                        android:textSize="16sp"
-                        android:textStyle="normal" />
-
-                    <!-- Counter Controls cho Adults -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <ImageButton
-                            android:id="@+id/btn_minus_adult"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@drawable/btn_counter_outline"
-                            android:contentDescription="Giảm số lượng người lớn"
-                            android:padding="8dp"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/ic_remove" />
-
-                        <TextView
-                            android:id="@+id/tv_adult_count"
-                            android:layout_width="40dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="16dp"
-                            android:gravity="center"
-                            android:text="2"
-                            android:textColor="#1A1A1A"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
-
-                        <ImageButton
-                            android:id="@+id/btn_plus_adult"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@drawable/btn_counter_filled"
-                            android:contentDescription="Tăng số lượng người lớn"
-                            android:padding="8dp"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/ic_add" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <!-- Divider -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginVertical="8dp"
-                    android:background="#E0E0E0" />
-
-                <!-- Child Section -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_marginEnd="12dp"
-                        android:src="@drawable/ic_child" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Children"
-                        android:textColor="#1A1A1A"
-                        android:textSize="16sp"
-                        android:textStyle="normal" />
-
-                    <!-- Counter Controls cho Children -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <ImageButton
-                            android:id="@+id/btn_minus_child"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@drawable/btn_counter_outline"
-                            android:contentDescription="Tăng số lượng trẻ em"
-                            android:padding="8dp"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/ic_remove" />
-
-                        <TextView
-                            android:id="@+id/tv_child_count"
-                            android:layout_width="40dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="16dp"
-                            android:gravity="center"
-                            android:text="1"
-                            android:textColor="#1A1A1A"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
-
-                        <ImageButton
-                            android:id="@+id/btn_plus_child"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@drawable/btn_counter_filled"
-                            android:contentDescription="Giảm số lượng trẻ em"
-                            android:padding="8dp"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/ic_add" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- Dates Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:orientation="horizontal">
-
-                <!-- Departure Date -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
+                    <!-- From Section -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="Departure date"
+                        android:text="From"
                         android:textColor="#666666"
                         android:textSize="14sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:background="@drawable/date_bg"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/spinner_bg"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
 
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:layout_marginEnd="8dp"
-                            android:src="@drawable/ic_calendar" />
+                            android:layout_marginEnd="12dp"
+                            android:src="@drawable/ic_flight_takeoff" />
 
-                        <TextView
-                            android:id="@+id/tv_departure_date"
-                            android:layout_width="wrap_content"
+                        <AutoCompleteTextView
+                            android:id="@+id/tv_from"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="29 Aug, 2024"
+                            android:layout_weight="1"
+                            android:text="Select departure city"
                             android:textColor="#1A1A1A"
-                            android:textSize="14sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:inputType="textAutoComplete"
+                            android:imeOptions="actionDone"
+                            android:completionThreshold="1"
+                            android:dropDownHeight="200dp" />
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_arrow_drop_down" />
 
                     </LinearLayout>
 
-                </LinearLayout>
-
-                <!-- Return Date -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
+                    <!-- To Section -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="Return data"
+                        android:text="To"
                         android:textColor="#666666"
                         android:textSize="14sp" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:background="@drawable/date_bg"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/spinner_bg"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:padding="12dp">
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp">
 
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:layout_marginEnd="8dp"
-                            android:src="@drawable/ic_calendar" />
+                            android:layout_marginEnd="12dp"
+                            android:src="@drawable/ic_flight_land" />
 
-                        <TextView
-                            android:id="@+id/tv_return_date"
-                            android:layout_width="wrap_content"
+                        <AutoCompleteTextView
+                            android:id="@+id/tv_to"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:text="29 Aug, 2024"
+                            android:layout_weight="1"
+                            android:text="Select arrival city"
                             android:textColor="#1A1A1A"
-                            android:textSize="14sp" />
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:inputType="textAutoComplete"
+                            android:imeOptions="actionDone"
+                            android:completionThreshold="1"
+                            android:dropDownHeight="200dp" />
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_arrow_drop_down" />
 
                     </LinearLayout>
 
+                    <!-- Passengers Section -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:text="Passengers"
+                        android:textColor="#666666"
+                        android:textSize="14sp" />
+
+                    <!-- Container for passengers with vertical layout -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/passenger_container_bg"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Adult Section -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginEnd="12dp"
+                                android:src="@drawable/ic_person" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Adults"
+                                android:textColor="#1A1A1A"
+                                android:textSize="16sp"
+                                android:textStyle="normal" />
+
+                            <!-- Counter Controls for Adults -->
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageButton
+                                    android:id="@+id/btn_minus_adult"
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:background="@drawable/btn_counter_outline"
+                                    android:contentDescription="Decrease adult count"
+                                    android:padding="8dp"
+                                    android:scaleType="centerInside"
+                                    android:src="@drawable/ic_remove" />
+
+                                <TextView
+                                    android:id="@+id/tv_adult_count"
+                                    android:layout_width="40dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginHorizontal="16dp"
+                                    android:gravity="center"
+                                    android:text="2"
+                                    android:textColor="#1A1A1A"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold" />
+
+                                <ImageButton
+                                    android:id="@+id/btn_plus_adult"
+                                    android:layout_width="48dp"
+                                    android:layout_height="48dp"
+                                    android:background="@drawable/btn_counter_filled"
+                                    android:contentDescription="Increase adult count"
+                                    android:padding="8dp"
+                                    android:scaleType="centerInside"
+                                    android:src="@drawable/ic_add" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Dates Section -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="horizontal">
+
+                        <!-- Departure Date -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="8dp"
+                                android:text="Departure date"
+                                android:textColor="#666666"
+                                android:textSize="14sp" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:background="@drawable/date_bg"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:padding="12dp"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:src="@drawable/ic_calendar" />
+
+                                <TextView
+                                    android:id="@+id/tv_departure_date"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Select date"
+                                    android:textColor="#1A1A1A"
+                                    android:textSize="14sp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <!-- Return Date -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="8dp"
+                                android:text="Return date"
+                                android:textColor="#666666"
+                                android:textSize="14sp" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:background="@drawable/date_bg"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:padding="12dp"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_marginEnd="8dp"
+                                    android:src="@drawable/ic_calendar" />
+
+                                <TextView
+                                    android:id="@+id/tv_return_date"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Select date"
+                                    android:textColor="#1A1A1A"
+                                    android:textSize="14sp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Class Section -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Class"
+                        android:textColor="#666666"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:layout_marginBottom="20dp"
+                        android:background="@drawable/spinner_bg"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="12dp"
+                            android:src="@drawable/ic_airline_seat" />
+
+                        <TextView
+                            android:id="@+id/tv_class"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Select class"
+                            android:textColor="#1A1A1A"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_arrow_drop_down" />
+
+                    </LinearLayout>
+
+                    <!-- Search Button -->
+                    <Button
+                        android:id="@+id/btn_search_flights"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/btn_search"
+                        android:elevation="2dp"
+                        android:text="Search Flights"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
                 </LinearLayout>
 
-            </LinearLayout>
-
-            <!-- Class Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Class"
-                android:textColor="#666666"
-                android:textSize="14sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginBottom="20dp"
-                android:background="@drawable/spinner_bg"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginEnd="12dp"
-                    android:src="@drawable/ic_airline_seat" />
-
-                <TextView
-                    android:id="@+id/tv_class"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="First Class"
-                    android:textColor="#1A1A1A"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_arrow_drop_down" />
-
-            </LinearLayout>
-
-            <!-- Search Button -->
-            <Button
-                android:id="@+id/btn_search_flights"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:background="@drawable/btn_search"
-                android:elevation="2dp"
-                android:text="Search Flights"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </ScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

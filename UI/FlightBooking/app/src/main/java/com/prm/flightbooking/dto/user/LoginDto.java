@@ -3,26 +3,26 @@ package com.prm.flightbooking.dto.user;
 import com.google.gson.annotations.SerializedName;
 
 public class LoginDto {
-    @SerializedName("Username")
-    private String username;
+    @SerializedName("usernameOrEmail")
+    private String usernameOrEmail;
 
-    @SerializedName("Password")
+    @SerializedName("password")
     private String password;
 
     public LoginDto() {
     }
 
-    public LoginDto(String username, String password) {
-        this.username = username;
+    public LoginDto(String usernameOrEmail, String password) {
+        this.usernameOrEmail = usernameOrEmail;
         this.password = password;
     }
 
-    public String getUsername() {
-        return username;
+    public String getUsernameOrEmail() {
+        return usernameOrEmail;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUsernameOrEmail(String usernameOrEmail) {
+        this.usernameOrEmail = usernameOrEmail;
     }
 
     public String getPassword() {

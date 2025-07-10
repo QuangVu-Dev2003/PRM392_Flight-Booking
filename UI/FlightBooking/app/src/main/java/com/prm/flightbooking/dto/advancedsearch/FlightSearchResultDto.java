@@ -3,19 +3,22 @@ package com.prm.flightbooking.dto.advancedsearch;
 import com.google.gson.annotations.SerializedName;
 import com.prm.flightbooking.dto.flight.FlightResponseDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FlightSearchResultDto {
-    @SerializedName("OutboundFlights")
+    @SerializedName("outboundFlights")
     private List<FlightResponseDto> outboundFlights;
 
-    @SerializedName("ReturnFlights")
+    @SerializedName("returnFlights")
     private List<FlightResponseDto> returnFlights;
 
-    @SerializedName("Metadata")
+    @SerializedName("metadata")
     private SearchMetadataDto metadata;
 
     public FlightSearchResultDto() {
+        outboundFlights = new ArrayList<>();
+        returnFlights = new ArrayList<>();
     }
 
     public FlightSearchResultDto(List<FlightResponseDto> outboundFlights, List<FlightResponseDto> returnFlights, SearchMetadataDto metadata) {

@@ -7,22 +7,22 @@ import java.util.Date;
 import java.util.List;
 
 public class AirlineDto {
-    @SerializedName("AirlineId")
+    @SerializedName("airlineId")
     private int airlineId;
 
-    @SerializedName("AirlineCode")
+    @SerializedName("airlineCode")
     private String airlineCode;
 
-    @SerializedName("AirlineName")
+    @SerializedName("airlineName")
     private String airlineName;
 
-    @SerializedName("LogoUrl")
+    @SerializedName("logoUrl")
     private String logoUrl;
 
-    @SerializedName("CreatedAt")
+    @SerializedName("createdAt")
     private Date createdAt;
 
-    @SerializedName("Flights")
+    @SerializedName("flights")
     private List<FlightSummaryDto> flights;
 
     public AirlineDto() {

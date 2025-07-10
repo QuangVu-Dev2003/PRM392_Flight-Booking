@@ -8,28 +8,28 @@ import java.util.Date;
 import java.util.List;
 
 public class BookingResponseDto {
-    @SerializedName("BookingId")
+    @SerializedName("bookingId")
     private int bookingId;
 
-    @SerializedName("BookingReference")
+    @SerializedName("bookingReference")
     private String bookingReference;
 
-    @SerializedName("BookingStatus")
+    @SerializedName("bookingStatus")
     private String bookingStatus;
 
-    @SerializedName("TotalAmount")
+    @SerializedName("totalAmount")
     private BigDecimal totalAmount;
 
-    @SerializedName("PaymentStatus")
+    @SerializedName("paymentStatus")
     private String paymentStatus;
 
-    @SerializedName("BookingDate")
+    @SerializedName("bookingDate")
     private Date bookingDate;
 
-    @SerializedName("Flight")
+    @SerializedName("flight")
     private FlightResponseDto flight;
 
-    @SerializedName("Seats")
+    @SerializedName("seats")
     private List<BookedSeatDto> seats;
 
     public BookingResponseDto() {

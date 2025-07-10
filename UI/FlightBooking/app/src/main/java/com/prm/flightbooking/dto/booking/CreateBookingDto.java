@@ -5,16 +5,16 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class CreateBookingDto {
-    @SerializedName("UserId")
+    @SerializedName("userId")
     private int userId;
 
-    @SerializedName("FlightId")
+    @SerializedName("flightId")
     private int flightId;
 
-    @SerializedName("Seats")
+    @SerializedName("seats")
     private List<BookingSeatDto> seats;
 
-    @SerializedName("Notes")
+    @SerializedName("notes")
     private String notes;
 
     public CreateBookingDto() {

@@ -6,31 +6,31 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class DashboardStatsDto {
-    @SerializedName("TotalFlights")
+    @SerializedName("totalFlights")
     private int totalFlights;
 
-    @SerializedName("TotalBookings")
+    @SerializedName("totalBookings")
     private int totalBookings;
 
-    @SerializedName("TotalUsers")
+    @SerializedName("totalUsers")
     private int totalUsers;
 
-    @SerializedName("TotalRevenue")
+    @SerializedName("totalRevenue")
     private BigDecimal totalRevenue;
 
-    @SerializedName("TodayBookings")
+    @SerializedName("todayBookings")
     private int todayBookings;
 
-    @SerializedName("TodayRevenue")
+    @SerializedName("todayRevenue")
     private BigDecimal todayRevenue;
 
-    @SerializedName("MonthlyRevenue")
+    @SerializedName("monthlyRevenue")
     private List<RevenueByMonthDto> monthlyRevenue;
 
-    @SerializedName("PopularRoutes")
+    @SerializedName("popularRoutes")
     private List<PopularRouteDto> popularRoutes;
 
-    @SerializedName("BookingStats")
+    @SerializedName("bookingStats")
     private List<BookingStatusStatsDto> bookingStats;
 
     public DashboardStatsDto() {

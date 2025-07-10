@@ -5,16 +5,16 @@ import com.google.gson.annotations.SerializedName;
 import java.math.BigDecimal;
 
 public class RevenueByMonthDto {
-    @SerializedName("Year")
+    @SerializedName("year")
     private int year;
 
-    @SerializedName("Month")
+    @SerializedName("month")
     private int month;
 
-    @SerializedName("Revenue")
+    @SerializedName("revenue")
     private BigDecimal revenue;
 
-    @SerializedName("BookingCount")
+    @SerializedName("bookingCount")
     private int bookingCount;
 
     public RevenueByMonthDto() {

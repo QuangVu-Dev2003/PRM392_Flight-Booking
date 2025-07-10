@@ -7,46 +7,46 @@ import java.util.Date;
 import java.util.List;
 
 public class AdvancedFlightSearchDto {
-    @SerializedName("DepartureAirportCode")
+    @SerializedName("departureAirportCode")
     private String departureAirportCode;
 
-    @SerializedName("ArrivalAirportCode")
+    @SerializedName("arrivalAirportCode")
     private String arrivalAirportCode;
 
-    @SerializedName("DepartureDate")
+    @SerializedName("departureDate")
     private Date departureDate;
 
-    @SerializedName("ReturnDate")
+    @SerializedName("returnDate")
     private Date returnDate;
 
-    @SerializedName("Passengers")
+    @SerializedName("passengers")
     private int passengers = 1;
 
-    @SerializedName("SeatClass")
+    @SerializedName("seatClass")
     private String seatClass;
 
-    @SerializedName("Airlines")
+    @SerializedName("airlines")
     private List<String> airlines;
 
-    @SerializedName("DepartureTimeFrom")
+    @SerializedName("departureTimeFrom")
     private String departureTimeFrom; // dùng String định dạng "HH:mm:ss"
 
-    @SerializedName("DepartureTimeTo")
+    @SerializedName("departureTimeTo")
     private String departureTimeTo; // dùng String định dạng "HH:mm:ss"
 
-    @SerializedName("MinPrice")
+    @SerializedName("minPrice")
     private BigDecimal minPrice;
 
-    @SerializedName("MaxPrice")
+    @SerializedName("maxPrice")
     private BigDecimal maxPrice;
 
-    @SerializedName("MaxStops")
+    @SerializedName("maxStops")
     private Integer maxStops = 0;
 
-    @SerializedName("SortBy")
+    @SerializedName("sortBy")
     private String sortBy = "PRICE"; // PRICE, DURATION, DEPARTURE_TIME
 
-    @SerializedName("SortOrder")
+    @SerializedName("sortOrder")
     private String sortOrder = "ASC"; // ASC, DESC
 
     public AdvancedFlightSearchDto() {

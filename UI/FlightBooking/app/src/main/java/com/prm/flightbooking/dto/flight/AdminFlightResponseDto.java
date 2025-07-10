@@ -1,63 +1,67 @@
 package com.prm.flightbooking.dto.flight;
 
 import com.google.gson.annotations.SerializedName;
+import com.prm.flightbooking.models.FlightInfo;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class AdminFlightResponseDto {
-    @SerializedName("FlightId")
+public class AdminFlightResponseDto implements FlightInfo {
+    @SerializedName("flightId")
     private int flightId;
 
-    @SerializedName("FlightNumber")
+    @SerializedName("flightNumber")
     private String flightNumber;
 
-    @SerializedName("AirlineName")
+    @SerializedName("airlineName")
     private String airlineName;
 
-    @SerializedName("AircraftModel")
+    @SerializedName("aircraftModel")
     private String aircraftModel;
 
-    @SerializedName("DepartureAirport")
+    @SerializedName("departureAirport")
     private String departureAirport;
 
-    @SerializedName("ArrivalAirport")
+    @SerializedName("arrivalAirport")
     private String arrivalAirport;
 
-    @SerializedName("DepartureTime")
+    @SerializedName("departureTime")
     private Date departureTime;
 
-    @SerializedName("ArrivalTime")
+    @SerializedName("arrivalTime")
     private Date arrivalTime;
 
-    @SerializedName("BasePrice")
+    @SerializedName("basePrice")
     private BigDecimal basePrice;
 
-    @SerializedName("Status")
+    @SerializedName("status")
     private String status;
 
-    @SerializedName("Gate")
+    @SerializedName("gate")
     private String gate;
 
-    @SerializedName("TotalSeats")
+    @SerializedName("totalSeats")
     private int totalSeats;
 
-    @SerializedName("BookedSeats")
+    @SerializedName("bookedSeats")
     private int bookedSeats;
 
-    @SerializedName("AvailableSeats")
+    @SerializedName("availableSeats")
     private int availableSeats;
 
-    @SerializedName("Revenue")
+    @SerializedName("revenue")
     private BigDecimal revenue;
 
-    @SerializedName("CreatedAt")
+    @SerializedName("createdAt")
     private Date createdAt;
 
     public AdminFlightResponseDto() {
     }
 
-    public AdminFlightResponseDto(int flightId, String flightNumber, String airlineName, String aircraftModel, String departureAirport, String arrivalAirport, Date departureTime, Date arrivalTime, BigDecimal basePrice, String status, String gate, int totalSeats, int bookedSeats, int availableSeats, BigDecimal revenue, Date createdAt) {
+    public AdminFlightResponseDto(int flightId, String flightNumber, String airlineName, String aircraftModel,
+                                  String departureAirport, String arrivalAirport, Date departureTime, Date arrivalTime,
+                                  BigDecimal basePrice, String status, String gate, int totalSeats, int bookedSeats,
+                                  int availableSeats, BigDecimal revenue, Date createdAt) {
         this.flightId = flightId;
         this.flightNumber = flightNumber;
         this.airlineName = airlineName;
@@ -76,6 +80,7 @@ public class AdminFlightResponseDto {
         this.createdAt = createdAt;
     }
 
+    @Override
     public int getFlightId() {
         return flightId;
     }
@@ -84,6 +89,7 @@ public class AdminFlightResponseDto {
         this.flightId = flightId;
     }
 
+    @Override
     public String getFlightNumber() {
         return flightNumber;
     }
@@ -92,6 +98,7 @@ public class AdminFlightResponseDto {
         this.flightNumber = flightNumber;
     }
 
+    @Override
     public String getAirlineName() {
         return airlineName;
     }
@@ -108,6 +115,7 @@ public class AdminFlightResponseDto {
         this.aircraftModel = aircraftModel;
     }
 
+    @Override
     public String getDepartureAirport() {
         return departureAirport;
     }
@@ -116,6 +124,7 @@ public class AdminFlightResponseDto {
         this.departureAirport = departureAirport;
     }
 
+    @Override
     public String getArrivalAirport() {
         return arrivalAirport;
     }
@@ -124,6 +133,7 @@ public class AdminFlightResponseDto {
         this.arrivalAirport = arrivalAirport;
     }
 
+    @Override
     public Date getDepartureTime() {
         return departureTime;
     }
@@ -132,6 +142,7 @@ public class AdminFlightResponseDto {
         this.departureTime = departureTime;
     }
 
+    @Override
     public Date getArrivalTime() {
         return arrivalTime;
     }
@@ -140,14 +151,16 @@ public class AdminFlightResponseDto {
         this.arrivalTime = arrivalTime;
     }
 
-    public BigDecimal getBasePrice() {
-        return basePrice;
+    @Override
+    public double getBasePrice() {
+        return basePrice != null ? basePrice.doubleValue() : 0.0;
     }
 
     public void setBasePrice(BigDecimal basePrice) {
         this.basePrice = basePrice;
     }
 
+    @Override
     public String getStatus() {
         return status;
     }

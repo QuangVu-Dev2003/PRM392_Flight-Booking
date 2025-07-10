@@ -6,40 +6,40 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class AdminUserResponseDto {
-    @SerializedName("UserId")
+    @SerializedName("userId")
     private int userId;
 
-    @SerializedName("Username")
+    @SerializedName("username")
     private String username;
 
-    @SerializedName("Email")
+    @SerializedName("email")
     private String email;
 
-    @SerializedName("FullName")
+    @SerializedName("fullName")
     private String fullName;
 
-    @SerializedName("Phone")
+    @SerializedName("phone")
     private String phone;
 
-    @SerializedName("DateOfBirth")
+    @SerializedName("dateOfBirth")
     private String dateOfBirth; // DateOnly không có trong Java, dùng String (định dạng yyyy-MM-dd)
 
-    @SerializedName("Gender")
+    @SerializedName("gender")
     private String gender;
 
-    @SerializedName("IsActive")
+    @SerializedName("isActive")
     private boolean isActive;
 
-    @SerializedName("CreatedAt")
+    @SerializedName("createdAt")
     private Date createdAt;
 
-    @SerializedName("UpdatedAt")
+    @SerializedName("updatedAt")
     private Date updatedAt;
 
-    @SerializedName("TotalBookings")
+    @SerializedName("totalBookings")
     private int totalBookings;
 
-    @SerializedName("TotalSpent")
+    @SerializedName("totalSpent")
     private BigDecimal totalSpent;
 
     public AdminUserResponseDto() {

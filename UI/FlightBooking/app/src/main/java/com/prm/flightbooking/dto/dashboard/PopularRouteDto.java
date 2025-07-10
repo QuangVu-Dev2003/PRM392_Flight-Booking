@@ -5,13 +5,13 @@ import com.google.gson.annotations.SerializedName;
 import java.math.BigDecimal;
 
 public class PopularRouteDto {
-    @SerializedName("Route")
+    @SerializedName("route")
     private String route;
 
-    @SerializedName("BookingCount")
+    @SerializedName("bookingCount")
     private int bookingCount;
 
-    @SerializedName("Revenue")
+    @SerializedName("revenue")
     private BigDecimal revenue;
 
     public PopularRouteDto() {

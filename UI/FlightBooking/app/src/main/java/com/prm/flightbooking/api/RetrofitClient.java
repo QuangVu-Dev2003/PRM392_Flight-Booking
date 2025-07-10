@@ -7,25 +7,43 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static final String BASE_URL = "http://10.0.2.2:5091/api/";
+    private static final String ANDROID_STUDIO_BASE_URL = "http://10.0.2.2:5091/api/";
+    private static final String REAL_IP_BASE_URL = "http://192.168.16.100:5091/api/";
 
     private static Retrofit retrofitInstance;
-
-    private RetrofitClient() {
-        // private constructor để tránh tạo instance ngoài class này
-    }
+    private static Gson gsonInstance;
 
     public static Retrofit getInstance() {
         if (retrofitInstance == null) {
             Gson gson = new GsonBuilder()
-                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss") // Hoặc format mà server trả về
+                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
                     .create();
 
+            String baseUrl = getBaseUrl();
+
             retrofitInstance = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(baseUrl)
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
         }
         return retrofitInstance;
+    }
+
+    private static String getBaseUrl() {
+        // Thử detect emulator type hoặc cho phép config
+        String emulator = android.os.Build.PRODUCT;
+        if (emulator.contains("sdk") || emulator.contains("Andy")) {
+            return ANDROID_STUDIO_BASE_URL;
+        }
+        return REAL_IP_BASE_URL;
+    }
+
+    public static Gson getGson() {
+        if (gsonInstance == null) {
+            gsonInstance = new GsonBuilder()
+                    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                    .create();
+        }
+        return gsonInstance;
     }
 }
