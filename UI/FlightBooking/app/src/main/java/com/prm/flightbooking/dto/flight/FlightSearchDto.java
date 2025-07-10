@@ -5,19 +5,19 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Date;
 
 public class FlightSearchDto {
-    @SerializedName("DepartureAirportCode")
+    @SerializedName("departureAirportCode")
     private String departureAirportCode;
 
-    @SerializedName("ArrivalAirportCode")
+    @SerializedName("arrivalAirportCode")
     private String arrivalAirportCode;
 
-    @SerializedName("DepartureDate")
+    @SerializedName("departureDate")
     private Date departureDate;
 
-    @SerializedName("Passengers")
+    @SerializedName("passengers")
     private Integer passengers = 1;
 
-    @SerializedName("SeatClass")
+    @SerializedName("seatClass")
     private String seatClass;
 
     public FlightSearchDto() {

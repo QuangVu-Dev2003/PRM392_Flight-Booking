@@ -1,4 +1,6 @@
-package com.example.prm_pe;
+package com.prm.flightbooking;
 
-public class MainActivity2 {
+import androidx.appcompat.app.AppCompatActivity;
+
+public class TripActivity extends AppCompatActivity {
 }

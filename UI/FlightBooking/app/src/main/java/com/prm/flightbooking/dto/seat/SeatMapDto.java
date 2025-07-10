@@ -5,19 +5,19 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class SeatMapDto {
-    @SerializedName("FlightId")
+    @SerializedName("flightId")
     private int flightId;
 
-    @SerializedName("FlightNumber")
+    @SerializedName("flightNumber")
     private String flightNumber;
 
-    @SerializedName("AircraftModel")
+    @SerializedName("aircraftModel")
     private String aircraftModel;
 
-    @SerializedName("SeatMapLayout")
+    @SerializedName("seatMapLayout")
     private String seatMapLayout;
 
-    @SerializedName("Seats")
+    @SerializedName("seats")
     private List<SeatDto> seats;
 
     public SeatMapDto() {

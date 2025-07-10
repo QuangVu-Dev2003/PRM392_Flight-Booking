@@ -7,43 +7,43 @@ import java.util.Date;
 import java.util.List;
 
 public class AdminBookingResponseDto {
-    @SerializedName("BookingId")
+    @SerializedName("bookingId")
     private int bookingId;
 
-    @SerializedName("BookingReference")
+    @SerializedName("bookingReference")
     private String bookingReference;
 
-    @SerializedName("UserName")
+    @SerializedName("userName")
     private String userName;
 
-    @SerializedName("UserEmail")
+    @SerializedName("userEmail")
     private String userEmail;
 
-    @SerializedName("FlightNumber")
+    @SerializedName("flightNumber")
     private String flightNumber;
 
-    @SerializedName("Route")
+    @SerializedName("route")
     private String route;
 
-    @SerializedName("FlightDate")
+    @SerializedName("flightDate")
     private Date flightDate;
 
-    @SerializedName("BookingStatus")
+    @SerializedName("bookingStatus")
     private String bookingStatus;
 
-    @SerializedName("PaymentStatus")
+    @SerializedName("paymentStatus")
     private String paymentStatus;
 
-    @SerializedName("TotalAmount")
+    @SerializedName("totalAmount")
     private BigDecimal totalAmount;
 
-    @SerializedName("BookingDate")
+    @SerializedName("bookingDate")
     private Date bookingDate;
 
-    @SerializedName("PassengerCount")
+    @SerializedName("passengerCount")
     private int passengerCount;
 
-    @SerializedName("Seats")
+    @SerializedName("seats")
     private List<AdminBookingSeatDto> seats;
 
     public AdminBookingResponseDto() {

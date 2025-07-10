@@ -27,7 +27,7 @@
             android:layout_height="48dp"
             android:background="@drawable/btn_back_white_circle"
             android:src="@drawable/ic_arrow_back"
-            android:contentDescription="Back"
+            android:contentDescription="Quay lại"
             android:minWidth="48dp"
             android:minHeight="48dp"
             android:padding="12dp"
@@ -38,8 +38,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Edit Profile"
-            android:textColor="#FFFFFF"
+            android:text="Chỉnh sửa hồ sơ"
+            android:color="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold"
             android:gravity="center"
@@ -50,7 +50,7 @@
             android:id="@+id/btn_save"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:text="SAVE"
+            android:text="LƯU"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -61,7 +61,7 @@
 
     </LinearLayout>
 
-    <!-- ScrollView cho nội dung -->
+    <!-- ScrollView for content -->
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="0dp"
@@ -98,7 +98,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📸 Profile Photo"
+                        android:text="📸 Ảnh đại diện"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="#1A1A1A"
@@ -125,43 +125,7 @@
                             android:layout_height="match_parent"
                             android:background="#40000000" />
 
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@drawable/ic_camera"
-                            android:layout_gravity="center" />
-
                     </androidx.cardview.widget.CardView>
-
-                    <!-- Change Photo Buttons -->
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/btn_take_photo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="50dp"
-                            android:text="Camera"
-                            android:textColor="@color/travel_orange"
-                            android:background="@drawable/btn_outline_orange"
-                            android:paddingHorizontal="16dp"
-                            android:layout_marginEnd="8dp"
-                            style="?android:attr/borderlessButtonStyle" />
-
-                        <Button
-                            android:id="@+id/btn_choose_photo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="50dp"
-                            android:text="Gallery"
-                            android:textColor="@color/travel_orange"
-                            android:background="@drawable/btn_outline_orange"
-                            android:paddingHorizontal="16dp"
-                            android:layout_marginStart="8dp"
-                            style="?android:attr/borderlessButtonStyle" />
-
-                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -184,7 +148,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="👤 Personal Information"
+                        android:text="👤 Thông tin cá nhân"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="#1A1A1A"
@@ -210,7 +174,7 @@
                             android:id="@+id/et_first_name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="First Name"
+                            android:hint="Họ"
                             android:inputType="textPersonName"
                             android:textSize="16sp"
                             android:textColor="#1A1A1A"
@@ -240,7 +204,7 @@
                             android:id="@+id/et_last_name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Last Name"
+                            android:hint="Tên (Thêm tên đệm nếu muốn)"
                             android:inputType="textPersonName"
                             android:textSize="16sp"
                             android:textColor="#1A1A1A"
@@ -270,13 +234,14 @@
                             android:id="@+id/et_email"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Email Address"
+                            android:hint="Địa chỉ email"
                             android:inputType="textEmailAddress"
                             android:textSize="16sp"
                             android:textColor="#1A1A1A"
                             android:drawableStart="@drawable/ic_email_travel"
                             android:drawablePadding="12dp"
-                            android:padding="16dp" />
+                            android:padding="16dp"
+                            android:enabled="false" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -300,7 +265,7 @@
                             android:id="@+id/et_phone"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Phone Number"
+                            android:hint="Số điện thoại"
                             android:inputType="phone"
                             android:textSize="16sp"
                             android:textColor="#1A1A1A"
@@ -314,7 +279,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Date of Birth"
+                        android:text="Ngày sinh"
                         android:textSize="14sp"
                         android:textColor="#666666"
                         android:layout_marginBottom="8dp" />
@@ -341,7 +306,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Select date of birth"
+                            android:text="Chọn ngày sinh"
                             android:textSize="16sp"
                             android:textColor="#999999" />
 
@@ -351,6 +316,23 @@
                             android:src="@drawable/ic_arrow_drop_down" />
 
                     </LinearLayout>
+
+                    <!-- Gender -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Giới tính"
+                        android:textSize="14sp"
+                        android:textColor="#666666"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <Spinner
+                        android:id="@+id/spinner_gender"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/input_field_bg"
+                        android:padding="16dp" />
 
                 </LinearLayout>
 
@@ -373,72 +355,11 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="✈️ Travel Preferences"
+                        android:text="✈️ Notification Preferences"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="#1A1A1A"
                         android:layout_marginBottom="20dp" />
-
-                    <!-- Preferred Class -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Preferred Class"
-                        android:textSize="14sp"
-                        android:textColor="#666666"
-                        android:layout_marginBottom="8dp" />
-
-                    <Spinner
-                        android:id="@+id/spinner_preferred_class"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="@drawable/spinner_bg"
-                        android:layout_marginBottom="16dp"
-                        android:padding="16dp" />
-
-                    <!-- Seat Preference -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Seat Preference"
-                        android:textSize="14sp"
-                        android:textColor="#666666"
-                        android:layout_marginBottom="8dp" />
-
-                    <Spinner
-                        android:id="@+id/spinner_seat_preference"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="@drawable/spinner_bg"
-                        android:layout_marginBottom="16dp"
-                        android:padding="16dp" />
-
-                    <!-- Dietary Requirements -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Dietary Requirements"
-                        android:textSize="14sp"
-                        android:textColor="#666666"
-                        android:layout_marginBottom="8dp" />
-
-                    <Spinner
-                        android:id="@+id/spinner_dietary"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:background="@drawable/spinner_bg"
-                        android:layout_marginBottom="20dp"
-                        android:padding="16dp" />
-
-                    <!-- Notification Preferences -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Notification Preferences"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#1A1A1A"
-                        android:layout_marginBottom="12dp" />
 
                     <!-- Email Notifications -->
                     <LinearLayout
@@ -466,7 +387,7 @@
                             android:id="@+id/switch_email_notifications"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:checked="true"
+                            android:checked="false"
                             android:minWidth="48dp"
                             android:minHeight="48dp"
                             android:paddingStart="12dp"
@@ -502,7 +423,7 @@
                             android:id="@+id/switch_push_notifications"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:checked="true"
+                            android:checked="false"
                             android:minWidth="48dp"
                             android:minHeight="48dp"
                             android:paddingStart="12dp"
@@ -534,9 +455,10 @@
                             android:textColor="#1A1A1A" />
 
                         <Switch
+                            android:id="@+id/switch_sms_notifications"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:checked="true"
+                            android:checked="false"
                             android:minWidth="48dp"
                             android:minHeight="48dp"
                             android:paddingStart="12dp"

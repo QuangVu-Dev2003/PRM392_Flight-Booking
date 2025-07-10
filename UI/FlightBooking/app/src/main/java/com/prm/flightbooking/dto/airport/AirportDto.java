@@ -7,37 +7,37 @@ import java.util.Date;
 import java.util.List;
 
 public class AirportDto {
-    @SerializedName("AirportId")
+    @SerializedName("airportId")
     private int airportId;
 
-    @SerializedName("AirportCode")
+    @SerializedName("airportCode")
     private String airportCode;
 
-    @SerializedName("AirportName")
+    @SerializedName("airportName")
     private String airportName;
 
-    @SerializedName("City")
+    @SerializedName("city")
     private String city;
 
-    @SerializedName("Country")
+    @SerializedName("country")
     private String country;
 
-    @SerializedName("Timezone")
+    @SerializedName("timezone")
     private String timezone;
 
-    @SerializedName("CreatedAt")
+    @SerializedName("createdAt")
     private Date createdAt;
 
-    @SerializedName("DepartureFlights")
+    @SerializedName("departureFlights")
     private List<FlightSummaryDto> departureFlights;
 
-    @SerializedName("ArrivalFlights")
+    @SerializedName("arrivalFlights")
     private List<FlightSummaryDto> arrivalFlights;
 
-    @SerializedName("TotalDepartureFlights")
+    @SerializedName("totalDepartureFlights")
     private int totalDepartureFlights;
 
-    @SerializedName("TotalArrivalFlights")
+    @SerializedName("totalArrivalFlights")
     private int totalArrivalFlights;
 
     public AirportDto() {

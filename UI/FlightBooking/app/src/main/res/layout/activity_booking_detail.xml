@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -29,13 +28,13 @@
                 android:id="@+id/booking_header"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:background="@drawable/booking_header_bg">
+                android:background="#2196F3">
 
                 <!-- Header overlay -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/header_overlay_gradient" />
+                    android:background="@drawable/header_overlay_gradient"/>
 
                 <!-- Navigation -->
                 <LinearLayout
@@ -51,12 +50,12 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:background="@drawable/btn_back_white_circle"
-                        android:src="@drawable/ic_arrow_back"
+                        android:src="@android:drawable/ic_menu_revert"
                         android:contentDescription="Back"
                         android:minWidth="48dp"
                         android:minHeight="48dp"
                         android:padding="12dp"
-                        android:scaleType="centerInside" />
+                        android:scaleType="centerInside"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -67,19 +66,19 @@
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:gravity="center"
-                        android:layout_marginHorizontal="16dp" />
+                        android:layout_marginHorizontal="16dp"/>
 
                     <ImageButton
                         android:id="@+id/btn_download"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:background="@drawable/btn_back_white_circle"
-                        android:src="@drawable/ic_download"
+                        android:src="@android:drawable/stat_sys_download"
                         android:contentDescription="Download Ticket"
                         android:minWidth="48dp"
                         android:minHeight="48dp"
                         android:padding="12dp"
-                        android:scaleType="centerInside" />
+                        android:scaleType="centerInside"/>
 
                 </LinearLayout>
 
@@ -93,7 +92,7 @@
                     android:layout_marginTop="20dp">
 
                     <TextView
-                        android:id="@+id/tv_booking_status"
+                        android:id="@+id/tv_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="✅ Confirmed"
@@ -102,19 +101,18 @@
                         android:textStyle="bold"
                         android:background="@drawable/status_confirmed_bg"
                         android:padding="12dp"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="8dp"/>
 
                     <TextView
-                        android:id="@+id/tv_booking_code"
+                        android:id="@+id/tv_booking_reference"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Booking Code: FL123456"
                         android:textColor="#FFFFFF"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"/>
 
                 </LinearLayout>
-
             </RelativeLayout>
 
             <!-- Flight Information Card -->
@@ -140,7 +138,7 @@
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="#1A1A1A"
-                        android:layout_marginBottom="16dp" />
+                        android:layout_marginBottom="16dp"/>
 
                     <!-- Flight Route -->
                     <LinearLayout
@@ -159,21 +157,20 @@
                             android:gravity="center">
 
                             <TextView
-                                android:id="@+id/tv_departure_code"
+                                android:id="@+id/tv_departure_airport"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="NYC"
                                 android:textSize="24sp"
                                 android:textStyle="bold"
-                                android:textColor="#1A1A1A" />
+                                android:textColor="#1A1A1A"/>
 
                             <TextView
-                                android:id="@+id/tv_departure_city"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="New York"
                                 android:textSize="12sp"
-                                android:textColor="#666666" />
+                                android:textColor="#666666"/>
 
                             <TextView
                                 android:id="@+id/tv_departure_time"
@@ -183,15 +180,15 @@
                                 android:textSize="18sp"
                                 android:textStyle="bold"
                                 android:textColor="#2196F3"
-                                android:layout_marginTop="4dp" />
+                                android:layout_marginTop="4dp"/>
 
                             <TextView
-                                android:id="@+id/tv_departure_date"
+                                android:id="@+id/tv_booking_date"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Aug 29, 2024"
                                 android:textSize="11sp"
-                                android:textColor="#666666" />
+                                android:textColor="#666666"/>
 
                         </LinearLayout>
 
@@ -206,16 +203,15 @@
                             <ImageView
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:src="@drawable/ic_flight_path"
-                                android:layout_marginBottom="4dp" />
+                                android:src="@android:drawable/ic_menu_directions"
+                                android:layout_marginBottom="4dp"/>
 
                             <TextView
-                                android:id="@+id/tv_flight_duration"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="2h 45m"
                                 android:textSize="12sp"
-                                android:textColor="#666666" />
+                                android:textColor="#666666"/>
 
                             <TextView
                                 android:id="@+id/tv_flight_number"
@@ -223,7 +219,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="DELTA 1234"
                                 android:textSize="10sp"
-                                android:textColor="#999999" />
+                                android:textColor="#999999"/>
 
                         </LinearLayout>
 
@@ -236,21 +232,20 @@
                             android:gravity="center">
 
                             <TextView
-                                android:id="@+id/tv_arrival_code"
+                                android:id="@+id/tv_arrival_airport"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="LAX"
                                 android:textSize="24sp"
                                 android:textStyle="bold"
-                                android:textColor="#1A1A1A" />
+                                android:textColor="#1A1A1A"/>
 
                             <TextView
-                                android:id="@+id/tv_arrival_city"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Los Angeles"
                                 android:textSize="12sp"
-                                android:textColor="#666666" />
+                                android:textColor="#666666"/>
 
                             <TextView
                                 android:id="@+id/tv_arrival_time"
@@ -260,18 +255,16 @@
                                 android:textSize="18sp"
                                 android:textStyle="bold"
                                 android:textColor="#2196F3"
-                                android:layout_marginTop="4dp" />
+                                android:layout_marginTop="4dp"/>
 
                             <TextView
-                                android:id="@+id/tv_arrival_date"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Aug 29, 2024"
                                 android:textSize="11sp"
-                                android:textColor="#666666" />
+                                android:textColor="#666666"/>
 
                         </LinearLayout>
-
                     </LinearLayout>
 
                     <!-- Flight Details -->
@@ -284,24 +277,34 @@
                         android:layout_marginTop="8dp">
 
                         <TextView
+                            android:id="@+id/tv_aircraft_model"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Aircraft: Boeing 737"
                             android:textSize="12sp"
-                            android:textColor="#666666" />
+                            android:textColor="#666666"/>
 
                         <TextView
+                            android:id="@+id/tv_gate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Terminal: 2"
+                            android:text="Gate: 2"
                             android:textSize="12sp"
-                            android:textColor="#666666" />
+                            android:textColor="#666666"/>
 
                     </LinearLayout>
 
-                </LinearLayout>
+                    <TextView
+                        android:id="@+id/tv_airline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Airline: Delta"
+                        android:textSize="12sp"
+                        android:textColor="#666666"
+                        android:layout_marginTop="8dp"/>
 
+                </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <!-- Passenger Information -->
@@ -326,62 +329,16 @@
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="#1A1A1A"
-                        android:layout_marginBottom="16dp" />
+                        android:layout_marginBottom="16dp"/>
 
-                    <!-- Passenger Item -->
                     <LinearLayout
+                        android:id="@+id/passenger_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="12dp"
-                        android:background="@drawable/passenger_item_bg"
-                        android:layout_marginBottom="8dp">
-
-                        <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@drawable/default_avatar"
-                            android:background="@drawable/avatar_small_bg"
-                            android:layout_marginEnd="12dp" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/tv_passenger_name"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="John Doe"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                android:textColor="#1A1A1A" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Adult • Seat: 12A"
-                                android:textSize="12sp"
-                                android:textColor="#666666" />
-
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Business Class"
-                            android:textSize="12sp"
-                            android:textColor="#FF9800"
-                            android:textStyle="bold"
-                            android:background="@drawable/class_badge_bg"
-                            android:padding="4dp" />
-
-                    </LinearLayout>
+                        android:orientation="vertical"
+                        android:layout_marginBottom="8dp"/>
 
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
             <!-- Booking Summary -->
@@ -406,9 +363,8 @@
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="#1A1A1A"
-                        android:layout_marginBottom="16dp" />
+                        android:layout_marginBottom="16dp"/>
 
-                    <!-- Price Items -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -421,14 +377,14 @@
                             android:layout_weight="1"
                             android:text="Base Fare (1 Adult)"
                             android:textSize="14sp"
-                            android:textColor="#666666" />
+                            android:textColor="#666666"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="$580.00"
                             android:textSize="14sp"
-                            android:textColor="#1A1A1A" />
+                            android:textColor="#1A1A1A"/>
 
                     </LinearLayout>
 
@@ -444,14 +400,14 @@
                             android:layout_weight="1"
                             android:text="Taxes Fees"
                             android:textSize="14sp"
-                            android:textColor="#666666" />
+                            android:textColor="#666666"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="$82.40"
                             android:textSize="14sp"
-                            android:textColor="#1A1A1A" />
+                            android:textColor="#1A1A1A"/>
 
                     </LinearLayout>
 
@@ -467,14 +423,14 @@
                             android:layout_weight="1"
                             android:text="Seat Selection"
                             android:textSize="14sp"
-                            android:textColor="#666666" />
+                            android:textColor="#666666"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="$20.00"
                             android:textSize="14sp"
-                            android:textColor="#1A1A1A" />
+                            android:textColor="#1A1A1A"/>
 
                     </LinearLayout>
 
@@ -482,7 +438,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:background="#E0E0E0"
-                        android:layout_marginVertical="12dp" />
+                        android:layout_marginVertical="12dp"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -496,117 +452,50 @@
                             android:text="Total Amount"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="#1A1A1A" />
+                            android:textColor="#1A1A1A"/>
 
                         <TextView
-                            android:id="@+id/tv_total_amount"
+                            android:id="@+id/tv_price"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="$682.40"
                             android:textSize="20sp"
                             android:textStyle="bold"
-                            android:textColor="#2196F3" />
+                            android:textColor="#2196F3"/>
 
                     </LinearLayout>
 
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- QR Code & Barcode -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginBottom="20dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp"
-                    android:gravity="center">
-
                     <TextView
+                        android:id="@+id/tv_payment_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📱 Boarding Pass"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="#1A1A1A"
-                        android:layout_marginBottom="16dp" />
-
-                    <!-- QR Code -->
-                    <ImageView
-                        android:id="@+id/iv_qr_code"
-                        android:layout_width="120dp"
-                        android:layout_height="120dp"
-                        android:src="@drawable/sample_qr_code"
-                        android:background="@drawable/qr_code_bg"
-                        android:padding="8dp"
-                        android:layout_marginBottom="12dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Show this QR code at the gate for boarding"
-                        android:textSize="12sp"
+                        android:text="Payment Status"
+                        android:textSize="14sp"
                         android:textColor="#666666"
-                        android:gravity="center"
-                        android:layout_marginBottom="16dp" />
+                        android:layout_marginTop="8dp"/>
 
-                    <!-- Barcode -->
-                    <ImageView
-                        android:id="@+id/iv_barcode"
-                        android:layout_width="200dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/sample_barcode"
-                        android:scaleType="fitCenter" />
+                    <TextView
+                        android:id="@+id/tv_notes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Notes"
+                        android:textSize="14sp"
+                        android:textColor="#666666"
+                        android:layout_marginTop="8dp"/>
 
                 </LinearLayout>
-
             </androidx.cardview.widget.CardView>
 
-            <!-- Action Buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <!-- ProgressBar (hidden by default, placed at the end to overlay if needed) -->
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginBottom="40dp">
-
-                <!-- Check-in Button -->
-                <Button
-                    android:id="@+id/btn_check_in"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:text="CHECK-IN"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:background="@drawable/btn_primary_gradient"
-                    android:layout_marginEnd="8dp" />
-
-                <!-- Manage Booking Button -->
-                <Button
-                    android:id="@+id/btn_manage"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:text="MANAGE"
-                    android:textColor="@color/travel_orange"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:background="@drawable/btn_outline_orange"
-                    android:layout_marginStart="8dp" />
-
-            </LinearLayout>
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp"/>
 
         </LinearLayout>
-
     </ScrollView>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

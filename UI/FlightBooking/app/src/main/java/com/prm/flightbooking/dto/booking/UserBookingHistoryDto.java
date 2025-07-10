@@ -6,43 +6,43 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class UserBookingHistoryDto {
-    @SerializedName("BookingId")
+    @SerializedName("bookingId")
     private int bookingId;
 
-    @SerializedName("BookingReference")
+    @SerializedName("bookingReference")
     private String bookingReference;
 
-    @SerializedName("FlightNumber")
+    @SerializedName("flightNumber")
     private String flightNumber;
 
-    @SerializedName("AirlineName")
+    @SerializedName("airlineName")
     private String airlineName;
 
-    @SerializedName("Route")
+    @SerializedName("route")
     private String route;
 
-    @SerializedName("DepartureTime")
+    @SerializedName("departureTime")
     private Date departureTime;
 
-    @SerializedName("ArrivalTime")
+    @SerializedName("arrivalTime")
     private Date arrivalTime;
 
-    @SerializedName("BookingStatus")
+    @SerializedName("bookingStatus")
     private String bookingStatus;
 
-    @SerializedName("PaymentStatus")
+    @SerializedName("paymentStatus")
     private String paymentStatus;
 
-    @SerializedName("TotalAmount")
+    @SerializedName("totalAmount")
     private BigDecimal totalAmount;
 
-    @SerializedName("BookingDate")
+    @SerializedName("bookingDate")
     private Date bookingDate;
 
-    @SerializedName("PassengerCount")
+    @SerializedName("passengerCount")
     private int passengerCount;
 
-    @SerializedName("CanCancel")
+    @SerializedName("canCancel")
     private boolean canCancel;
 
     public UserBookingHistoryDto() {

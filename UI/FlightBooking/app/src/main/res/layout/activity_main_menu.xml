@@ -119,7 +119,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="✈️ Summer Deals!"
+                    android:text="✈️ Khuyến mại mùa hè!"
                     android:textColor="#FFFFFF"
                     android:textStyle="bold"
                     android:textSize="20sp"
@@ -128,7 +128,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Up to 30% off for all flights\nthis summer. Book now!"
+                    android:text="Giảm giá tới 30% cho tất cả các chuyến bay \ntrong mùa hè này. Đặt vé ngay!"
                     android:textColor="#FFEB3B"
                     android:textSize="13sp"
                     android:layout_marginBottom="10dp" />
@@ -137,7 +137,7 @@
                     android:id="@+id/btn_banner_book"
                     android:layout_width="wrap_content"
                     android:layout_height="48dp"
-                    android:text="Book Now"
+                    android:text="Đặt vé ngay"
                     android:textColor="#1976D2"
                     android:background="@drawable/btn_banner_white"
                     android:textStyle="bold"
@@ -195,7 +195,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Book Flight"
+                        android:text="Đặt chuyến bay"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:textColor="#1976D2" />
@@ -282,7 +282,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Profile"
+                        android:text="Hồ sơ"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:textColor="#1976D2" />

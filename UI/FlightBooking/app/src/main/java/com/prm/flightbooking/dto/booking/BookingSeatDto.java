@@ -3,13 +3,13 @@ package com.prm.flightbooking.dto.booking;
 import com.google.gson.annotations.SerializedName;
 
 public class BookingSeatDto {
-    @SerializedName("SeatId")
+    @SerializedName("seatId")
     private int seatId;
 
-    @SerializedName("PassengerName")
+    @SerializedName("passengerName")
     private String passengerName;
 
-    @SerializedName("PassengerIdNumber")
+    @SerializedName("passengerIdNumber")
     private String passengerIdNumber;
 
     public BookingSeatDto() {

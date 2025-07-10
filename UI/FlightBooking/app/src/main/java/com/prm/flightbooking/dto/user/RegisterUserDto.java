@@ -3,25 +3,25 @@ package com.prm.flightbooking.dto.user;
 import com.google.gson.annotations.SerializedName;
 
 public class RegisterUserDto {
-    @SerializedName("Username")
+    @SerializedName("username")
     private String username;
 
-    @SerializedName("Email")
+    @SerializedName("email")
     private String email;
 
-    @SerializedName("Password")
+    @SerializedName("password")
     private String password;
 
-    @SerializedName("FullName")
+    @SerializedName("fullName")
     private String fullName;
 
-    @SerializedName("Phone")
+    @SerializedName("phone")
     private String phone;
 
-    @SerializedName("DateOfBirth")
+    @SerializedName("dateOfBirth")
     private String dateOfBirth; // dùng String định dạng "yyyy-MM-dd"
 
-    @SerializedName("Gender")
+    @SerializedName("gender")
     private String gender;
 
     public RegisterUserDto() {

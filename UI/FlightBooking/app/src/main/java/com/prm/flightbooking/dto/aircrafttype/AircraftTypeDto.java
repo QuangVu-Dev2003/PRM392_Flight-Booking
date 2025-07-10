@@ -5,31 +5,31 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class AircraftTypeDto {
-    @SerializedName("AircraftTypeId")
+    @SerializedName("aircraftTypeId")
     private int aircraftTypeId;
 
-    @SerializedName("AircraftModel")
+    @SerializedName("aircraftModel")
     private String aircraftModel;
 
-    @SerializedName("Manufacturer")
+    @SerializedName("manufacturer")
     private String manufacturer;
 
-    @SerializedName("TotalSeats")
+    @SerializedName("totalSeats")
     private int totalSeats;
 
-    @SerializedName("EconomySeats")
+    @SerializedName("economySeats")
     private int economySeats;
 
-    @SerializedName("BusinessSeats")
+    @SerializedName("businessSeats")
     private int businessSeats;
 
-    @SerializedName("FirstClassSeats")
+    @SerializedName("firstClassSeats")
     private int firstClassSeats;
 
-    @SerializedName("SeatMapLayout")
+    @SerializedName("seatMapLayout")
     private String seatMapLayout;
 
-    @SerializedName("Flights")
+    @SerializedName("flights")
     private List<FlightSummaryDto> flights;
 
     public AircraftTypeDto() {

@@ -3,7 +3,7 @@ package com.prm.flightbooking.dto.user;
 import com.google.gson.annotations.SerializedName;
 
 public class UpdateUserStatusDto {
-    @SerializedName("IsActive")
+    @SerializedName("isActive")
     private boolean isActive;
 
     public UpdateUserStatusDto() {

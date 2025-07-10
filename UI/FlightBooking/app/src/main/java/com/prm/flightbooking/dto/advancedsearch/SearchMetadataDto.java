@@ -3,25 +3,28 @@ package com.prm.flightbooking.dto.advancedsearch;
 import com.google.gson.annotations.SerializedName;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SearchMetadataDto {
-    @SerializedName("TotalResults")
+    @SerializedName("totalResults")
     private int totalResults;
 
-    @SerializedName("MinPrice")
+    @SerializedName("minPrice")
     private BigDecimal minPrice;
 
-    @SerializedName("MaxPrice")
+    @SerializedName("maxPrice")
     private BigDecimal maxPrice;
 
-    @SerializedName("AvailableAirlines")
+    @SerializedName("availableAirlines")
     private List<String> availableAirlines;
 
-    @SerializedName("DepartureTimeSlots")
+    @SerializedName("departureTimeSlots")
     private List<TimeSlotDto> departureTimeSlots;
 
     public SearchMetadataDto() {
+        availableAirlines = new ArrayList<>();
+        departureTimeSlots = new ArrayList<>();
     }
 
     public SearchMetadataDto(int totalResults, BigDecimal minPrice, BigDecimal maxPrice, List<String> availableAirlines, List<TimeSlotDto> departureTimeSlots) {
@@ -61,7 +64,7 @@ public class SearchMetadataDto {
     }
 
     public void setAvailableAirlines(List<String> availableAirlines) {
-        this.availableAirlines = availableAirlines;
+        this.availableAirlines = availableAirlines != null ? availableAirlines : new ArrayList<>();
     }
 
     public List<TimeSlotDto> getDepartureTimeSlots() {
@@ -69,6 +72,6 @@ public class SearchMetadataDto {
     }
 
     public void setDepartureTimeSlots(List<TimeSlotDto> departureTimeSlots) {
-        this.departureTimeSlots = departureTimeSlots;
+        this.departureTimeSlots = departureTimeSlots != null ? departureTimeSlots : new ArrayList<>();
     }
 }

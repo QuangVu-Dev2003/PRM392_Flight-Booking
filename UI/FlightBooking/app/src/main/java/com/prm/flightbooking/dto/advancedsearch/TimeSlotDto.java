@@ -3,16 +3,16 @@ package com.prm.flightbooking.dto.advancedsearch;
 import com.google.gson.annotations.SerializedName;
 
 public class TimeSlotDto {
-    @SerializedName("Label")
+    @SerializedName("label")
     private String label;
 
-    @SerializedName("From")
-    private String from; // dùng String định dạng "HH:mm:ss"
+    @SerializedName("from")
+    private String from;
 
-    @SerializedName("To")
-    private String to; // dùng String định dạng "HH:mm:ss"
+    @SerializedName("to")
+    private String to;
 
-    @SerializedName("FlightCount")
+    @SerializedName("flightCount")
     private int flightCount;
 
     public TimeSlotDto() {

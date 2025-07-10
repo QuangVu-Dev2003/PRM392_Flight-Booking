@@ -2,19 +2,21 @@ package com.prm.flightbooking.dto.advancedsearch;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PriceTrendDto {
-    @SerializedName("Route")
+    @SerializedName("route")
     private String route;
 
-    @SerializedName("PriceHistory")
+    @SerializedName("priceHistory")
     private List<PricePointDto> priceHistory;
 
-    @SerializedName("Recommendation")
+    @SerializedName("recommendation")
     private String recommendation;
 
     public PriceTrendDto() {
+        priceHistory = new ArrayList<>();
     }
 
     public PriceTrendDto(String route, List<PricePointDto> priceHistory, String recommendation) {

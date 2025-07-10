@@ -3,13 +3,13 @@ package com.prm.flightbooking.dto.airline;
 import com.google.gson.annotations.SerializedName;
 
 public class CreateAirlineDto {
-    @SerializedName("AirlineCode")
+    @SerializedName("airlineCode")
     private String airlineCode;
 
-    @SerializedName("AirlineName")
+    @SerializedName("airlineName")
     private String airlineName;
 
-    @SerializedName("LogoUrl")
+    @SerializedName("logoUrl")
     private String logoUrl;
 
     public CreateAirlineDto() {

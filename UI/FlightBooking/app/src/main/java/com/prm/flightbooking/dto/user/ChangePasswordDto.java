@@ -3,10 +3,10 @@ package com.prm.flightbooking.dto.user;
 import com.google.gson.annotations.SerializedName;
 
 public class ChangePasswordDto {
-    @SerializedName("CurrentPassword")
+    @SerializedName("currentPassword")
     private String currentPassword;
 
-    @SerializedName("NewPassword")
+    @SerializedName("newPassword")
     private String newPassword;
 
     public ChangePasswordDto() {

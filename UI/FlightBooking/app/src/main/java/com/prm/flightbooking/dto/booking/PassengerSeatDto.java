@@ -5,22 +5,22 @@ import com.google.gson.annotations.SerializedName;
 import java.math.BigDecimal;
 
 public class PassengerSeatDto {
-    @SerializedName("SeatNumber")
+    @SerializedName("seatNumber")
     private String seatNumber;
 
-    @SerializedName("SeatClass")
+    @SerializedName("seatClass")
     private String seatClass;
 
-    @SerializedName("PassengerName")
+    @SerializedName("passengerName")
     private String passengerName;
 
-    @SerializedName("SeatPrice")
+    @SerializedName("seatPrice")
     private BigDecimal seatPrice;
 
-    @SerializedName("IsWindow")
+    @SerializedName("isWindow")
     private boolean isWindow;
 
-    @SerializedName("IsAisle")
+    @SerializedName("isAisle")
     private boolean isAisle;
 
     public PassengerSeatDto() {
