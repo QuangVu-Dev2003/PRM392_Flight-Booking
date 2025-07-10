@@ -1,16 +1,19 @@
 ﻿using FlightBooking.DTOs.User;
 using FlightBooking.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace FlightBooking.Services
 {
     public class UserService : IUserService
     {
         private readonly FlightBookingContext _context;
+        private readonly IEmailService _emailService;
 
-        public UserService(FlightBookingContext context)
+        public UserService(FlightBookingContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<UserProfileDto> RegisterAsync(RegisterUserDto registerDto)
@@ -60,6 +63,9 @@ namespace FlightBooking.Services
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password))
                 throw new UnauthorizedAccessException("Invalid username or password");
+
+            if (!(user.IsActive ?? true))
+                throw new UnauthorizedAccessException("Account is deactivated");
 
             return new UserProfileDto
             {
@@ -245,7 +251,6 @@ namespace FlightBooking.Services
             return true;
         }
 
-
         public async Task<bool> DeleteAccountAsync(int userId, string password)
         {
             if (_context == null)
@@ -273,6 +278,80 @@ namespace FlightBooking.Services
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task SendPasswordResetOtpAsync(string email)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && (u.IsActive ?? true));
+            if (user == null)
+                throw new ArgumentException("Email không tồn tại hoặc tài khoản không hoạt động");
+
+            // Tạo mã OTP 6 chữ số ngẫu nhiên
+            var otpCode = GenerateOtpCode(6);
+
+            // Lưu OTP vào database với thời hạn 5 phút
+            var expiration = DateTime.Now.AddMinutes(5);
+
+            var resetToken = new PasswordResetToken
+            {
+                Email = email,
+                OtpCode = otpCode,
+                ExpirationTime = expiration,
+                IsUsed = false
+            };
+
+            _context.PasswordResetTokens.Add(resetToken);
+            await _context.SaveChangesAsync();
+
+            // Gửi email OTP
+            await _emailService.SendPasswordResetOtpEmailAsync(email, otpCode, user.FullName);
+        }
+
+        public async Task<bool> VerifyPasswordResetOtpAsync(string email, string otpCode)
+        {
+            var token = await _context.PasswordResetTokens
+                .Where(t => t.Email == email && t.OtpCode == otpCode && !t.IsUsed && t.ExpirationTime > DateTime.Now)
+                .OrderByDescending(t => t.ExpirationTime)
+                .FirstOrDefaultAsync();
+
+            return token != null;
+        }
+
+        public async Task<bool> ResetPasswordAsync(string email, string otpCode, string newPassword)
+        {
+            var token = await _context.PasswordResetTokens
+                .Where(t => t.Email == email && t.OtpCode == otpCode && !t.IsUsed && t.ExpirationTime > DateTime.Now)
+                .OrderByDescending(t => t.ExpirationTime)
+                .FirstOrDefaultAsync();
+
+            if (token == null)
+                throw new UnauthorizedAccessException("Mã xác thực không hợp lệ hoặc đã hết hạn");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && (u.IsActive ?? true));
+            if (user == null)
+                throw new ArgumentException("Người dùng không tồn tại");
+
+            user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.UpdatedAt = DateTime.Now;
+
+            token.IsUsed = true; // Đánh dấu OTP đã dùng
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        private string GenerateOtpCode(int length)
+        {
+            // Sinh mã OTP gồm chữ số ngẫu nhiên
+            using var rng = RandomNumberGenerator.Create();
+            var bytes = new byte[length];
+            rng.GetBytes(bytes);
+            var otp = new char[length];
+            for (int i = 0; i < length; i++)
+            {
+                otp[i] = (char)('0' + (bytes[i] % 10));
+            }
+            return new string(otp);
         }
     }
 }

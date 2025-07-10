@@ -22,4 +22,8 @@
     <color name="blue_100">#E3F2FD</color>
     <color name="red_100">#FFEBEE</color>
     <color name="grey_100">#F5F5F5</color>
+    <color name="weak_password">#FF5252</color>
+    <color name="medium_password">#FFCA28</color>
+    <color name="strong_password">#4CAF50</color>
+    <color name="grey">#999999</color>
 </resources>
