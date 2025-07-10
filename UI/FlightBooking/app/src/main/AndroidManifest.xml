@@ -10,17 +10,68 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PRM_PE"
+
+       
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".PayActivity"
             android:exported="true">
+
+        android:theme="@style/Theme.BookFlightTicket"
+        tools:targetApi="31">
+        <activity
+            android:name=".ConfirmBooking"
+            android:exported="false" />
+        <activity
+            android:name=".PassengerDetail"
+            android:exported="false" />
+        <activity
+            android:name=".BookingDetail"
+            android:exported="false" />
+        <activity
+            android:name=".BookingHistory"
+            android:exported="false" />
+        <activity
+            android:name=".EditProfile"
+            android:exported="false" />
+        <activity
+            android:name=".Main_Menu"
+            android:exported="false" />
+        <activity
+            android:name=".ForgotPassword"
+            android:exported="false" />
+        <activity
+            android:name=".Profile"
+            android:exported="false" />
+        <activity
+            android:name=".Signup"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ChooseSeatsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SearchFlightActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BookFlightTicket" />
+        <activity
+            android:name=".Login"
+            android:exported="true"
+            android:theme="@style/Theme.BookFlightTicket">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
+        <activity
+            android:name=".TripActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BookFlightTicket" />
+
     </application>
 
 </manifest>

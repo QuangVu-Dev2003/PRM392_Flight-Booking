@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Top dot -->
+    <circle
+        android:fillColor="#666666"
+        android:cx="12"
+        android:cy="6"
+        android:radius="2"/>
+    <!-- Middle dot -->
+    <circle
+        android:fillColor="#666666"
+        android:cx="12"
+        android:cy="12"
+        android:radius="2"/>
+    <!-- Bottom dot -->
+    <circle
+        android:fillColor="#666666"
+        android:cx="12"
+        android:cy="18"
+        android:radius="2"/>
+</vector>

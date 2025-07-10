@@ -1,0 +1,33 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="80dp"
+    android:height="40dp"
+    android:viewportWidth="80"
+    android:viewportHeight="40">
+
+    <!-- Background -->
+    <rect
+        android:fillColor="#304CB2"
+        android:width="80"
+        android:height="40"
+        android:rx="4"/>
+
+    <!-- Heart symbol (Southwest signature) -->
+    <path
+        android:fillColor="#F9A825"
+        android:pathData="M20,15 C18,13 15,13 13,15 C11,17 11,20 13,22 L20,29 L27,22 C29,20 29,17 27,15 C25,13 22,13 20,15 Z"/>
+
+    <!-- "SW" text -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M35,25 C35,23 36,22 38,22 C40,22 41,23 41,25 L35,25 Z M35,18 L35,20 L41,20 L41,18 L35,18 Z"/>
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M45,18 L45,29 L47,29 L47,25 L50,29 L52,29 L49,24 L52,18 L50,18 L47,23 L47,18 L45,18 Z"/>
+
+    <!-- Airlines text -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M58,25 L64,25 M58,20 L64,20 M58,18 L58,29 L60,29 L60,23 L62,23 L62,29 L64,29 L64,18 L58,18 Z"/>
+
+</vector>
