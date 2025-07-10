@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -10,11 +10,29 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.FlightBooking"
-        tools:targetApi="31"
-        android:networkSecurityConfig="@xml/network_security_config"
-        android:usesCleartextTraffic="true">
-
+        android:theme="@style/Theme.BookFlightTicket"
+        tools:targetApi="31">
+        <activity
+            android:name=".ConfirmBooking"
+            android:exported="false" />
+        <activity
+            android:name=".PassengerDetail"
+            android:exported="false" />
+        <activity
+            android:name=".BookingDetail"
+            android:exported="false" />
+        <activity
+            android:name=".BookingHistory"
+            android:exported="false" />
+        <activity
+            android:name=".EditProfile"
+            android:exported="false" />
+        <activity
+            android:name=".Main_Menu"
+            android:exported="false" />
+        <activity
+            android:name=".ForgotPassword"
+            android:exported="false" />
         <activity
             android:name=".Profile"
             android:exported="false" />
@@ -27,19 +45,22 @@
             android:exported="false" />
         <activity
             android:name=".SearchFlightActivity"
-            android:exported="false"/>
+            android:exported="false"
+            android:theme="@style/Theme.BookFlightTicket" />
         <activity
             android:name=".Login"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.BookFlightTicket">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="false"/>
+            android:exported="false"
+            android:theme="@style/Theme.BookFlightTicket" />
     </application>
-    <!--android:theme="@style/Theme.BookFlightTicket"-->
 
 </manifest>

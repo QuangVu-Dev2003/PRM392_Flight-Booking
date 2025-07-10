@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <!-- Header -->
+    <!-- Thay thế header background hiện tại -->
+    <RelativeLayout
+        android:id="@+id/header_choose_seats"
+        android:layout_width="0dp"
+        android:layout_height="240dp"
+        android:background="@drawable/travel_scene_bg"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+    <!-- Back Button -->
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/btn_back_circle"
+            android:src="@drawable/ic_arrow_back"
+            android:contentDescription="Back" />
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="45dp"
+            android:text="Choose seats"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- World map overlay -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/world_map_pattern"
+            android:scaleType="centerCrop"
+            android:alpha="0.3" />
+
+    </RelativeLayout>
+
+    <!-- Main Content -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/header_choose_seats"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_section">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Airplane Container -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/airplane_body_bg"
+                android:padding="24dp"
+                android:layout_marginBottom="20dp">
+
+                <!-- Airplane Nose -->
+                <View
+                    android:layout_width="80dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/airplane_nose"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="20dp" />
+
+                <!-- Business Class Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Business Class"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:textStyle="bold"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Business Class Seats -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal"
+                    android:layout_marginBottom="30dp">
+
+                    <!-- Row 1 Business -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView style="@style/SeatButtonBusiness" android:text="A1" />
+                        <TextView style="@style/SeatButtonBusiness.Selected" android:text="B1" android:layout_marginStart="8dp" />
+                        <TextView style="@style/SeatButtonBusiness.Selected" android:text="C1" android:layout_marginStart="8dp" />
+
+                        <Space android:layout_width="32dp" android:layout_height="1dp" />
+
+                        <TextView style="@style/SeatButtonBusiness.Unavailable" android:text="D1" android:layout_marginStart="8dp" />
+                        <TextView style="@style/SeatButtonBusiness" android:text="E1" android:layout_marginStart="8dp" />
+                        <TextView style="@style/SeatButtonBusiness" android:text="F1" android:layout_marginStart="8dp" />
+
+                    </LinearLayout>
+
+                    <!-- Row 2 Business -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView style="@style/SeatButtonBusiness" android:text="A2" />
+                        <TextView style="@style/SeatButtonBusiness" android:text="B2" android:layout_marginStart="8dp" />
+                        <TextView style="@style/SeatButtonBusiness.Unavailable" android:text="C2" android:layout_marginStart="8dp" />
+
+                        <Space android:layout_width="32dp" android:layout_height="1dp" />
+
+                        <TextView style="@style/SeatButtonBusiness" android:text="D2" android:layout_marginStart="8dp" />
+                        <TextView style="@style/SeatButtonBusiness" android:text="E2" android:layout_marginStart="8dp" />
+                        <TextView style="@style/SeatButtonBusiness" android:text="F2" android:layout_marginStart="8dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#E0E0E0"
+                    android:layout_marginVertical="16dp" />
+
+                <!-- Economy Class Section -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Economy Class"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:textStyle="bold"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Economy Class Seats -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+
+                    <!-- Row 3 -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="6dp">
+
+                        <TextView style="@style/SeatButtonEconomy" android:text="A3" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="B3" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy.Unavailable" android:text="C3" android:layout_marginStart="4dp" />
+                        <Space android:layout_width="20dp" android:layout_height="1dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="D3" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="E3" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="F3" android:layout_marginStart="4dp" />
+
+                    </LinearLayout>
+
+                    <!-- Row 4 -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="6dp">
+
+                        <TextView style="@style/SeatButtonEconomy" android:text="A4" />
+                        <TextView style="@style/SeatButtonEconomy.Unavailable" android:text="B4" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="C4" android:layout_marginStart="4dp" />
+                        <Space android:layout_width="20dp" android:layout_height="1dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="D4" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="E4" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="F4" android:layout_marginStart="4dp" />
+
+                    </LinearLayout>
+
+                    <!-- Row 5 -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="6dp">
+
+                        <TextView style="@style/SeatButtonEconomy" android:text="A5" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="B5" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="C5" android:layout_marginStart="4dp" />
+                        <Space android:layout_width="20dp" android:layout_height="1dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="D5" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="E5" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="F5" android:layout_marginStart="4dp" />
+
+                    </LinearLayout>
+
+                    <!-- Row 6 -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="6dp">
+
+                        <TextView style="@style/SeatButtonEconomy" android:text="A6" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="B6" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy.Selected" android:text="C6" android:layout_marginStart="4dp" />
+                        <Space android:layout_width="20dp" android:layout_height="1dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="D6" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy.Unavailable" android:text="E6" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="F6" android:layout_marginStart="4dp" />
+
+                    </LinearLayout>
+
+                    <!-- Row 7 -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="6dp">
+
+                        <TextView style="@style/SeatButtonEconomy.Unavailable" android:text="A7" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="B7" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy.Selected" android:text="C7" android:layout_marginStart="4dp" />
+                        <Space android:layout_width="20dp" android:layout_height="1dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="D7" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="E7" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="F7" android:layout_marginStart="4dp" />
+
+                    </LinearLayout>
+
+                    <!-- Row 8 -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="6dp">
+
+                        <TextView style="@style/SeatButtonEconomy" android:text="A8" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="B8" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="C8" android:layout_marginStart="4dp" />
+                        <Space android:layout_width="20dp" android:layout_height="1dp" />
+                        <TextView style="@style/SeatButtonEconomy.Unavailable" android:text="D8" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="E8" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="F8" android:layout_marginStart="4dp" />
+
+                    </LinearLayout>
+
+                    <!-- Row 9 -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView style="@style/SeatButtonEconomy" android:text="A9" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="B9" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="C9" android:layout_marginStart="4dp" />
+                        <Space android:layout_width="20dp" android:layout_height="1dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="D9" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy" android:text="E9" android:layout_marginStart="4dp" />
+                        <TextView style="@style/SeatButtonEconomy.Unavailable" android:text="F9" android:layout_marginStart="4dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Legend -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="20dp">
+
+                <!-- Available -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:background="@drawable/seat_available"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Available"
+                        android:textSize="12sp"
+                        android:textColor="#666666" />
+
+                </LinearLayout>
+
+                <!-- Selected -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:background="@drawable/seat_selected"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Selected"
+                        android:textSize="12sp"
+                        android:textColor="#666666" />
+
+                </LinearLayout>
+
+                <!-- Unavailable -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <View
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:background="@drawable/seat_unavailable"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="unavailable"
+                        android:textSize="12sp"
+                        android:textColor="#666666" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Bottom Section -->
+    <LinearLayout
+        android:id="@+id/bottom_section"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:padding="20dp"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Selection Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_airline_seat"
+                android:layout_marginEnd="12dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4 Seat Selected"
+                    android:textSize="14sp"
+                    android:textColor="#666666" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="B1,C1,C6,C7"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A1A1A" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$682.4"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#2196F3" />
+
+        </LinearLayout>
+
+        <!-- Confirm Button -->
+        <Button
+            android:id="@+id/btn_confirm_seats"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="CONFIRM SEATS"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="@drawable/btn_confirm_blue"
+            android:elevation="2dp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

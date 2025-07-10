@@ -1,0 +1,60 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- Background circle -->
+    <circle
+        android:fillColor="#F5F5F5"
+        android:cx="60"
+        android:cy="60"
+        android:radius="55"/>
+
+    <!-- Empty suitcase -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M35,45 L85,45 C87,45 88,46 88,48 L88,75 C88,77 87,78 85,78 L35,78 C33,78 32,77 32,75 L32,48 C32,46 33,45 35,45 Z"/>
+
+    <!-- Suitcase handle -->
+    <path
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M50,45 L50,40 C50,37 52,35 55,35 L65,35 C68,35 70,37 70,40 L70,45"/>
+
+    <!-- Suitcase lock -->
+    <rect
+        android:fillColor="#BDBDBD"
+        android:x="58"
+        android:y="60"
+        android:width="4"
+        android:height="6"
+        android:rx="2"/>
+
+    <!-- Flying paper airplane -->
+    <path
+        android:fillColor="#90CAF9"
+        android:pathData="M25,25 L35,30 L30,35 L25,30 Z"/>
+
+    <!-- Dotted flight path -->
+    <path
+        android:strokeColor="#BBDEFB"
+        android:strokeWidth="2"
+        android:strokeDasharray="3,3"
+        android:pathData="M35,30 Q50,20 65,25 Q80,30 95,25"/>
+
+    <!-- "No bookings" text indicator -->
+    <circle
+        android:fillColor="#FF5722"
+        android:cx="85"
+        android:cy="35"
+        android:radius="8"/>
+
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M82,32 L88,38 M88,32 L82,38"/>
+
+</vector>

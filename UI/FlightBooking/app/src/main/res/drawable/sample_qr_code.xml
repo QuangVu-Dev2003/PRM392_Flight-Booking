@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+
+    <!-- QR Code pattern simulation -->
+    <rect android:fillColor="#000000" android:width="120" android:height="120"/>
+
+    <!-- White squares for QR pattern -->
+    <rect android:fillColor="#FFFFFF" android:x="10" android:y="10" android:width="20" android:height="20"/>
+    <rect android:fillColor="#FFFFFF" android:x="40" android:y="10" android:width="10" android:height="10"/>
+    <rect android:fillColor="#FFFFFF" android:x="60" android:y="10" android:width="10" android:height="10"/>
+    <rect android:fillColor="#FFFFFF" android:x="80" android:y="10" android:width="20" android:height="20"/>
+
+    <rect android:fillColor="#FFFFFF" android:x="10" android:y="40" android:width="10" android:height="10"/>
+    <rect android:fillColor="#FFFFFF" android:x="30" android:y="40" android:width="10" android:height="10"/>
+    <rect android:fillColor="#FFFFFF" android:x="50" android:y="40" android:width="20" android:height="20"/>
+    <rect android:fillColor="#FFFFFF" android:x="80" android:y="40" android:width="10" android:height="10"/>
+
+    <rect android:fillColor="#FFFFFF" android:x="20" android:y="60" android:width="10" android:height="10"/>
+    <rect android:fillColor="#FFFFFF" android:x="40" android:y="60" android:width="10" android:height="10"/>
+    <rect android:fillColor="#FFFFFF" android:x="70" android:y="60" android:width="10" android:height="10"/>
+    <rect android:fillColor="#FFFFFF" android:x="90" android:y="60" android:width="10" android:height="10"/>
+
+    <rect android:fillColor="#FFFFFF" android:x="10" android:y="80" android:width="20" android:height="20"/>
+    <rect android:fillColor="#FFFFFF" android:x="40" android:y="80" android:width="10" android:height="10"/>
+    <rect android:fillColor="#FFFFFF" android:x="60" android:y="80" android:width="10" android:height="10"/>
+    <rect android:fillColor="#FFFFFF" android:x="80" android:y="80" android:width="20" android:height="20"/>
+
+</vector>
