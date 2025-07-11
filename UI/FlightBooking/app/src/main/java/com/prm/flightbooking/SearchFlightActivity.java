@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -38,14 +39,20 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SearchFlightActivity extends AppCompatActivity {
+
     private static final String TAG = "SearchFlightActivity";
-    private TextView tvUserName, tvAdultCount, tvDepartureDate, tvReturnDate;
+
+    // Views
+    private TextView tvUserName, tvAdultCount, tvDepartureDate, tvReturnDate, tvClass;
     private AutoCompleteTextView actvFrom, actvTo;
-    private TextView tvClass;
     private ImageButton btnMinusAdult, btnPlusAdult;
     private Button btnSearchFlights;
+
+    // API endpoints
     private AdvancedSearchApiEndpoint searchApi;
     private AirportApiEndpoint airportApi;
+
+    // Data
     private int adultCount = 2;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.US);
     private SimpleDateFormat apiDateFormat = new SimpleDateFormat("MMM d, yyyy h:mm:ss a", Locale.US);
@@ -59,23 +66,26 @@ public class SearchFlightActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_flight);
 
-        // Initialize API services
+        // Khởi tạo API services
         searchApi = ApiServiceProvider.getAdvancedSearchApi();
         airportApi = ApiServiceProvider.getAirportApi();
 
-        // Initialize seat classes
+        // Khởi tạo danh sách seat class mẫu
         seatClassesList = getMockSeatClasses();
-        seatClassNames = seatClassesList.stream()
-                .map(SeatClass::getClassName)
-                .toArray(String[]::new);
+        seatClassNames = new String[seatClassesList.size()];
+        for (int i = 0; i < seatClassesList.size(); i++) {
+            seatClassNames[i] = seatClassesList.get(i).getClassName();
+        }
 
-        // Bind views and setup actions
+        // Gán view và sự kiện
         bindingView();
         bindingAction();
+
+        // Load thông tin người dùng và danh sách sân bay
         loadUserInfo();
         loadAirports();
 
-        // Set up OnBackPressedDispatcher
+        // Xử lý nút back của hệ thống
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -91,6 +101,7 @@ public class SearchFlightActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
+    // Gán các biến với view trong layout
     private void bindingView() {
         tvUserName = findViewById(R.id.user_name);
         actvFrom = findViewById(R.id.tv_from);
@@ -103,32 +114,37 @@ public class SearchFlightActivity extends AppCompatActivity {
         btnPlusAdult = findViewById(R.id.btn_plus_adult);
         btnSearchFlights = findViewById(R.id.btn_search_flights);
 
+
+
+        // Cấu hình autocomplete threshold và dropdown height
         actvFrom.setThreshold(1);
         actvTo.setThreshold(1);
         actvFrom.setDropDownHeight(400);
         actvTo.setDropDownHeight(400);
     }
 
+    // Gán sự kiện click bằng method reference
     private void bindingAction() {
-        btnMinusAdult.setOnClickListener(v -> updatePassengerCount(true, false));
-        btnPlusAdult.setOnClickListener(v -> updatePassengerCount(true, true));
-        tvDepartureDate.setOnClickListener(v -> showDatePicker(true));
-        tvReturnDate.setOnClickListener(v -> showDatePicker(false));
-        tvClass.setOnClickListener(v -> showClassSelection());
-        btnSearchFlights.setOnClickListener(v -> performSearch());
+        btnMinusAdult.setOnClickListener(this::onBtnMinusAdultClick);
+        btnPlusAdult.setOnClickListener(this::onBtnPlusAdultClick);
+        tvDepartureDate.setOnClickListener(this::onTvDepartureDateClick);
+        tvReturnDate.setOnClickListener(this::onTvReturnDateClick);
+        tvClass.setOnClickListener(this::onTvClassClick);
+        btnSearchFlights.setOnClickListener(this::onBtnSearchFlightsClick);
         actvFrom.setOnClickListener(v -> actvFrom.showDropDown());
         actvTo.setOnClickListener(v -> actvTo.showDropDown());
     }
 
+    // Load tên người dùng từ SharedPreferences
     private void loadUserInfo() {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         String userName = prefs.getString("user_name", "Guest");
         tvUserName.setText(userName);
     }
 
+    // Load danh sách sân bay từ API
     private void loadAirports() {
-        Call<List<AirportDto>> call = airportApi.getAllAirports();
-        call.enqueue(new Callback<List<AirportDto>>() {
+        airportApi.getAllAirports().enqueue(new Callback<List<AirportDto>>() {
             @Override
             public void onResponse(Call<List<AirportDto>> call, Response<List<AirportDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -173,6 +189,7 @@ public class SearchFlightActivity extends AppCompatActivity {
         });
     }
 
+    // Thiết lập giá trị ban đầu cho các trường
     private void setupInitialValues() {
         tvAdultCount.setText(String.valueOf(adultCount));
         tvClass.setText(seatClassNames[0]);
@@ -182,16 +199,37 @@ public class SearchFlightActivity extends AppCompatActivity {
         tvReturnDate.setText(dateFormat.format(calendar.getTime()));
     }
 
-    private void showClassSelection() {
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setTitle("Select Class");
-        builder.setItems(seatClassNames, (dialog, which) -> {
-            selectedClassIndex = which;
-            tvClass.setText(seatClassNames[which]);
-        });
-        builder.show();
+    // Sự kiện khi nhấn nút giảm số lượng người lớn
+    private void onBtnMinusAdultClick(View v) {
+        updatePassengerCount(true, false);
     }
 
+    // Sự kiện khi nhấn nút tăng số lượng người lớn
+    private void onBtnPlusAdultClick(View v) {
+        updatePassengerCount(true, true);
+    }
+
+    // Sự kiện khi nhấn chọn ngày khởi hành
+    private void onTvDepartureDateClick(View v) {
+        showDatePicker(true);
+    }
+
+    // Sự kiện khi nhấn chọn ngày trở về
+    private void onTvReturnDateClick(View v) {
+        showDatePicker(false);
+    }
+
+    // Sự kiện khi nhấn chọn loại ghế
+    private void onTvClassClick(View v) {
+        showClassSelection();
+    }
+
+    // Sự kiện khi nhấn nút tìm kiếm chuyến bay
+    private void onBtnSearchFlightsClick(View v) {
+        performSearch();
+    }
+
+    // Cập nhật số lượng hành khách
     private void updatePassengerCount(boolean isAdult, boolean isIncrement) {
         if (isAdult) {
             if (isIncrement && adultCount < 9) {
@@ -203,6 +241,7 @@ public class SearchFlightActivity extends AppCompatActivity {
         }
     }
 
+    // Hiển thị DatePicker để chọn ngày
     private void showDatePicker(boolean isDeparture) {
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -225,6 +264,18 @@ public class SearchFlightActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
+    // Hiển thị hộp thoại chọn loại ghế
+    private void showClassSelection() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle("Select Class");
+        builder.setItems(seatClassNames, (dialog, which) -> {
+            selectedClassIndex = which;
+            tvClass.setText(seatClassNames[which]);
+        });
+        builder.show();
+    }
+
+    // Thực hiện tìm kiếm chuyến bay
     private void performSearch() {
         String from = actvFrom.getText().toString().trim();
         String to = actvTo.getText().toString().trim();
@@ -232,7 +283,7 @@ public class SearchFlightActivity extends AppCompatActivity {
         String returnDateStr = tvReturnDate.getText().toString().trim();
         String seatClass = tvClass.getText().toString().trim();
 
-        // Input validation
+        // Kiểm tra dữ liệu nhập
         if (from.isEmpty() || from.equals("Select departure city")) {
             Toast.makeText(this, "Please select departure airport", Toast.LENGTH_SHORT).show();
             return;
@@ -250,7 +301,6 @@ public class SearchFlightActivity extends AppCompatActivity {
             return;
         }
 
-        // Extract airport codes
         String departureAirportCode, arrivalAirportCode;
         try {
             departureAirportCode = from.split(" - ")[0];
@@ -264,22 +314,16 @@ public class SearchFlightActivity extends AppCompatActivity {
                 ", departureDate=" + departureDateStr + ", returnDate=" + returnDateStr +
                 ", seatClass=" + seatClass + ", passengers=" + adultCount);
 
-        // Disable button to prevent multiple clicks
         btnSearchFlights.setEnabled(false);
         btnSearchFlights.setText("Searching...");
 
         try {
-            // Parse dates for display and API
             Date departureDate = dateFormat.parse(departureDateStr);
-            String departureDateApi = apiDateFormat.format(departureDate);
-            String returnDateApi = null;
             Date returnDate = null;
             if (!returnDateStr.isEmpty() && !returnDateStr.equals("Select date")) {
                 returnDate = dateFormat.parse(returnDateStr);
-                returnDateApi = apiDateFormat.format(returnDate);
             }
 
-            // Create search DTO
             AdvancedFlightSearchDto searchDto = new AdvancedFlightSearchDto();
             searchDto.setDepartureAirportCode(departureAirportCode);
             searchDto.setArrivalAirportCode(arrivalAirportCode);
@@ -288,13 +332,10 @@ public class SearchFlightActivity extends AppCompatActivity {
             searchDto.setPassengers(adultCount);
             searchDto.setSeatClass(seatClass);
 
-            // Log request payload as JSON
             Gson gson = new Gson();
             Log.d(TAG, "Search DTO JSON: " + gson.toJson(searchDto));
 
-            // Call API
-            Call<FlightSearchResultDto> call = searchApi.advancedSearch(searchDto);
-            call.enqueue(new Callback<FlightSearchResultDto>() {
+            searchApi.advancedSearch(searchDto).enqueue(new Callback<FlightSearchResultDto>() {
                 @Override
                 public void onResponse(Call<FlightSearchResultDto> call, Response<FlightSearchResultDto> response) {
                     btnSearchFlights.setEnabled(true);
@@ -302,32 +343,22 @@ public class SearchFlightActivity extends AppCompatActivity {
 
                     if (response.isSuccessful() && response.body() != null) {
                         FlightSearchResultDto result = response.body();
-                        Log.d(TAG, "Search success: " + result.getOutboundFlights().size() + " outbound flights found");
                         String message = "Found " + result.getOutboundFlights().size() + " outbound flights";
                         if (result.getReturnFlights() != null && !result.getReturnFlights().isEmpty()) {
                             message += " and " + result.getReturnFlights().size() + " return flights";
                         }
                         Toast.makeText(SearchFlightActivity.this, message, Toast.LENGTH_SHORT).show();
 
-                        // Convert result to JSON and pass via Intent
                         try {
                             String resultJson = gson.toJson(result);
                             Intent intent = new Intent(SearchFlightActivity.this, FlightResultsActivity.class);
                             intent.putExtra("search_results_json", resultJson);
-                            Log.d(TAG, "Starting FlightResultsActivity with JSON result");
                             startActivity(intent);
                         } catch (Exception e) {
                             Log.e(TAG, "Failed to serialize result to JSON: ", e);
                             Toast.makeText(SearchFlightActivity.this, "Error displaying results: " + e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     } else {
-                        Log.e(TAG, "Search failed with code: " + response.code() + ", message: " + response.message());
-                        try {
-                            String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
-                            Log.e(TAG, "Error body: " + errorBody);
-                        } catch (Exception e) {
-                            Log.e(TAG, "Error parsing errorBody: ", e);
-                        }
                         handleErrorResponse(response);
                     }
                 }
@@ -336,35 +367,22 @@ public class SearchFlightActivity extends AppCompatActivity {
                 public void onFailure(Call<FlightSearchResultDto> call, Throwable t) {
                     btnSearchFlights.setEnabled(true);
                     btnSearchFlights.setText("Search Flights");
-                    Log.e(TAG, "Search network error: " + t.getMessage(), t);
                     Toast.makeText(SearchFlightActivity.this,
                             "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
+
         } catch (ParseException e) {
             btnSearchFlights.setEnabled(true);
             btnSearchFlights.setText("Search Flights");
-            Log.e(TAG, "Invalid date format: " + e.getMessage(), e);
             Toast.makeText(this, "Invalid date format", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            btnSearchFlights.setEnabled(true);
-            btnSearchFlights.setText("Search Flights");
-            Log.e(TAG, "Unexpected error in performSearch: ", e);
-            Toast.makeText(this, "An error occurred: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
     private void handleErrorResponse(Response<FlightSearchResultDto> response) {
         String errorMessage = "Search failed";
         if (response.code() == 400) {
-            try {
-                String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
-                Log.e(TAG, "HTTP 400 Error details: " + errorBody);
-                errorMessage = "Invalid search parameters: " + errorBody;
-            } catch (Exception e) {
-                Log.e(TAG, "Error parsing errorBody: ", e);
-                errorMessage = "Invalid search parameters. Please check your input (e.g., airport codes or dates).";
-            }
+            errorMessage = "Invalid search parameters. Please check your input.";
         } else if (response.code() == 404) {
             errorMessage = "No flights found for the selected criteria.";
         } else if (response.code() >= 500) {

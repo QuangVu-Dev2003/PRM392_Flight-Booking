@@ -7,10 +7,12 @@ namespace FlightBooking.Services
     public class FlightService : IFlightService
     {
         private readonly FlightBookingContext _context;
+        private readonly INotificationService _notificationService;
 
-        public FlightService(FlightBookingContext context)
+        public FlightService(FlightBookingContext context, INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<List<FlightResponseDto>> SearchFlightsAsync(FlightSearchDto searchDto)
@@ -133,6 +135,9 @@ namespace FlightBooking.Services
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
+                // Gửi notification đặt vé thành công
+                await _notificationService.SendBookingConfirmationAsync(booking.BookingId);
+
                 // Trả về thông tin booking
                 return await GetBookingByIdAsync(booking.BookingId);
             }
@@ -228,6 +233,24 @@ namespace FlightBooking.Services
                     SeatPrice = bs.SeatPrice
                 }).ToList()
             }).ToList();
+        }
+
+        public async Task<bool> ConfirmPaymentAsync(int paymentId)
+        {
+            var payment = await _context.Payments
+                .Include(p => p.Booking)
+                .FirstOrDefaultAsync(p => p.PaymentId == paymentId);
+
+            if (payment == null)
+                throw new ArgumentException("Payment not found");
+
+            payment.Status = "COMPLETED";
+            await _context.SaveChangesAsync();
+
+            // Gửi notification thanh toán thành công
+            await _notificationService.SendPaymentConfirmationAsync(paymentId);
+
+            return true;
         }
     }
 }

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
@@ -48,7 +49,6 @@ public class Signup extends AppCompatActivity {
         // Khởi tạo API service
         authApi = ApiServiceProvider.getAuthApi();
 
-        // Ánh xạ views và thiết lập sự kiện
         bindingView();
         bindingAction();
     }
@@ -72,36 +72,50 @@ public class Signup extends AppCompatActivity {
     }
 
     private void bindingAction() {
-        btnSignup.setOnClickListener(v -> performSignup());
-        btnBack.setOnClickListener(v -> finish());
-        tvLogin.setOnClickListener(v -> {
-            Intent intent = new Intent(Signup.this, Login.class);
-            startActivity(intent);
-            finish();
-        });
+        btnSignup.setOnClickListener(this::onBtnSignupClick);
+        btnBack.setOnClickListener(this::onBtnBackClick);
+        tvLogin.setOnClickListener(this::onTvLoginClick);
+        etDateOfBirth.setOnClickListener(this::onEtDateOfBirthClick);
+        tvGenderMale.setOnClickListener(this::onTvGenderMaleClick);
+        tvGenderFemale.setOnClickListener(this::onTvGenderFemaleClick);
 
-        // Date picker for date of birth
-        etDateOfBirth.setOnClickListener(v -> showDatePickerDialog());
-
-        // Gender selection
-        // Set default selection (optional)
+        // Set default giới tính
         selectedGender = "Male";
         tvGenderMale.setSelected(true);
         tvGenderFemale.setSelected(false);
-
-        tvGenderMale.setOnClickListener(v -> {
-            selectedGender = "Male"; // Adjust to "M" if server requires
-            tvGenderMale.setSelected(true);
-            tvGenderFemale.setSelected(false);
-        });
-
-        tvGenderFemale.setOnClickListener(v -> {
-            selectedGender = "Female"; // Adjust to "F" if server requires
-            tvGenderFemale.setSelected(true);
-            tvGenderMale.setSelected(false);
-        });
     }
 
+    private void onBtnSignupClick(View view) {
+        performSignup();
+    }
+
+    private void onBtnBackClick(View view) {
+        finish();
+    }
+
+    private void onTvLoginClick(View view) {
+        Intent intent = new Intent(Signup.this, Login.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void onEtDateOfBirthClick(View view) {
+        showDatePickerDialog();
+    }
+
+    private void onTvGenderMaleClick(View view) {
+        selectedGender = "Male";
+        tvGenderMale.setSelected(true);
+        tvGenderFemale.setSelected(false);
+    }
+
+    private void onTvGenderFemaleClick(View view) {
+        selectedGender = "Female";
+        tvGenderFemale.setSelected(true);
+        tvGenderMale.setSelected(false);
+    }
+
+    // Dialog chọn ngày sinh
     private void showDatePickerDialog() {
         final Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -120,6 +134,11 @@ public class Signup extends AppCompatActivity {
         datePickerDialog.show();
     }
 
+    /*
+     - Validate input
+     - Gọi API register
+     - Xử lý response và lưu thông tin user
+     */
     private void performSignup() {
         String username = etUsername.getText().toString().trim();
         String firstName = etFirstName.getText().toString().trim();
@@ -145,13 +164,13 @@ public class Signup extends AppCompatActivity {
         }
 
         if (TextUtils.isEmpty(firstName)) {
-            etFirstName.setError("Vui lòng nhập tên");
+            etFirstName.setError("Vui lòng nhập họ");
             etFirstName.requestFocus();
             return;
         }
 
         if (TextUtils.isEmpty(lastName)) {
-            etLastName.setError("Vui lòng nhập họ");
+            etLastName.setError("Vui lòng nhập tên");
             etLastName.requestFocus();
             return;
         }
@@ -190,7 +209,7 @@ public class Signup extends AppCompatActivity {
             Calendar today = Calendar.getInstance();
             today.add(Calendar.YEAR, -18);
             if (selectedDate.after(today)) {
-                etDateOfBirth.setError("Bạn phải ít nhất 18 tuổi");
+                tilDateOfBirth.setError("Bạn phải ít nhất 18 tuổi");
                 etDateOfBirth.requestFocus();
                 return;
             }
@@ -226,85 +245,108 @@ public class Signup extends AppCompatActivity {
             return;
         }
 
-        // Normalize phone number (example for Vietnam)
+        /*
         if (!phone.startsWith("+")) {
             phone = "+84" + phone.replaceFirst("^0", "");
+        }*/
+        // Đảm bảo số điện thoại bắt đầu bằng 0
+        if (!phone.startsWith("0")) {
+            phone = "0" + phone;
         }
 
-        // Disable button to prevent multiple clicks
+        // Disable button để tránh click nhiều lần
         btnSignup.setEnabled(false);
         btnSignup.setText("Đang tạo tài khoản...");
 
-        // Create RegisterUserDto
+        // Tạo RegisterUserDto
         RegisterUserDto registerDto = new RegisterUserDto(username, email, password, fullName, phone, dateOfBirth, selectedGender);
 
-        // Call API
+        // Gọi API
         Call<UserProfileDto> call = authApi.register(registerDto);
         call.enqueue(new Callback<UserProfileDto>() {
             @Override
             public void onResponse(Call<UserProfileDto> call, Response<UserProfileDto> response) {
-                // Re-enable button
+                // Enable lại button sau khi nhận response
                 btnSignup.setEnabled(true);
-                btnSignup.setText("CREATE ACCOUNT");
+                btnSignup.setText("Đăng Ký");
 
                 if (response.isSuccessful() && response.body() != null) {
                     UserProfileDto user = response.body();
 
-                    // Check for null fullName
+                    Log.d("SignupActivity", "Register successful - " + user.toString());
+
+                    // Kiểm tra tính hợp lệ của userId
+                    if (user.getUserId() <= 0) {
+                        Toast.makeText(Signup.this, "ID người dùng không hợp lệ từ máy chủ", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Tạo welcome message
                     String welcomeMessage = "Đăng ký thành công!";
                     if (user.getFullName() != null && !user.getFullName().isEmpty()) {
                         welcomeMessage += " Chào mừng " + user.getFullName();
                     }
-
                     Toast.makeText(Signup.this, welcomeMessage, Toast.LENGTH_SHORT).show();
 
+                    // Lưu thông tin user vào SharedPreferences
                     saveUserInfo(user);
 
+                    // Chuyển màn
                     Intent intent = new Intent(Signup.this, Login.class);
                     startActivity(intent);
                     finish();
                 } else {
-                    // Handle server error
+                    // Xử lý lỗi từ server
                     handleErrorResponse(response);
                 }
             }
 
             @Override
             public void onFailure(Call<UserProfileDto> call, Throwable t) {
-                // Re-enable button
+                // Enable lại button khi có lỗi network
                 btnSignup.setEnabled(true);
-                btnSignup.setText("CREATE ACCOUNT");
+                btnSignup.setText("Đăng Ký");
 
-                // Handle network error
                 Toast.makeText(Signup.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    // Xử lý các lỗi response từ server
     private void handleErrorResponse(Response<UserProfileDto> response) {
         try {
             String errorMessage = "Đăng ký thất bại";
+
             if (response.code() == 400) {
                 errorMessage = "Thông tin đăng ký không hợp lệ";
                 if (response.errorBody() != null) {
                     String errorBody = response.errorBody().string();
                     Log.e("SignupError", "Error Body: " + errorBody);
-                    // Optionally parse errorBody for specific messages
-                    // e.g., errorMessage += ": " + parseErrorBody(errorBody);
                 }
             } else if (response.code() == 409) {
                 errorMessage = "Tên người dùng, email hoặc số điện thoại đã được sử dụng";
             } else if (response.code() >= 500) {
                 errorMessage = "Lỗi server, vui lòng thử lại sau";
             }
+
             Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+
         } catch (Exception e) {
-            Toast.makeText(this, "Đã có lỗi xảy ra: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Đã có lỗi xảy ra", Toast.LENGTH_SHORT).show();
         }
     }
 
+    // Lưu thông tin user vào SharedPreferences để sử dụng trong toàn bộ app
     private void saveUserInfo(UserProfileDto user) {
-        // Save user info to SharedPreferences
+        int userIdToSave = user.getUserId();
+
+        // Kiểm tra tính hợp lệ của userId trước khi lưu
+        if (userIdToSave <= 0) {
+            Toast.makeText(this, "Không thể lưu userId: " + userIdToSave, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Lưu thông tin user vào SharedPreferences
         getSharedPreferences("user_prefs", MODE_PRIVATE)
                 .edit()
                 .putInt("user_id", user.getUserId())

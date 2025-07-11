@@ -14,6 +14,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.prm.flightbooking.api.ApiServiceProvider;
+import com.prm.flightbooking.api.NotificationApiEndpoint;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainMenuActivity extends AppCompatActivity {
 
@@ -23,6 +29,7 @@ public class MainMenuActivity extends AppCompatActivity {
     private LinearLayout menuBookFlight, menuMyTrips, menuNotifications, menuProfile;
     private BottomNavigationView bottomNavigation;
     private SharedPreferences userPrefs;
+    private TextView tvNotificationsBadge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +63,7 @@ public class MainMenuActivity extends AppCompatActivity {
         menuProfile = findViewById(R.id.menu_profile);
 
         bottomNavigation = findViewById(R.id.bottom_navigation);
+        tvNotificationsBadge = findViewById(R.id.tv_notifications_badge);
     }
 
     private void bindingAction() {
@@ -88,7 +96,7 @@ public class MainMenuActivity extends AppCompatActivity {
     }
 
     private void onNotificationsClick(View view) {
-        Toast.makeText(this, "Thông báo coming soon", Toast.LENGTH_SHORT).show();
+        navigateToActivity(NotificationActivity.class);
     }
 
     private void onProfileClick(View view) {
@@ -156,7 +164,7 @@ public class MainMenuActivity extends AppCompatActivity {
 
         optionNotifications.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
-            Toast.makeText(this, "Thông báo coming soon", Toast.LENGTH_SHORT).show();
+            navigateToActivity(NotificationActivity.class);
         });
 
         optionSupport.setOnClickListener(v -> {
@@ -208,9 +216,44 @@ public class MainMenuActivity extends AppCompatActivity {
         // Cập nhật thông tin user khi quay lại màn hình
         if (isLoggedIn()) {
             loadUserInfo();
+            loadUnreadNotificationCountFromApi();
             bottomNavigation.setSelectedItemId(R.id.nav_home);
         } else {
             redirectToLogin();
+        }
+    }
+
+    private void loadUnreadNotificationCountFromApi() {
+        NotificationApiEndpoint notificationApi = ApiServiceProvider.getNotificationApi();
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+        if (userId <= 0) return;
+
+        notificationApi.getUnreadCount(userId).enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    updateNotificationsBadge(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable t) {
+                // Xử lý lỗi
+            }
+        });
+    }
+
+    private void updateNotificationsBadge(int unreadCount) {
+        if (unreadCount > 0) {
+            tvNotificationsBadge.setVisibility(View.VISIBLE);
+            if (unreadCount > 99) {
+                tvNotificationsBadge.setText("99+");
+            } else {
+                tvNotificationsBadge.setText(String.valueOf(unreadCount));
+            }
+        } else {
+            tvNotificationsBadge.setVisibility(View.GONE);
         }
     }
 }

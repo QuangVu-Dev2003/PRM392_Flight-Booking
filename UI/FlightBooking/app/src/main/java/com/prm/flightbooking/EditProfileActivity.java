@@ -129,7 +129,7 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void onChangePasswordClick(View view) {
-        Toast.makeText(this, "Change password: Coming soon", Toast.LENGTH_SHORT).show();
+        navigateToActivity(ChangePasswordActivity.class);
     }
 
     private void onDeleteAccountClick(View view) {

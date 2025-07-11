@@ -8,5 +8,6 @@ namespace FlightBooking.Services
         Task<SeatMapDto> GetSeatMapAsync(int flightId);
         Task<BookingResponseDto> CreateBookingAsync(CreateBookingDto bookingDto);
         Task<List<BookingResponseDto>> GetUserBookingsAsync(int userId);
+        Task<bool> ConfirmPaymentAsync(int paymentId);
     }
 }

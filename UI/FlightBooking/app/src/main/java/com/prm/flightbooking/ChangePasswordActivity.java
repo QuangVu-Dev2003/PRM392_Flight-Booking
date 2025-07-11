@@ -140,10 +140,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private void validatePassword(String password) {
         int strength = 0;
         boolean hasLength = LENGTH_PATTERN.matcher(password).matches();
-        boolean hasUppercase = UPPERCASE_PATTERN.matcher(password).matches();
-        boolean hasLowercase = LOWERCASE_PATTERN.matcher(password).matches();
-        boolean hasNumber = NUMBER_PATTERN.matcher(password).matches();
-        boolean hasSpecial = SPECIAL_PATTERN.matcher(password).matches();
+        boolean hasUppercase = UPPERCASE_PATTERN.matcher(password).find();
+        boolean hasLowercase = LOWERCASE_PATTERN.matcher(password).find();
+        boolean hasNumber = NUMBER_PATTERN.matcher(password).find();
+        boolean hasSpecial = SPECIAL_PATTERN.matcher(password).find();
 
         // Update requirement icons
         checkLength.setImageResource(hasLength ? R.drawable.ic_check_circle_filled : R.drawable.ic_check_circle_outline);
@@ -153,11 +153,15 @@ public class ChangePasswordActivity extends AppCompatActivity {
         checkSpecial.setImageResource(hasSpecial ? R.drawable.ic_check_circle_filled : R.drawable.ic_check_circle_outline);
 
         // Calculate strength
-        if (hasLength) strength++;
-        if (hasUppercase) strength++;
-        if (hasLowercase) strength++;
-        if (hasNumber) strength++;
-        if (hasSpecial) strength++;
+        if (!hasLength) {
+            strength = 0; // Không đủ 8 ký tự thì strength = 0
+        } else {
+            // Tính strength dựa trên 4 điều kiện còn lại
+            if (hasUppercase) strength++;
+            if (hasLowercase) strength++;
+            if (hasNumber) strength++;
+            if (hasSpecial) strength++;
+        }
 
         // Update strength bars and text
         updateStrengthBars(strength);
@@ -207,11 +211,15 @@ public class ChangePasswordActivity extends AppCompatActivity {
         String currentPassword = etCurrentPassword.getText().toString().trim();
         String newPassword = etNewPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
-        boolean isValidPassword = LENGTH_PATTERN.matcher(newPassword).matches() &&
+
+      /*  boolean isValidPassword = LENGTH_PATTERN.matcher(newPassword).matches() &&
                 UPPERCASE_PATTERN.matcher(newPassword).matches() &&
                 LOWERCASE_PATTERN.matcher(newPassword).matches() &&
                 NUMBER_PATTERN.matcher(newPassword).matches() &&
-                SPECIAL_PATTERN.matcher(newPassword).matches();
+                SPECIAL_PATTERN.matcher(newPassword).matches();*/
+
+        // Chỉ cần đủ 8 ký tự, không cần các điều kiện khác
+        boolean isValidPassword = LENGTH_PATTERN.matcher(newPassword).matches();
 
         boolean isEnabled = !currentPassword.isEmpty() &&
                 !newPassword.isEmpty() &&
@@ -229,7 +237,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         String confirmPassword = etConfirmPassword.getText().toString().trim();
         int userId = userPrefs.getInt("user_id", -1);
 
-        // Input validation
+        // Kiểm tra các trường bắt buộc
         if (userId <= 0) {
             Toast.makeText(this, "Error: Invalid user ID", Toast.LENGTH_SHORT).show();
             redirectToLogin();
@@ -250,17 +258,58 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         if (confirmPassword.isEmpty()) {
             tilConfirmPassword.setError("Please confirm new password");
-            etConfirmPassword.requestFocus(); // Fixed typo here
+            etConfirmPassword.requestFocus();
             return;
         }
 
         if (!newPassword.equals(confirmPassword)) {
             tilConfirmPassword.setError("Passwords do not match");
-            etConfirmPassword.requestFocus(); // Fixed typo here
+            etConfirmPassword.requestFocus();
             return;
         }
 
-        // Disable button to prevent multiple clicks
+        // Tính strength mật khẩu
+        int strength = 0;
+        boolean hasLength = LENGTH_PATTERN.matcher(newPassword).matches();
+        boolean hasUppercase = UPPERCASE_PATTERN.matcher(newPassword).find();
+        boolean hasLowercase = LOWERCASE_PATTERN.matcher(newPassword).find();
+        boolean hasNumber = NUMBER_PATTERN.matcher(newPassword).find();
+        boolean hasSpecial = SPECIAL_PATTERN.matcher(newPassword).find();
+
+        if (!hasLength) {
+            Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (hasLength) {
+            if (hasUppercase) strength++;
+            if (hasLowercase) strength++;
+            if (hasNumber) strength++;
+            if (hasSpecial) strength++;
+        }
+
+        // Nếu mật khẩu yếu hoặc trung bình thì cảnh báo nhưng vẫn cho phép đổi
+        if (strength <= 3) {
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Cảnh báo mật khẩu yếu")
+                    .setMessage("Mật khẩu bạn nhập khá yếu, bạn có chắc chắn muốn tiếp tục đổi mật khẩu không?")
+                    .setPositiveButton("Có", (dialog, which) -> {
+                        // Người dùng đồng ý, gọi API đổi mật khẩu
+                        callChangePasswordApi(userId, currentPassword, newPassword);
+                    })
+                    .setNegativeButton("Không", (dialog, which) -> {
+                        // Người dùng hủy, đóng dialog
+                        dialog.dismiss();
+                    })
+                    .setCancelable(false)
+                    .show();
+        } else {
+            // Mật khẩu đủ mạnh, gọi API luôn
+            callChangePasswordApi(userId, currentPassword, newPassword);
+        }
+    }
+
+    private void callChangePasswordApi(int userId, String currentPassword, String newPassword) {
         btnChangePassword.setEnabled(false);
         btnChangePassword.setText("Updating...");
 
@@ -275,7 +324,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     Map<String, String> result = response.body();
                     Toast.makeText(ChangePasswordActivity.this, result.get("message"), Toast.LENGTH_LONG).show();
-                    if (result.get("message").equals("Password changed successfully")) {
+                    if ("Password changed successfully".equals(result.get("message"))) {
                         performLogout();
                     }
                 } else {
@@ -310,6 +359,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
             }
         });
     }
+
     private boolean isLoggedIn() {
         return userPrefs.getBoolean("is_logged_in", false);
     }

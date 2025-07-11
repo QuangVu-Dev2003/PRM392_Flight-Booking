@@ -4,6 +4,7 @@
 
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -96,6 +97,16 @@
 
         <activity
             android:name=".BookingDetailActivity"
+            android:exported="false" />
+
+        <!-- 7. Payment - Thanh toán vé -->
+        <activity
+            android:name=".PayActivity"
+            android:exported="false" />
+
+        <!-- 8. Notify - Thông báo -->
+        <activity
+            android:name=".NotificationActivity"
             android:exported="false" />
 
     </application>

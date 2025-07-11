@@ -35,25 +35,14 @@ public class BookingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking);
 
-        // Initialize API service
+        // Khởi tạo API service
         flightApi = ApiServiceProvider.getFlightApi();
 
-        // Bind views
         bindingView();
+        bindingAction();
 
-        // Initialize adapter
-        flightList = new ArrayList<>();
-        flightAdapter = new FlightAdapter(flightList, flightId -> {
-            Intent intent = new Intent(BookingActivity.this, ChooseSeatsActivity.class);
-            intent.putExtra("flightId", flightId);
-            startActivity(intent);
-        });
-
-        rvFlights.setLayoutManager(new LinearLayoutManager(this));
-        rvFlights.setAdapter(flightAdapter);
-
-        // Fetch flights
-        fetchFlights();
+        // Gọi hàm lấy danh sách chuyến bay
+        performFetchFlights();
     }
 
     private void bindingView() {
@@ -61,56 +50,83 @@ public class BookingActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
     }
 
-    private void fetchFlights() {
+    private void bindingAction() {
+        // Khởi tạo danh sách chuyến bay và adapter
+        flightList = new ArrayList<>();
+        flightAdapter = new FlightAdapter(flightList, this::onFlightItemClick);
+
+        // Thiết lập layout và adapter cho RecyclerView
+        rvFlights.setLayoutManager(new LinearLayoutManager(this));
+        rvFlights.setAdapter(flightAdapter);
+    }
+
+    // Xử lý khi click vào một chuyến bay
+    private void onFlightItemClick(int flightId) {
+        // Khi click vào chuyến bay, chuyển sang màn hình chọn ghế
+        Intent intent = new Intent(BookingActivity.this, ChooseSeatsActivity.class);
+        intent.putExtra("flightId", flightId);
+        startActivity(intent);
+    }
+
+    // Gọi API lấy danh sách chuyến bay
+    private void performFetchFlights() {
+        // Lấy userId từ SharedPreferences để kiểm tra đăng nhập
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         int userId = prefs.getInt("user_id", -1);
+
+        // Kiểm tra xem người dùng đã đăng nhập chưa
         if (userId <= 0) {
-            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, Login.class);
             startActivity(intent);
             finish();
             return;
         }
 
+        // Hiển thị ProgressBar khi đang tải dữ liệu
         progressBar.setVisibility(View.VISIBLE);
 
+        // Gọi API
         Call<List<AdminFlightResponseDto>> call = flightApi.getAllFlights(1, 20);
         call.enqueue(new Callback<List<AdminFlightResponseDto>>() {
             @Override
             public void onResponse(Call<List<AdminFlightResponseDto>> call, Response<List<AdminFlightResponseDto>> response) {
+                // Ẩn ProgressBar sau khi nhận được phản hồi
                 progressBar.setVisibility(View.GONE);
+
+                // Kiểm tra xem API có trả về dữ liệu thành công không
                 if (response.isSuccessful() && response.body() != null) {
+                    // Xóa danh sách cũ và cập nhật danh sách mới
                     flightList.clear();
                     flightList.addAll(response.body());
+                    // Cập nhật adapter để hiển thị danh sách mới
                     flightAdapter.setFlights(flightList);
+                    Toast.makeText(BookingActivity.this, "Tải danh sách chuyến bay thành công!", Toast.LENGTH_SHORT).show();
                 } else {
+                    // Xử lý lỗi nếu API trả về không thành công
                     handleErrorResponse(response);
                 }
             }
 
             @Override
             public void onFailure(Call<List<AdminFlightResponseDto>> call, Throwable t) {
+                // Ẩn ProgressBar khi có lỗi mạng
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(BookingActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(BookingActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    // Xử lý các lỗi từ phản hồi của server
     private void handleErrorResponse(Response<List<AdminFlightResponseDto>> response) {
-        String errorMessage = "Failed to load flights";
-        switch (response.code()) {
-            case 400:
-                errorMessage = "Invalid request";
-                break;
-            case 404:
-                errorMessage = "No flights found";
-                break;
-            case 500:
-                errorMessage = "Server error, please try again later";
-                break;
-            default:
-                errorMessage = "Unexpected error occurred";
-                break;
+        String errorMessage = "Không thể tải danh sách chuyến bay";
+        // Kiểm tra mã lỗi từ server
+        if (response.code() == 400) {
+            errorMessage = "Yêu cầu không hợp lệ";
+        } else if (response.code() == 404) {
+            errorMessage = "Không tìm thấy chuyến bay nào";
+        } else if (response.code() >= 500) {
+            errorMessage = "Lỗi server, vui lòng thử lại sau";
         }
         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
     }
