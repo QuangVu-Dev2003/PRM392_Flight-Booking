@@ -40,4 +40,8 @@ public class ApiServiceProvider {
     public static UserApiEndpoint getUserApi() {
         return retrofit.create(UserApiEndpoint.class);
     }
+
+    public static NotificationApiEndpoint getNotificationApi() {
+        return retrofit.create(NotificationApiEndpoint.class);
+    }
 }

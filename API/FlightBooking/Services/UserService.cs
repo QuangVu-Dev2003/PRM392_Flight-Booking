@@ -9,11 +9,13 @@ namespace FlightBooking.Services
     {
         private readonly FlightBookingContext _context;
         private readonly IEmailService _emailService;
+        private readonly INotificationService _notificationService;
 
-        public UserService(FlightBookingContext context, IEmailService emailService)
+        public UserService(FlightBookingContext context, IEmailService emailService, INotificationService notificationService)
         {
             _context = context;
             _emailService = emailService;
+            _notificationService = notificationService;
         }
 
         public async Task<UserProfileDto> RegisterAsync(RegisterUserDto registerDto)
@@ -248,6 +250,10 @@ namespace FlightBooking.Services
             }
 
             await _context.SaveChangesAsync();
+
+            // Gửi notification hủy vé thành công
+            await _notificationService.SendCancellationNotificationAsync(bookingId);
+
             return true;
         }
 
@@ -286,10 +292,20 @@ namespace FlightBooking.Services
             if (user == null)
                 throw new ArgumentException("Email không tồn tại hoặc tài khoản không hoạt động");
 
-            // Tạo mã OTP 6 chữ số ngẫu nhiên
+            // Vô hiệu hóa tất cả OTP chưa dùng, chưa hết hạn trước đó
+            var existingTokens = await _context.PasswordResetTokens
+                .Where(t => t.Email == email && !t.IsUsed && t.ExpirationTime > DateTime.Now)
+                .ToListAsync();
+
+            foreach (var token in existingTokens)
+            {
+                token.IsUsed = true; // Đánh dấu đã dùng để vô hiệu hóa
+            }
+
+            // Tạo mã OTP 6 chữ số ngẫu nhiên mới
             var otpCode = GenerateOtpCode(6);
 
-            // Lưu OTP vào database với thời hạn 5 phút
+            // Lưu OTP mới vào database với thời hạn 5 phút
             var expiration = DateTime.Now.AddMinutes(5);
 
             var resetToken = new PasswordResetToken
