@@ -30,11 +30,11 @@ namespace FlightBooking.Controllers
         }
 
         [HttpGet("{flightId}/seats")]
-        public async Task<ActionResult<SeatMapDto>> GetSeatMap(int flightId)
+        public async Task<ActionResult<SeatMapDto>> GetSeatMap(int flightId, [FromQuery] int userId)
         {
             try
             {
-                var seatMap = await _flightService.GetSeatMapAsync(flightId);
+                var seatMap = await _flightService.GetSeatMapAsync(flightId, userId);
                 return Ok(seatMap);
             }
             catch (ArgumentException ex)

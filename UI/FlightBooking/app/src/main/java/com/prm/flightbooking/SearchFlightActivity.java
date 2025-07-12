@@ -40,26 +40,24 @@ import retrofit2.Response;
 
 public class SearchFlightActivity extends AppCompatActivity {
 
-    private static final String TAG = "SearchFlightActivity";
-
-    // Views
+    // UI
     private TextView tvUserName, tvAdultCount, tvDepartureDate, tvReturnDate, tvClass;
     private AutoCompleteTextView actvFrom, actvTo;
     private ImageButton btnMinusAdult, btnPlusAdult;
     private Button btnSearchFlights;
-
-    // API endpoints
+    private ImageButton btnBack;
+    // API
     private AdvancedSearchApiEndpoint searchApi;
     private AirportApiEndpoint airportApi;
 
     // Data
     private int adultCount = 2;
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.US);
-    private SimpleDateFormat apiDateFormat = new SimpleDateFormat("MMM d, yyyy h:mm:ss a", Locale.US);
     private List<AirportDto> airportList = new ArrayList<>();
     private List<SeatClass> seatClassesList;
     private String[] seatClassNames;
     private int selectedClassIndex = 0;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, yyyy", Locale.forLanguageTag("vi-VN"));
+    private SimpleDateFormat apiDateFormat = new SimpleDateFormat("MMM d, yyyy h:mm:ss a", Locale.US);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,38 +68,18 @@ public class SearchFlightActivity extends AppCompatActivity {
         searchApi = ApiServiceProvider.getAdvancedSearchApi();
         airportApi = ApiServiceProvider.getAirportApi();
 
-        // Khởi tạo danh sách seat class mẫu
-        seatClassesList = getMockSeatClasses();
-        seatClassNames = new String[seatClassesList.size()];
-        for (int i = 0; i < seatClassesList.size(); i++) {
-            seatClassNames[i] = seatClassesList.get(i).getClassName();
-        }
+        // Khởi tạo dữ liệu ban đầu
+        initializeSeatClasses();
 
-        // Gán view và sự kiện
         bindingView();
         bindingAction();
 
-        // Load thông tin người dùng và danh sách sân bay
+        // Tải thông tin người dùng và dữ liệu ban đầu
         loadUserInfo();
         loadAirports();
-
-        // Xử lý nút back của hệ thống
-        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (btnSearchFlights.isEnabled()) {
-                    Log.d(TAG, "Back press allowed");
-                    setEnabled(false);
-                    SearchFlightActivity.super.onBackPressed();
-                } else {
-                    Log.d(TAG, "Back press ignored during search");
-                }
-            }
-        };
-        getOnBackPressedDispatcher().addCallback(this, callback);
+        setupBackPressHandler();
     }
 
-    // Gán các biến với view trong layout
     private void bindingView() {
         tvUserName = findViewById(R.id.user_name);
         actvFrom = findViewById(R.id.tv_from);
@@ -113,17 +91,11 @@ public class SearchFlightActivity extends AppCompatActivity {
         btnMinusAdult = findViewById(R.id.btn_minus_adult);
         btnPlusAdult = findViewById(R.id.btn_plus_adult);
         btnSearchFlights = findViewById(R.id.btn_search_flights);
-
-
-
-        // Cấu hình autocomplete threshold và dropdown height
-        actvFrom.setThreshold(1);
-        actvTo.setThreshold(1);
-        actvFrom.setDropDownHeight(400);
-        actvTo.setDropDownHeight(400);
+        btnBack = findViewById(R.id.btn_back);
+        // Cấu hình AutoCompleteTextView
+        setupAutoCompleteTextViews();
     }
 
-    // Gán sự kiện click bằng method reference
     private void bindingAction() {
         btnMinusAdult.setOnClickListener(this::onBtnMinusAdultClick);
         btnPlusAdult.setOnClickListener(this::onBtnPlusAdultClick);
@@ -133,115 +105,157 @@ public class SearchFlightActivity extends AppCompatActivity {
         btnSearchFlights.setOnClickListener(this::onBtnSearchFlightsClick);
         actvFrom.setOnClickListener(v -> actvFrom.showDropDown());
         actvTo.setOnClickListener(v -> actvTo.showDropDown());
+        btnBack.setOnClickListener(v -> finish());
     }
 
-    // Load tên người dùng từ SharedPreferences
+    // Khởi tạo dữ liệu hạng ghế
+    private void initializeSeatClasses() {
+        seatClassesList = getMockSeatClasses();
+        seatClassNames = new String[seatClassesList.size()];
+        for (int i = 0; i < seatClassesList.size(); i++) {
+            seatClassNames[i] = seatClassesList.get(i).getClassDescription();
+        }
+    }
+
+    // Cấu hình AutoCompleteTextView
+    private void setupAutoCompleteTextViews() {
+        actvFrom.setThreshold(1);
+        actvTo.setThreshold(1);
+        actvFrom.setDropDownHeight(400);
+        actvTo.setDropDownHeight(400);
+    }
+
+    // Xử lý nút back của hệ thống
+    private void setupBackPressHandler() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (btnSearchFlights.isEnabled()) {
+                    setEnabled(false);
+                    SearchFlightActivity.super.onBackPressed();
+                } else {
+                    Log.d("SearchFlightActivity", "Back press ignored during search");
+                }
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
+    }
+
+    // Tải thông tin người dùng từ SharedPreferences
     private void loadUserInfo() {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        String userName = prefs.getString("user_name", "Guest");
+        String userName = prefs.getString("user_name", "Khách");
         tvUserName.setText(userName);
     }
 
-    // Load danh sách sân bay từ API
+    // Tải danh sách sân bay từ API
     private void loadAirports() {
-        airportApi.getAllAirports().enqueue(new Callback<List<AirportDto>>() {
+        Call<List<AirportDto>> call = airportApi.getAllAirports();
+        call.enqueue(new Callback<List<AirportDto>>() {
             @Override
             public void onResponse(Call<List<AirportDto>> call, Response<List<AirportDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     airportList = response.body();
-                    List<String> airportNames = new ArrayList<>();
-                    for (AirportDto airport : airportList) {
-                        if (airport.getAirportCode() != null && airport.getCity() != null) {
-                            airportNames.add(airport.getAirportCode() + " - " + airport.getCity());
-                        }
-                    }
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(SearchFlightActivity.this,
-                            android.R.layout.simple_dropdown_item_1line, airportNames);
-                    actvFrom.setAdapter(adapter);
-                    actvTo.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-
-                    Log.d(TAG, "Loaded " + airportList.size() + " airports");
-                    Toast.makeText(SearchFlightActivity.this,
-                            "Loaded " + airportList.size() + " airports", Toast.LENGTH_SHORT).show();
-
-                    if (airportList.size() > 0) {
-                        actvFrom.setText(airportList.get(0).getAirportCode() + " - " + airportList.get(0).getCity(), false);
-                    }
-                    if (airportList.size() > 1) {
-                        actvTo.setText(airportList.get(1).getAirportCode() + " - " + airportList.get(1).getCity(), false);
-                    }
-
+                    setupAirportDropdown();
                     setupInitialValues();
                 } else {
-                    Log.e(TAG, "Failed to load airports: HTTP " + response.code());
-                    Toast.makeText(SearchFlightActivity.this,
-                            "Failed to load airports: HTTP " + response.code(), Toast.LENGTH_SHORT).show();
+                    handleAirportLoadError(response);
                 }
             }
 
             @Override
             public void onFailure(Call<List<AirportDto>> call, Throwable t) {
-                Log.e(TAG, "Network error loading airports: " + t.getMessage());
-                Toast.makeText(SearchFlightActivity.this,
-                        "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(SearchFlightActivity.this,"Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Thiết lập giá trị ban đầu cho các trường
+    // Thiết lập dropdown cho sân bay
+    private void setupAirportDropdown() {
+        List<String> airportNames = new ArrayList<>();
+        for (AirportDto airport : airportList) {
+            if (airport.getAirportCode() != null && airport.getCity() != null) {
+                airportNames.add(airport.getAirportCode() + " - " + airport.getCity());
+            }
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, airportNames);
+        actvFrom.setAdapter(adapter);
+        actvTo.setAdapter(adapter);
+
+        // Thiết lập giá trị mặc định
+        if (airportList.size() > 0) {
+            actvFrom.setText(airportList.get(0).getAirportCode() + " - " + airportList.get(0).getCity(), false);
+        }
+        if (airportList.size() > 1) {
+            actvTo.setText(airportList.get(1).getAirportCode() + " - " + airportList.get(1).getCity(), false);
+        }
+    }
+
+    // Xử lý lỗi khi tải sân bay
+    private void handleAirportLoadError(Response<List<AirportDto>> response) {
+        String errorMessage = "Không thể tải danh sách sân bay";
+        if (response.code() >= 500) {
+            errorMessage = "Lỗi server, vui lòng thử lại sau";
+        }
+        Log.e("SearchFlightActivity", "Lỗi tải sân bay: HTTP " + response.code());
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    // Thiết lập giá trị ban đầu
     private void setupInitialValues() {
         tvAdultCount.setText(String.valueOf(adultCount));
         tvClass.setText(seatClassNames[0]);
+
+        // Thiết lập ngày khởi hành và ngày về
         Calendar calendar = Calendar.getInstance();
         tvDepartureDate.setText(dateFormat.format(calendar.getTime()));
         calendar.add(Calendar.DAY_OF_MONTH, 7);
         tvReturnDate.setText(dateFormat.format(calendar.getTime()));
     }
 
-    // Sự kiện khi nhấn nút giảm số lượng người lớn
-    private void onBtnMinusAdultClick(View v) {
-        updatePassengerCount(true, false);
+    // Giảm số lượng người lớn
+    private void onBtnMinusAdultClick(View view) {
+        updatePassengerCount(false);
     }
 
-    // Sự kiện khi nhấn nút tăng số lượng người lớn
-    private void onBtnPlusAdultClick(View v) {
-        updatePassengerCount(true, true);
+    // Tăng số lượng người lớn
+    private void onBtnPlusAdultClick(View view) {
+        updatePassengerCount(true);
     }
 
-    // Sự kiện khi nhấn chọn ngày khởi hành
-    private void onTvDepartureDateClick(View v) {
+    // Chọn ngày khởi hành
+    private void onTvDepartureDateClick(View view) {
         showDatePicker(true);
     }
 
-    // Sự kiện khi nhấn chọn ngày trở về
-    private void onTvReturnDateClick(View v) {
+    // Chọn ngày về
+    private void onTvReturnDateClick(View view) {
         showDatePicker(false);
     }
 
-    // Sự kiện khi nhấn chọn loại ghế
-    private void onTvClassClick(View v) {
+    // Chọn hạng ghế
+    private void onTvClassClick(View view) {
         showClassSelection();
     }
 
-    // Sự kiện khi nhấn nút tìm kiếm chuyến bay
-    private void onBtnSearchFlightsClick(View v) {
+    // Thực hiện tìm kiếm
+    private void onBtnSearchFlightsClick(View view) {
         performSearch();
     }
 
     // Cập nhật số lượng hành khách
-    private void updatePassengerCount(boolean isAdult, boolean isIncrement) {
-        if (isAdult) {
-            if (isIncrement && adultCount < 9) {
-                adultCount++;
-            } else if (!isIncrement && adultCount > 1) {
-                adultCount--;
-            }
-            tvAdultCount.setText(String.valueOf(adultCount));
+    private void updatePassengerCount(boolean isIncrement) {
+        if (isIncrement && adultCount < 9) {
+            adultCount++;
+        } else if (!isIncrement && adultCount > 1) {
+            adultCount--;
         }
+        tvAdultCount.setText(String.valueOf(adultCount));
     }
 
-    // Hiển thị DatePicker để chọn ngày
+    // Hiển thị dialog chọn ngày
     private void showDatePicker(boolean isDeparture) {
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -264,10 +278,10 @@ public class SearchFlightActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
-    // Hiển thị hộp thoại chọn loại ghế
+    // Hiển thị dialog chọn hạng ghế
     private void showClassSelection() {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setTitle("Select Class");
+        builder.setTitle("Chọn hạng ghế");
         builder.setItems(seatClassNames, (dialog, which) -> {
             selectedClassIndex = which;
             tvClass.setText(seatClassNames[which]);
@@ -283,115 +297,138 @@ public class SearchFlightActivity extends AppCompatActivity {
         String returnDateStr = tvReturnDate.getText().toString().trim();
         String seatClass = tvClass.getText().toString().trim();
 
-        // Kiểm tra dữ liệu nhập
-        if (from.isEmpty() || from.equals("Select departure city")) {
-            Toast.makeText(this, "Please select departure airport", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (to.isEmpty() || to.equals("Select arrival city")) {
-            Toast.makeText(this, "Please select arrival airport", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (departureDateStr.isEmpty() || departureDateStr.equals("Select date")) {
-            Toast.makeText(this, "Please select departure date", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (seatClass.isEmpty() || seatClass.equals("Select class")) {
-            Toast.makeText(this, "Please select seat class", Toast.LENGTH_SHORT).show();
+        // Validate dữ liệu nhập
+        if (!validateSearchInput(from, to, departureDateStr, seatClass)) {
             return;
         }
 
+        // Lấy mã sân bay
         String departureAirportCode, arrivalAirportCode;
         try {
             departureAirportCode = from.split(" - ")[0];
             arrivalAirportCode = to.split(" - ")[0];
         } catch (ArrayIndexOutOfBoundsException e) {
-            Toast.makeText(this, "Invalid airport selection", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Lựa chọn sân bay không hợp lệ", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Log.d(TAG, "Starting search: from=" + departureAirportCode + ", to=" + arrivalAirportCode +
-                ", departureDate=" + departureDateStr + ", returnDate=" + returnDateStr +
-                ", seatClass=" + seatClass + ", passengers=" + adultCount);
-
+        // Disable button trong khi tìm kiếm
         btnSearchFlights.setEnabled(false);
-        btnSearchFlights.setText("Searching...");
+        btnSearchFlights.setText("Đang tìm kiếm...");
 
         try {
-            Date departureDate = dateFormat.parse(departureDateStr);
-            Date returnDate = null;
-            if (!returnDateStr.isEmpty() && !returnDateStr.equals("Select date")) {
-                returnDate = dateFormat.parse(returnDateStr);
-            }
+            // Tạo DTO tìm kiếm
+            AdvancedFlightSearchDto searchDto = createSearchDto(
+                    departureAirportCode, arrivalAirportCode,
+                    departureDateStr, returnDateStr, seatClass);
 
-            AdvancedFlightSearchDto searchDto = new AdvancedFlightSearchDto();
-            searchDto.setDepartureAirportCode(departureAirportCode);
-            searchDto.setArrivalAirportCode(arrivalAirportCode);
-            searchDto.setDepartureDate(departureDate);
-            searchDto.setReturnDate(returnDate);
-            searchDto.setPassengers(adultCount);
-            searchDto.setSeatClass(seatClass);
-
-            Gson gson = new Gson();
-            Log.d(TAG, "Search DTO JSON: " + gson.toJson(searchDto));
-
-            searchApi.advancedSearch(searchDto).enqueue(new Callback<FlightSearchResultDto>() {
+            // Gọi API tìm kiếm
+            Call<FlightSearchResultDto> call = searchApi.advancedSearch(searchDto);
+            call.enqueue(new Callback<FlightSearchResultDto>() {
                 @Override
                 public void onResponse(Call<FlightSearchResultDto> call, Response<FlightSearchResultDto> response) {
+                    // Enable lại button
                     btnSearchFlights.setEnabled(true);
-                    btnSearchFlights.setText("Search Flights");
+                    btnSearchFlights.setText("Tìm chuyến bay");
 
                     if (response.isSuccessful() && response.body() != null) {
-                        FlightSearchResultDto result = response.body();
-                        String message = "Found " + result.getOutboundFlights().size() + " outbound flights";
-                        if (result.getReturnFlights() != null && !result.getReturnFlights().isEmpty()) {
-                            message += " and " + result.getReturnFlights().size() + " return flights";
-                        }
-                        Toast.makeText(SearchFlightActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                        try {
-                            String resultJson = gson.toJson(result);
-                            Intent intent = new Intent(SearchFlightActivity.this, FlightResultsActivity.class);
-                            intent.putExtra("search_results_json", resultJson);
-                            startActivity(intent);
-                        } catch (Exception e) {
-                            Log.e(TAG, "Failed to serialize result to JSON: ", e);
-                            Toast.makeText(SearchFlightActivity.this, "Error displaying results: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        }
+                        handleSearchSuccess(response.body());
                     } else {
-                        handleErrorResponse(response);
+                        handleSearchError(response);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<FlightSearchResultDto> call, Throwable t) {
                     btnSearchFlights.setEnabled(true);
-                    btnSearchFlights.setText("Search Flights");
-                    Toast.makeText(SearchFlightActivity.this,
-                            "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                    btnSearchFlights.setText("Tìm chuyến bay");
+                    Toast.makeText(SearchFlightActivity.this,"Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
 
         } catch (ParseException e) {
             btnSearchFlights.setEnabled(true);
-            btnSearchFlights.setText("Search Flights");
-            Toast.makeText(this, "Invalid date format", Toast.LENGTH_SHORT).show();
+            btnSearchFlights.setText("Tìm chuyến bay");
+            Toast.makeText(this, "Định dạng ngày không hợp lệ", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void handleErrorResponse(Response<FlightSearchResultDto> response) {
-        String errorMessage = "Search failed";
+    // Validate dữ liệu đầu vào
+    private boolean validateSearchInput(String from, String to, String departureDateStr, String seatClass) {
+        if (from.isEmpty() || from.equals("Chọn sân bay khởi hành")) {
+            Toast.makeText(this, "Vui lòng chọn sân bay khởi hành", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (to.isEmpty() || to.equals("Chọn sân bay đến")) {
+            Toast.makeText(this, "Vui lòng chọn sân bay đến", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (departureDateStr.isEmpty() || departureDateStr.equals("Chọn ngày")) {
+            Toast.makeText(this, "Vui lòng chọn ngày khởi hành", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (seatClass.isEmpty() || seatClass.equals("Chọn hạng ghế")) {
+            Toast.makeText(this, "Vui lòng chọn hạng ghế", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    // Tạo DTO tìm kiếm
+    private AdvancedFlightSearchDto createSearchDto(String departureCode, String arrivalCode,
+                                                    String departureDateStr, String returnDateStr, String seatClass) throws ParseException {
+        Date departureDate = dateFormat.parse(departureDateStr);
+        Date returnDate = null;
+        if (!returnDateStr.isEmpty() && !returnDateStr.equals("Chọn ngày")) {
+            returnDate = dateFormat.parse(returnDateStr);
+        }
+
+        AdvancedFlightSearchDto searchDto = new AdvancedFlightSearchDto();
+        searchDto.setDepartureAirportCode(departureCode);
+        searchDto.setArrivalAirportCode(arrivalCode);
+        searchDto.setDepartureDate(departureDate);
+        searchDto.setReturnDate(returnDate);
+        searchDto.setPassengers(adultCount);
+        searchDto.setSeatClass(seatClass);
+
+        return searchDto;
+    }
+
+    // Xử lý kết quả tìm kiếm thành công
+    private void handleSearchSuccess(FlightSearchResultDto result) {
+        String message = "Tìm thấy " + result.getOutboundFlights().size() + " chuyến bay đi";
+        if (result.getReturnFlights() != null && !result.getReturnFlights().isEmpty()) {
+            message += " và " + result.getReturnFlights().size() + " chuyến bay về";
+        }
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+
+        try {
+            // Chuyển đến màn hình kết quả
+            Gson gson = new Gson();
+            String resultJson = gson.toJson(result);
+            Intent intent = new Intent(this, FlightResultsActivity.class);
+            intent.putExtra("search_results_json", resultJson);
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e("SearchFlightActivity", "Lỗi khi chuyển dữ liệu: ", e);
+            Toast.makeText(this, "Lỗi hiển thị kết quả: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    // Xử lý lỗi tìm kiếm
+    private void handleSearchError(Response<FlightSearchResultDto> response) {
+        String errorMessage = "Tìm kiếm thất bại";
         if (response.code() == 400) {
-            errorMessage = "Invalid search parameters. Please check your input.";
+            errorMessage = "Thông tin tìm kiếm không hợp lệ. Vui lòng kiểm tra lại.";
         } else if (response.code() == 404) {
-            errorMessage = "No flights found for the selected criteria.";
+            errorMessage = "Không tìm thấy chuyến bay phù hợp.";
         } else if (response.code() >= 500) {
-            errorMessage = "Server error, please try again later.";
+            errorMessage = "Lỗi server, vui lòng thử lại sau.";
         }
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
-        Log.e(TAG, "Error response: " + errorMessage + ", HTTP " + response.code());
     }
 
+    // Tạo danh sách hạng ghế mẫu
     private List<SeatClass> getMockSeatClasses() {
         List<SeatClass> seatClasses = new ArrayList<>();
         seatClasses.add(new SeatClass(1, "ECONOMY", "Hạng phổ thông", new BigDecimal("1.00"), null));

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -45,29 +46,29 @@ public class EditProfileActivity extends AppCompatActivity {
     private ImageView ivProfilePhoto;
     private Spinner spinnerGender;
     private AuthApiEndpoint authApi;
-    private SharedPreferences userPrefs;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
-        // Initialize API service and SharedPreferences
+        // Khởi tạo API
         authApi = ApiServiceProvider.getAuthApi();
-        userPrefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
 
-        // Check login status
+        // Kiểm tra trạng thái đăng nhập
         if (!isLoggedIn()) {
             redirectToLogin();
             return;
         }
 
-        // Bind views and actions
         bindingView();
         bindingAction();
+        setupGenderSpinner();
 
-        // Load current profile data
-        loadProfileData();
+        // Tải thông tin hồ sơ hiện tại
+        loadCurrentProfileData();
     }
 
     private void bindingView() {
@@ -87,10 +88,53 @@ public class EditProfileActivity extends AppCompatActivity {
         ivProfilePhoto = findViewById(R.id.iv_profile_photo);
         spinnerGender = findViewById(R.id.spinner_gender);
 
-        // Make email field read-only
+        // Khóa trường email không cho chỉnh sửa
         etEmail.setEnabled(false);
+    }
 
-        // Setup gender spinner
+    private void bindingAction() {
+        btnBack.setOnClickListener(this::onBtnBackClick);
+        btnSave.setOnClickListener(this::onBtnSaveClick);
+        btnDatePicker.setOnClickListener(this::onBtnDatePickerClick);
+        btnChangePassword.setOnClickListener(this::onBtnChangePasswordClick);
+        btnDeleteAccount.setOnClickListener(this::onBtnDeleteAccountClick);
+
+        // Thiết lập sự kiện cho các công tắc thông báo
+        switchEmailNotifications.setOnCheckedChangeListener((buttonView, isChecked) ->
+                showComingSoonToast("Thông báo email"));
+        switchPushNotifications.setOnCheckedChangeListener((buttonView, isChecked) ->
+                showComingSoonToast("Thông báo đẩy"));
+        switchSmsNotifications.setOnCheckedChangeListener((buttonView, isChecked) ->
+                showComingSoonToast("Thông báo SMS"));
+    }
+
+    // Nút quay lại
+    private void onBtnBackClick(View view) {
+        finish();
+    }
+
+    // Nút lưu thông tin
+    private void onBtnSaveClick(View view) {
+        performUpdateProfile();
+    }
+
+    // Nút chọn ngày sinh
+    private void onBtnDatePickerClick(View view) {
+        showDatePickerDialog();
+    }
+
+    // Nút đổi mật khẩu
+    private void onBtnChangePasswordClick(View view) {
+        navigateToActivity(ChangePasswordActivity.class);
+    }
+
+    // Nút xóa tài khoản
+    private void onBtnDeleteAccountClick(View view) {
+        showDeleteAccountConfirmDialog();
+    }
+
+    // Thiết lập danh sách giới tính
+    private void setupGenderSpinner() {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_spinner_item,
@@ -100,42 +144,7 @@ public class EditProfileActivity extends AppCompatActivity {
         spinnerGender.setAdapter(adapter);
     }
 
-    private void bindingAction() {
-        btnBack.setOnClickListener(this::onBackClick);
-        btnSave.setOnClickListener(this::onSaveClick);
-        btnDatePicker.setOnClickListener(this::onDatePickerClick);
-        btnChangePassword.setOnClickListener(this::onChangePasswordClick);
-        btnDeleteAccount.setOnClickListener(this::onDeleteAccountClick);
-
-        // Notification switches
-        switchEmailNotifications.setOnCheckedChangeListener((buttonView, isChecked) ->
-                Toast.makeText(this, "Email notifications: Coming soon", Toast.LENGTH_SHORT).show());
-        switchPushNotifications.setOnCheckedChangeListener((buttonView, isChecked) ->
-                Toast.makeText(this, "Push notifications: Coming soon", Toast.LENGTH_SHORT).show());
-        switchSmsNotifications.setOnCheckedChangeListener((buttonView, isChecked) ->
-                Toast.makeText(this, "SMS notifications: Coming soon", Toast.LENGTH_SHORT).show());
-    }
-
-    private void onBackClick(View view) {
-        finish();
-    }
-
-    private void onSaveClick(View view) {
-        performUpdateProfile();
-    }
-
-    private void onDatePickerClick(View view) {
-        showDatePickerDialog();
-    }
-
-    private void onChangePasswordClick(View view) {
-        navigateToActivity(ChangePasswordActivity.class);
-    }
-
-    private void onDeleteAccountClick(View view) {
-        showDeleteAccountDialog();
-    }
-
+    // Hiển thị hộp thoại chọn ngày
     private void showDatePickerDialog() {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
@@ -149,11 +158,14 @@ public class EditProfileActivity extends AppCompatActivity {
                     tvDateOfBirth.setText(selectedDate);
                 },
                 year, month, day);
+
+        // Giới hạn ngày tối đa là hôm nay
         datePickerDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
         datePickerDialog.show();
     }
 
-    private void showDeleteAccountDialog() {
+    // Hiển thị hộp thoại xác nhận xóa tài khoản
+    private void showDeleteAccountConfirmDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Xóa tài khoản")
                 .setMessage("Bạn có chắc chắn muốn xóa tài khoản? Hành động này sẽ vô hiệu hóa tài khoản của bạn.")
@@ -162,12 +174,12 @@ public class EditProfileActivity extends AppCompatActivity {
                 .show();
     }
 
+    // Hiển thị hộp thoại nhập mật khẩu để xác nhận xóa tài khoản
     private void showPasswordInputDialog() {
-        // Create a custom dialog for password input
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Xác nhận mật khẩu");
 
-        // Create a TextInputLayout to hold the password input
+        // Tạo ô nhập mật khẩu
         TextInputLayout textInputLayout = new TextInputLayout(this);
         textInputLayout.setPadding(16, 16, 16, 16);
         textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
@@ -188,10 +200,11 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         });
         builder.setNegativeButton("Hủy", null);
+
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        // Enable positive button only when password is not empty
+        // Chỉ cho phép nhấn nút xác nhận khi đã nhập mật khẩu
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
         passwordInput.addTextChangedListener(new android.text.TextWatcher() {
             @Override
@@ -208,58 +221,9 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void performDeleteAccount(String password) {
-        int userId = userPrefs.getInt("user_id", -1);
-        if (userId <= 0) {
-            Toast.makeText(this, "Lỗi: ID người dùng không hợp lệ", Toast.LENGTH_SHORT).show();
-            redirectToLogin();
-            return;
-        }
-
-        DeleteAccountDto deleteDto = new DeleteAccountDto(password);
-        Call<Map<String, String>> call = authApi.deleteAccount(userId, deleteDto);
-        call.enqueue(new Callback<Map<String, String>>() {
-            @Override
-            public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Map<String, String> result = response.body();
-                    Toast.makeText(EditProfileActivity.this, result.get("message"), Toast.LENGTH_LONG).show();
-                    if (result.get("message").equals("Account deleted successfully")) {
-                        userPrefs.edit().clear().apply();
-                        redirectToLogin();
-                    }
-                } else {
-                    String errorMessage = "Lỗi khi xóa tài khoản";
-                    try {
-                        if (response.code() == 401) {
-                            errorMessage = "Mật khẩu không đúng";
-                        } else if (response.code() == 404) {
-                            errorMessage = "Không tìm thấy người dùng";
-                            redirectToLogin();
-                        } else if (response.code() == 400) {
-                            errorMessage = response.errorBody().string();
-                            if (errorMessage.contains("active bookings")) {
-                                errorMessage = "Không thể xóa tài khoản do có vé đang hoạt động";
-                            }
-                        } else if (response.code() >= 500) {
-                            errorMessage = "Lỗi máy chủ, vui lòng thử lại sau";
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Toast.makeText(EditProfileActivity.this, errorMessage, Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Map<String, String>> call, Throwable t) {
-                Toast.makeText(EditProfileActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void loadProfileData() {
-        int userId = userPrefs.getInt("user_id", -1);
+    // Tải thông tin hồ sơ hiện tại từ API
+    private void loadCurrentProfileData() {
+        int userId = sharedPreferences.getInt("user_id", -1);
         if (userId <= 0) {
             Toast.makeText(this, "Lỗi: ID người dùng không hợp lệ", Toast.LENGTH_SHORT).show();
             redirectToLogin();
@@ -284,7 +248,9 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
+    // Cập nhật giao diện với thông tin người dùng
     private void updateProfileUI(UserProfileDto user) {
+        // Tách tên đầy đủ thành họ và tên
         String fullName = user.getFullName() != null ? user.getFullName() : "";
         String[] nameParts = fullName.split(" ", 2);
         String firstName = nameParts.length > 0 ? nameParts[0] : "";
@@ -294,37 +260,27 @@ public class EditProfileActivity extends AppCompatActivity {
         etLastName.setText(lastName);
         etEmail.setText(user.getEmail() != null ? user.getEmail() : "");
         etPhone.setText(user.getPhone() != null ? user.getPhone() : "");
-        tvDateOfBirth.setText(user.getDateOfBirth() != null && !user.getDateOfBirth().isEmpty() ? user.getDateOfBirth() : "Chọn ngày sinh");
+        tvDateOfBirth.setText(user.getDateOfBirth() != null && !user.getDateOfBirth().isEmpty()? user.getDateOfBirth() : "Chọn ngày sinh");
 
+        // Thiết lập giới tính
         String gender = translateGender(user.getGender());
-        int genderPosition = 0;
-        if (gender.equals("Nam")) {
-            genderPosition = 1;
-        } else if (gender.equals("Nữ")) {
-            genderPosition = 2;
-        }
+        int genderPosition = getGenderPosition(gender);
         spinnerGender.setSelection(genderPosition);
 
-        // Load notification preferences (set to false since not implemented)
+        // Thiết lập trạng thái thông báo (tạm thời để false)
         switchEmailNotifications.setChecked(false);
         switchPushNotifications.setChecked(false);
         switchSmsNotifications.setChecked(false);
+
+        Log.d("EditProfileActivity", "Loaded user profile - " + user.toString());
     }
 
-    private String translateGender(String gender) {
-        if (gender == null || gender.isEmpty()) return "Chọn giới tính";
-        switch (gender.toLowerCase()) {
-            case "male":
-            case "nam":
-                return "Nam";
-            case "female":
-            case "nữ":
-                return "Nữ";
-            default:
-                return "Chọn giới tính";
-        }
-    }
-
+    // Thực hiện cập nhật hồ sơ
+    /*
+     - Validate thông tin đầu vào
+     - Gọi API cập nhật
+     - Xử lý phản hồi và lưu thông tin
+     */
     private void performUpdateProfile() {
         String firstName = etFirstName.getText().toString().trim();
         String lastName = etLastName.getText().toString().trim();
@@ -332,9 +288,9 @@ public class EditProfileActivity extends AppCompatActivity {
         String phone = etPhone.getText().toString().trim();
         String dateOfBirth = tvDateOfBirth.getText().toString();
         String gender = spinnerGender.getSelectedItem().toString();
-        int userId = userPrefs.getInt("user_id", -1);
+        int userId = sharedPreferences.getInt("user_id", -1);
 
-        // Input validation
+        // Kiểm tra tính hợp lệ của thông tin
         if (userId <= 0) {
             Toast.makeText(this, "Lỗi: ID người dùng không hợp lệ", Toast.LENGTH_SHORT).show();
             redirectToLogin();
@@ -360,7 +316,7 @@ public class EditProfileActivity extends AppCompatActivity {
         }
 
         if (dateOfBirth.equals("Chọn ngày sinh") || !dateOfBirth.matches("\\d{4}-\\d{2}-\\d{2}")) {
-            Toast.makeText(this, "Vui lòng chọn ngày sinh hợp lệ (yyyy-MM-dd)", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Vui lòng chọn ngày sinh hợp lệ", Toast.LENGTH_SHORT).show();
             btnDatePicker.requestFocus();
             return;
         }
@@ -371,21 +327,28 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
 
-        // Disable save button to prevent multiple clicks
+        // Vô hiệu hóa nút lưu để tránh nhấn nhiều lần
         btnSave.setEnabled(false);
         btnSave.setText("Đang lưu...");
 
+        // Tạo đối tượng cập nhật hồ sơ
         UpdateProfileDto updateProfileDto = new UpdateProfileDto(fullName, phone, dateOfBirth, gender);
+
+        // Gọi API cập nhật
         Call<UserProfileDto> call = authApi.updateProfile(userId, updateProfileDto);
         call.enqueue(new Callback<UserProfileDto>() {
             @Override
             public void onResponse(Call<UserProfileDto> call, Response<UserProfileDto> response) {
+                // Kích hoạt lại nút lưu
                 btnSave.setEnabled(true);
                 btnSave.setText("LƯU");
 
                 if (response.isSuccessful() && response.body() != null) {
                     UserProfileDto updatedUser = response.body();
+
+                    // Lưu thông tin mới vào SharedPreferences
                     saveUserInfo(updatedUser);
+
                     Toast.makeText(EditProfileActivity.this, "Cập nhật hồ sơ thành công", Toast.LENGTH_SHORT).show();
                     finish();
                 } else {
@@ -395,21 +358,103 @@ public class EditProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<UserProfileDto> call, Throwable t) {
+                // Kích hoạt lại nút lưu khi có lỗi
                 btnSave.setEnabled(true);
                 btnSave.setText("LƯU");
+
                 Toast.makeText(EditProfileActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    // Thực hiện xóa tài khoản
+    private void performDeleteAccount(String password) {
+        int userId = sharedPreferences.getInt("user_id", -1);
+        if (userId <= 0) {
+            Toast.makeText(this, "Lỗi: ID người dùng không hợp lệ", Toast.LENGTH_SHORT).show();
+            redirectToLogin();
+            return;
+        }
+
+        DeleteAccountDto deleteDto = new DeleteAccountDto(password);
+        Call<Map<String, String>> call = authApi.deleteAccount(userId, deleteDto);
+        call.enqueue(new Callback<Map<String, String>>() {
+            @Override
+            public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Map<String, String> result = response.body();
+                    Toast.makeText(EditProfileActivity.this, result.get("message"), Toast.LENGTH_LONG).show();
+
+                    if ("Account deleted successfully".equals(result.get("message"))) {
+                        // Xóa toàn bộ thông tin người dùng
+                        sharedPreferences.edit().clear().apply();
+                        redirectToLogin();
+                    }
+                } else {
+                    handleDeleteAccountError(response);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, String>> call, Throwable t) {
+                Toast.makeText(EditProfileActivity.this, "Lỗi mạng: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    // Xử lý lỗi khi xóa tài khoản
+    private void handleDeleteAccountError(Response<Map<String, String>> response) {
+        String errorMessage = "Lỗi khi xóa tài khoản";
+
+        try {
+            if (response.code() == 401) {
+                errorMessage = "Mật khẩu không đúng";
+            } else if (response.code() == 404) {
+                errorMessage = "Không tìm thấy người dùng";
+                redirectToLogin();
+            } else if (response.code() == 400) {
+                String responseBody = response.errorBody().string();
+                if (responseBody.contains("active bookings")) {
+                    errorMessage = "Không thể xóa tài khoản do có vé đang hoạt động";
+                }
+            } else if (response.code() >= 500) {
+                errorMessage = "Lỗi máy chủ, vui lòng thử lại sau";
+            }
+        } catch (Exception e) {
+            Log.e("EditProfileActivity", "Error parsing delete account response", e);
+        }
+
+        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+    }
+
+    // Xử lý các lỗi phản hồi từ server
+    private void handleErrorResponse(Response<?> response) {
+        String errorMessage = "Không thể cập nhật hồ sơ";
+
+        if (response.code() == 401) {
+            errorMessage = "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.";
+            performLogout();
+        } else if (response.code() == 400) {
+            errorMessage = "Thông tin hồ sơ không hợp lệ";
+        } else if (response.code() >= 500) {
+            errorMessage = "Lỗi máy chủ, vui lòng thử lại sau";
+        }
+
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    // Lưu thông tin người dùng vào SharedPreferences
     private void saveUserInfo(UserProfileDto user) {
         int userIdToSave = user.getUserId();
+
+        // Kiểm tra tính hợp lệ của userId
         if (userIdToSave <= 0) {
             Toast.makeText(this, "Không thể lưu thông tin: ID người dùng không hợp lệ", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        userPrefs.edit()
+        // Lưu thông tin vào SharedPreferences
+        sharedPreferences.edit()
                 .putInt("user_id", user.getUserId())
                 .putString("username", user.getUsername())
                 .putString("user_name", user.getFullName())
@@ -422,29 +467,50 @@ public class EditProfileActivity extends AppCompatActivity {
                 .apply();
     }
 
-    private void handleErrorResponse(Response<?> response) {
-        String errorMessage = "Không thể cập nhật hồ sơ";
-        if (response.code() == 401) {
-            errorMessage = "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.";
-            performLogout();
-        } else if (response.code() == 400) {
-            errorMessage = "Thông tin hồ sơ không hợp lệ";
-        } else if (response.code() >= 500) {
-            errorMessage = "Lỗi máy chủ, vui lòng thử lại sau";
+    // Dịch giới tính sang tiếng Việt
+    private String translateGender(String gender) {
+        if (gender == null || gender.isEmpty()) return "Chọn giới tính";
+
+        switch (gender.toLowerCase()) {
+            case "male":
+            case "nam":
+                return "Nam";
+            case "female":
+            case "nữ":
+                return "Nữ";
+            default:
+                return "Chọn giới tính";
         }
-        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
     }
 
+    // Lấy vị trí giới tính trong spinner
+    private int getGenderPosition(String gender) {
+        if (gender.equals("Nam")) {
+            return 1;
+        } else if (gender.equals("Nữ")) {
+            return 2;
+        }
+        return 0;
+    }
+
+    // Hiển thị thông báo tính năng sắp ra mắt
+    private void showComingSoonToast(String feature) {
+        Toast.makeText(this, feature + ": Sắp ra mắt", Toast.LENGTH_SHORT).show();
+    }
+
+    // Thực hiện đăng xuất
     private void performLogout() {
-        userPrefs.edit().clear().apply();
+        sharedPreferences.edit().clear().apply();
         Toast.makeText(this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
         redirectToLogin();
     }
 
+    // Kiểm tra trạng thái đăng nhập
     private boolean isLoggedIn() {
-        return userPrefs.getBoolean("is_logged_in", false);
+        return sharedPreferences.getBoolean("is_logged_in", false);
     }
 
+    // Chuyển hướng đến màn hình đăng nhập
     private void redirectToLogin() {
         Intent intent = new Intent(this, Login.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -452,6 +518,7 @@ public class EditProfileActivity extends AppCompatActivity {
         finish();
     }
 
+    // Chuyển đến activity khác
     private void navigateToActivity(Class<?> targetActivity) {
         Intent intent = new Intent(this, targetActivity);
         startActivity(intent);
@@ -460,10 +527,12 @@ public class EditProfileActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        // Kiểm tra lại trạng thái đăng nhập khi quay lại màn hình
         if (!isLoggedIn()) {
             redirectToLogin();
         } else {
-            loadProfileData();
+            loadCurrentProfileData();
         }
     }
 }

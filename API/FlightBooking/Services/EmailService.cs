@@ -225,13 +225,13 @@ namespace FlightBooking.Services
             <h1>❌ Hủy đặt vé thành công</h1>
         </div>
         <div class='content'>
-            <h2>Xin chào {booking.User.FullName}!</h2>
+            <h2>Xin chào {booking.User?.FullName ?? "Quý khách"}!</h2>
             <p>Đặt vé của bạn đã được hủy thành công:</p>
             
             <ul>
                 <li><strong>Mã đặt chỗ:</strong> {booking.BookingReference}</li>
-                <li><strong>Chuyến bay:</strong> {booking.Flight.FlightNumber}</li>
-                <li><strong>Tuyến bay:</strong> {booking.Flight.DepartureAirport.AirportCode} → {booking.Flight.ArrivalAirport.AirportCode}</li>
+                <li><strong>Chuyến bay:</strong> {booking.Flight?.FlightNumber ?? "N/A"}</li>
+                <li><strong>Tuyến bay:</strong> {booking.Flight?.DepartureAirport?.AirportCode ?? "N/A"} → {booking.Flight?.ArrivalAirport?.AirportCode ?? "N/A"}</li>
             </ul>
             
             <div class='refund-info'>

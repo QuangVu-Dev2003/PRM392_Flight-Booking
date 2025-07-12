@@ -40,42 +40,38 @@ public class ChooseSeatsActivity extends AppCompatActivity {
     private ImageButton btnBack;
     private Button btnConfirmSeats;
     private LinearLayout llBusinessSeats, llEconomySeats;
-    private TextView tvSelectedSeats, tvTotalPrice;
+    private TextView tvSelectedSeats, tvTotalPrice, tvNumSelectedSeats;
     private ProgressBar progressBar;
+
     private FlightApiEndpoint flightApi;
+    private SharedPreferences sharedPreferences;
     private Map<Integer, SelectedSeatInfo> selectedSeatsInfoMap;
     private int flightId;
+    private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_seats);
 
-        // Khởi tạo API service để gọi API
+        // Khởi tạo API và SharedPreferences
         flightApi = ApiServiceProvider.getFlightApi();
+        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
 
-        // Lấy flightId từ Intent
-        flightId = getIntent().getIntExtra("flightId", -1);
-        if (flightId == -1) {
-            Toast.makeText(this, "ID chuyến bay không hợp lệ", Toast.LENGTH_SHORT).show();
-            finish();
+        // Khởi tạo Map lưu thông tin ghế đã chọn
+        selectedSeatsInfoMap = new HashMap<>();
+
+        // Kiểm tra thông tin đăng nhập và flight ID
+        if (!validateUserAndFlight()) {
             return;
         }
 
-        // Lưu flightId vào SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt("flightId", flightId);
-        editor.apply();
-
-        // Khởi tạo Map để lưu thông tin ghế đã chọn
-        selectedSeatsInfoMap = new HashMap<>();
-
         bindingView();
         bindingAction();
+        setupBackPressHandler();
 
-        // Lấy bản đồ ghế
-        performFetchSeatMap();
+        // Tải bản đồ ghế từ server
+        fetchSeatMap();
     }
 
     private void bindingView() {
@@ -85,6 +81,7 @@ public class ChooseSeatsActivity extends AppCompatActivity {
         llEconomySeats = findViewById(R.id.ll_economy_seats);
         tvSelectedSeats = findViewById(R.id.tv_selected_seats);
         tvTotalPrice = findViewById(R.id.tv_total_price);
+        tvNumSelectedSeats = findViewById(R.id.tv_num_selected_seats);
         progressBar = findViewById(R.id.progress_bar);
     }
 
@@ -93,42 +90,68 @@ public class ChooseSeatsActivity extends AppCompatActivity {
         btnConfirmSeats.setOnClickListener(this::onBtnConfirmSeatsClick);
     }
 
-    private void onBtnBackClick(View view) {
-        // Quay lại màn hình trước đó
-        finish();
+    private void setupBackPressHandler() {
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                showExitDialog();
+            }
+        });
     }
 
+    // Kiểm tra thông tin người dùng và chuyến bay
+    private boolean validateUserAndFlight() {
+        // Lấy flight ID từ Intent
+        flightId = getIntent().getIntExtra("flightId", -1);
+        if (flightId == -1) {
+            Toast.makeText(this, "Mã chuyến bay không hợp lệ", Toast.LENGTH_SHORT).show();
+            finish();
+            return false;
+        }
+
+        // Lưu flight ID vào SharedPreferences
+        sharedPreferences.edit().putInt("flightId", flightId).apply();
+
+        // Lấy user ID từ SharedPreferences
+        userId = sharedPreferences.getInt("user_id", -1);
+        if (userId == -1) {
+            Toast.makeText(this, "Bạn chưa đăng nhập", Toast.LENGTH_SHORT).show();
+            redirectToLogin();
+            return false;
+        }
+
+        return true;
+    }
+
+    // Quay lại màn hình trước
+    private void onBtnBackClick(View view) {
+        showExitDialog();
+    }
+
+    // Xác nhận chọn ghế và chuyển sang màn hình đặt vé
     private void onBtnConfirmSeatsClick(View view) {
-        // Chuyển sang màn hình đặt vé
         proceedToBooking();
     }
 
-    // Gọi API lấy bản đồ ghế
-    private void performFetchSeatMap() {
-        // Hiển thị ProgressBar khi đang tải dữ liệu
+    // Tải bản đồ ghế từ server
+    private void fetchSeatMap() {
         progressBar.setVisibility(View.VISIBLE);
 
-        // Gọi API
-        Call<SeatMapDto> call = flightApi.getSeatMap(flightId);
+        Call<SeatMapDto> call = flightApi.getSeatMap(flightId, userId);
         call.enqueue(new Callback<SeatMapDto>() {
             @Override
             public void onResponse(Call<SeatMapDto> call, Response<SeatMapDto> response) {
-                // Ẩn ProgressBar sau khi nhận được phản hồi
                 progressBar.setVisibility(View.GONE);
 
-                // Kiểm tra xem API có trả về dữ liệu thành công không
                 if (response.isSuccessful() && response.body() != null) {
-                    // Hiển thị bản đồ ghế
                     displaySeatMap(response.body());
                 } else {
-                    // Xử lý lỗi nếu API trả về không thành công
                     handleErrorResponse(response);
                 }
             }
 
             @Override
             public void onFailure(Call<SeatMapDto> call, Throwable t) {
-                // Ẩn ProgressBar khi có lỗi mạng
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(ChooseSeatsActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -137,172 +160,253 @@ public class ChooseSeatsActivity extends AppCompatActivity {
 
     // Hiển thị bản đồ ghế trên giao diện
     private void displaySeatMap(SeatMapDto seatMap) {
-        // Xóa các view cũ trong layout ghế
+        // Xóa các view cũ
         llBusinessSeats.removeAllViews();
         llEconomySeats.removeAllViews();
 
-        // Nhóm các ghế theo hàng
-        Map<Integer, List<SeatDto>> seatsByRow = new HashMap<>();
-        for (SeatDto seat : seatMap.getSeats()) {
-            seatsByRow.computeIfAbsent(seat.getSeatRow(), k -> new ArrayList<>()).add(seat);
-        }
+        // Nhóm ghế theo hàng
+        Map<Integer, List<SeatDto>> seatsByRow = groupSeatsByRow(seatMap.getSeats());
 
-        // Lấy danh sách các hàng đã sắp xếp
-        List<Integer> sortedRows = new ArrayList<>(seatsByRow.keySet());
-        sortedRows.sort(null); // Sắp xếp tăng dần theo số hàng
-
-        for (int row : sortedRows) {
-            List<SeatDto> rowSeats = seatsByRow.get(row);
-            if (rowSeats == null) continue; // Đảm bảo không null
-            rowSeats.sort((s1, s2) -> s1.getSeatColumn().compareTo(s2.getSeatColumn()));
-
-            // Tạo layout cho mỗi hàng ghế
-            LinearLayout rowLayout = new LinearLayout(this);
-            rowLayout.setOrientation(LinearLayout.HORIZONTAL);
-            rowLayout.setGravity(Gravity.CENTER_HORIZONTAL);
-            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            rowParams.setMargins(0, 0, 0, 8); // Đặt margin cố định giữa các hàng
-            rowLayout.setLayoutParams(rowParams);
-
-            for (int i = 0; i < rowSeats.size(); i++) {
-                SeatDto seat = rowSeats.get(i);
-                TextView seatView = new TextView(this);
-                seatView.setText(seat.getSeatNumber());
-                LinearLayout.LayoutParams seatParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
-                // Thêm margin giữa các ghế
-                seatParams.setMargins(i > 0 ? (seat.getSeatClassName().equals("Business") || seat.getSeatClassName().equals("FIRST_CLASS") ? 8 : 4) : 0, 0, 0, 0);
-                seatView.setLayoutParams(seatParams);
-
-                // Kiểm tra xem ghế đã được chọn trước đó chưa
-                boolean isSelected = selectedSeatsInfoMap.containsKey(seat.getSeatId());
-
-                // Thiết lập style cho ghế dựa trên trạng thái
-                int styleResId = seat.isAvailable() ?
-                        (isSelected ?
-                                (seat.getSeatClassName().equals("Business") || seat.getSeatClassName().equals("FIRST_CLASS") ?
-                                        R.style.SeatButtonBusiness_Selected : R.style.SeatButtonEconomy_Selected) :
-                                (seat.getSeatClassName().equals("Business") || seat.getSeatClassName().equals("FIRST_CLASS") ?
-                                        R.style.SeatButtonBusiness : R.style.SeatButtonEconomy)) :
-                        (seat.getSeatClassName().equals("Business") || seat.getSeatClassName().equals("FIRST_CLASS") ?
-                                R.style.SeatButtonBusiness_Unavailable : R.style.SeatButtonEconomy_Unavailable);
-                seatView.setTextAppearance(styleResId);
-
-                // Gán sự kiện click cho ghế
-                seatView.setOnClickListener(v -> onSeatClick(seat, seatView));
-
-                rowLayout.addView(seatView);
-
-                // Thêm khoảng trống giữa các nhóm ghế
-                if (rowSeats.size() > 3 && i == 2) {
-                    Space space = new Space(this);
-                    space.setLayoutParams(new LinearLayout.LayoutParams(
-                            seat.getSeatClassName().equals("Business") || seat.getSeatClassName().equals("FIRST_CLASS") ? 32 : 20,
-                            LinearLayout.LayoutParams.MATCH_PARENT));
-                    rowLayout.addView(space);
-                }
-            }
-
-            // Thêm hàng ghế vào layout tương ứng (Business hoặc Economy)
-            SeatDto firstSeat = rowSeats.get(0);
-            LinearLayout targetLayout = (firstSeat.getSeatClassName().equals("Business") || firstSeat.getSeatClassName().equals("FIRST_CLASS")) ?
-                    llBusinessSeats : llEconomySeats;
-            targetLayout.addView(rowLayout);
-        }
+        // Tạo giao diện cho từng hàng ghế
+        createSeatRows(seatsByRow);
 
         // Cập nhật thông tin ghế đã chọn
         updateSelectionInfo();
     }
 
-    // Xử lý khi click vào một ghế
-    private void onSeatClick(SeatDto seat, TextView seatView) {
-        if (seat.isAvailable()) {
-            if (selectedSeatsInfoMap.containsKey(seat.getSeatId())) {
-                // Ghế đã chọn, hủy chọn và xóa thông tin
-                selectedSeatsInfoMap.remove(seat.getSeatId());
-                seatView.setTextAppearance(seat.getSeatClassName().equals("Business") || seat.getSeatClassName().equals("FIRST_CLASS") ?
-                        R.style.SeatButtonBusiness : R.style.SeatButtonEconomy);
-                updateSelectionInfo();
-            } else {
-                // Ghế chưa chọn, hiển thị dialog nhập thông tin hành khách
-                showPassengerInfoDialog(seat, seatView);
-            }
-        } else {
-            Toast.makeText(this, "Ghế " + seat.getSeatNumber() + " không khả dụng.", Toast.LENGTH_SHORT).show();
+    // Nhóm ghế theo hàng
+    private Map<Integer, List<SeatDto>> groupSeatsByRow(List<SeatDto> seats) {
+        Map<Integer, List<SeatDto>> seatsByRow = new HashMap<>();
+        for (SeatDto seat : seats) {
+            seatsByRow.computeIfAbsent(seat.getSeatRow(), k -> new ArrayList<>()).add(seat);
+        }
+        return seatsByRow;
+    }
+
+    // Tạo giao diện cho các hàng ghế
+    private void createSeatRows(Map<Integer, List<SeatDto>> seatsByRow) {
+        List<Integer> sortedRows = new ArrayList<>(seatsByRow.keySet());
+        sortedRows.sort(null);
+
+        for (int row : sortedRows) {
+            List<SeatDto> rowSeats = seatsByRow.get(row);
+            if (rowSeats == null) continue;
+
+            // Sắp xếp ghế theo cột
+            rowSeats.sort((s1, s2) -> s1.getSeatColumn().compareTo(s2.getSeatColumn()));
+
+            // Tạo layout cho hàng ghế
+            LinearLayout rowLayout = createRowLayout();
+
+            // Thêm ghế vào hàng
+            addSeatsToRow(rowLayout, rowSeats);
+
+            // Thêm hàng vào layout phù hợp
+            addRowToLayout(rowLayout, rowSeats.get(0));
         }
     }
 
-    // Hiển thị dialog để nhập thông tin hành khách
+    // Tạo layout cho một hàng ghế
+    private LinearLayout createRowLayout() {
+        LinearLayout rowLayout = new LinearLayout(this);
+        rowLayout.setOrientation(LinearLayout.HORIZONTAL);
+        rowLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 0, 0, 8);
+        rowLayout.setLayoutParams(params);
+
+        return rowLayout;
+    }
+
+    // Thêm ghế vào hàng
+    private void addSeatsToRow(LinearLayout rowLayout, List<SeatDto> rowSeats) {
+        for (int i = 0; i < rowSeats.size(); i++) {
+            SeatDto seat = rowSeats.get(i);
+            TextView seatView = createSeatView(seat, i > 0);
+            rowLayout.addView(seatView);
+
+            // Thêm khoảng trống giữa các nhóm ghế
+            if (rowSeats.size() > 3 && i == 2) {
+                Space space = new Space(this);
+                space.setLayoutParams(new LinearLayout.LayoutParams(20, LinearLayout.LayoutParams.MATCH_PARENT));
+                rowLayout.addView(space);
+            }
+        }
+    }
+
+    // Tạo view cho một ghế
+    private TextView createSeatView(SeatDto seat, boolean addMargin) {
+        TextView seatView = new TextView(this);
+        seatView.setText(seat.getSeatNumber());
+
+        // Thiết lập layout params
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(addMargin ? 8 : 0, 0, 0, 0);
+        seatView.setLayoutParams(params);
+
+        // Thiết lập giao diện ghế
+        setupSeatAppearance(seatView, seat);
+
+        // Thiết lập sự kiện click
+        seatView.setOnClickListener(v -> onSeatClick(seat, seatView));
+
+        return seatView;
+    }
+
+    // Thiết lập giao diện cho ghế
+    private void setupSeatAppearance(TextView seatView, SeatDto seat) {
+        // Thiết lập màu nền dựa trên trạng thái ghế
+        if (seat.isBookedByCurrentUser()) {
+            seatView.setBackgroundResource(R.drawable.seat_selected);
+        } else if (!seat.isAvailable()) {
+            seatView.setBackgroundResource(R.drawable.seat_unavailable);
+        } else {
+            seatView.setBackgroundResource(R.drawable.seat_available);
+        }
+
+        // Thiết lập style text
+        seatView.setTextColor(getResources().getColor(android.R.color.white));
+        seatView.setPadding(24, 16, 24, 16);
+        seatView.setGravity(Gravity.CENTER);
+        seatView.setTextSize(14);
+    }
+
+    // Thêm hàng ghế vào layout phù hợp
+    private void addRowToLayout(LinearLayout rowLayout, SeatDto firstSeat) {
+        boolean isBusinessClass = firstSeat.getSeatClassName().equalsIgnoreCase("Business") ||
+                firstSeat.getSeatClassName().equalsIgnoreCase("FIRST_CLASS");
+        LinearLayout targetLayout = isBusinessClass ? llBusinessSeats : llEconomySeats;
+        targetLayout.addView(rowLayout);
+    }
+
+    // Xử lý khi click vào ghế
+    private void onSeatClick(SeatDto seat, TextView seatView) {
+        if (!seat.isAvailable()) {
+            Toast.makeText(this, "Ghế " + seat.getSeatNumber() + " không khả dụng", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (selectedSeatsInfoMap.containsKey(seat.getSeatId())) {
+            // Hủy chọn ghế
+            unselectSeat(seat.getSeatId(), seatView);
+        } else {
+            // Chọn ghế mới
+            showPassengerInfoDialog(seat, seatView);
+        }
+    }
+
+    // Hủy chọn ghế
+    private void unselectSeat(int seatId, TextView seatView) {
+        selectedSeatsInfoMap.remove(seatId);
+        seatView.setBackgroundResource(R.drawable.seat_available);
+        updateSelectionInfo();
+    }
+
+    // Hiển thị dialog nhập thông tin hành khách
     private void showPassengerInfoDialog(SeatDto seat, TextView seatView) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Nhập thông tin hành khách cho ghế " + seat.getSeatNumber());
+        builder.setTitle("Thông tin hành khách - Ghế " + seat.getSeatNumber());
 
         // Tạo layout cho dialog
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 20, 50, 20);
+        LinearLayout layout = createDialogLayout();
 
-        // Tạo trường nhập tên hành khách
-        final EditText inputName = new EditText(this);
-        inputName.setHint("Tên hành khách");
+        // Tạo các trường nhập liệu
+        final EditText inputName = createInputField("Tên hành khách");
+        final EditText inputIdNumber = createIdNumberField();
+
         layout.addView(inputName);
-
-        // Tạo trường nhập số CMND/CCCD
-        final EditText inputIdNumber = new EditText(this);
-        inputIdNumber.setHint("Số CMND/CCCD (9-12 số)");
-        inputIdNumber.setInputType(InputType.TYPE_CLASS_NUMBER);
         layout.addView(inputIdNumber);
-
         builder.setView(layout);
 
-        // Nút OK trong dialog
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            String name = inputName.getText().toString().trim();
-            String idNumber = inputIdNumber.getText().toString().trim();
-
-            // Kiểm tra xem tên có rỗng không
-            if (TextUtils.isEmpty(name)) {
-                Toast.makeText(this, "Tên hành khách không được để trống.", Toast.LENGTH_SHORT).show();
-                showPassengerInfoDialog(seat, seatView); // Hiển thị lại dialog
-                return;
-            }
-            // Kiểm tra số CMND/CCCD
-            if (TextUtils.isEmpty(idNumber) || !idNumber.matches("\\d{9,12}")) {
-                Toast.makeText(this, "Số CMND/CCCD phải có 9-12 số.", Toast.LENGTH_SHORT).show();
-                showPassengerInfoDialog(seat, seatView); // Hiển thị lại dialog
-                return;
-            }
-
-            // Lưu thông tin ghế đã chọn
-            SelectedSeatInfo info = new SelectedSeatInfo(
-                    seat.getSeatId(),
-                    seat.getSeatNumber(),
-                    seat.getSeatClassName(),
-                    seat.getTotalPrice() != null ? seat.getTotalPrice() : BigDecimal.ZERO
-            );
-            info.setPassengerName(name);
-            info.setPassengerIdNumber(idNumber);
-            selectedSeatsInfoMap.put(seat.getSeatId(), info);
-
-            // Cập nhật giao diện ghế thành đã chọn
-            seatView.setTextAppearance(seat.getSeatClassName().equals("Business") || seat.getSeatClassName().equals("FIRST_CLASS") ?
-                    R.style.SeatButtonBusiness_Selected : R.style.SeatButtonEconomy_Selected);
-            updateSelectionInfo();
+        // Thiết lập các nút
+        builder.setPositiveButton("Xác nhận", (dialog, which) -> {
+            processPassengerInfo(seat, seatView, inputName, inputIdNumber);
         });
 
-        // Nút Cancel trong dialog
         builder.setNegativeButton("Hủy", (dialog, which) -> dialog.cancel());
-
         builder.show();
     }
 
-    // Cập nhật thông tin ghế đã chọn và tổng giá
+    // Tạo layout cho dialog
+    private LinearLayout createDialogLayout() {
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(50, 20, 50, 20);
+        return layout;
+    }
+
+    // Tạo trường nhập tên
+    private EditText createInputField(String hint) {
+        EditText editText = new EditText(this);
+        editText.setHint(hint);
+        return editText;
+    }
+
+    // Tạo trường nhập số CMND
+    private EditText createIdNumberField() {
+        EditText editText = new EditText(this);
+        editText.setHint("Số CMND/CCCD (9-12 số)");
+        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+        return editText;
+    }
+
+    // Xử lý thông tin hành khách
+    private void processPassengerInfo(SeatDto seat, TextView seatView, EditText inputName, EditText inputIdNumber) {
+        String name = inputName.getText().toString().trim();
+        String idNumber = inputIdNumber.getText().toString().trim();
+
+        // Kiểm tra thông tin đầu vào
+        if (!validatePassengerInfo(name, idNumber)) {
+            showPassengerInfoDialog(seat, seatView);
+            return;
+        }
+
+        // Lưu thông tin ghế đã chọn
+        saveSelectedSeat(seat, name, idNumber);
+
+        // Cập nhật giao diện
+        seatView.setBackgroundResource(R.drawable.seat_selected);
+        updateSelectionInfo();
+    }
+
+    // Kiểm tra thông tin hành khách
+    private boolean validatePassengerInfo(String name, String idNumber) {
+        if (TextUtils.isEmpty(name)) {
+            Toast.makeText(this, "Tên hành khách không được để trống", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (TextUtils.isEmpty(idNumber) || !idNumber.matches("\\d{9,12}")) {
+            Toast.makeText(this, "Số CMND/CCCD phải có 9-12 số", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    }
+
+    // Lưu thông tin ghế đã chọn
+    private void saveSelectedSeat(SeatDto seat, String name, String idNumber) {
+        SelectedSeatInfo info = new SelectedSeatInfo(
+                seat.getSeatId(),
+                seat.getSeatNumber(),
+                seat.getSeatClassName(),
+                seat.getTotalPrice() != null ? seat.getTotalPrice() : BigDecimal.ZERO
+        );
+        info.setPassengerName(name);
+        info.setPassengerIdNumber(idNumber);
+        selectedSeatsInfoMap.put(seat.getSeatId(), info);
+    }
+
+    // Cập nhật thông tin ghế đã chọn
     private void updateSelectionInfo() {
         List<String> seatNumbers = new ArrayList<>();
         BigDecimal totalPrice = BigDecimal.ZERO;
+
         for (SelectedSeatInfo info : selectedSeatsInfoMap.values()) {
             seatNumbers.add(info.getSeatNumber());
             if (info.getTotalPrice() != null) {
@@ -310,16 +414,28 @@ public class ChooseSeatsActivity extends AppCompatActivity {
             }
         }
 
-        // Cập nhật danh sách ghế đã chọn
+        // Cập nhật UI
+        updateSelectedSeatsDisplay(seatNumbers);
+        updateTotalPriceDisplay(totalPrice);
+        updateSelectedSeatsCount();
+    }
+
+    // Cập nhật hiển thị danh sách ghế
+    private void updateSelectedSeatsDisplay(List<String> seatNumbers) {
         String selectedSeatsText = String.join(", ", seatNumbers);
         tvSelectedSeats.setText(selectedSeatsText.isEmpty() ? "Chưa chọn ghế nào" : selectedSeatsText);
-        // Cập nhật tổng giá
-        tvTotalPrice.setText("$" + totalPrice.setScale(2, BigDecimal.ROUND_HALF_UP).toString());
+    }
 
-        // Cập nhật số lượng ghế đã chọn
-        TextView tvNumSelectedSeats = findViewById(R.id.tv_num_selected_seats);
+    // Cập nhật hiển thị tổng giá
+    private void updateTotalPriceDisplay(BigDecimal totalPrice) {
+        String formatted = String.format("%,d", totalPrice.setScale(0, BigDecimal.ROUND_HALF_UP).intValue());
+        tvTotalPrice.setText(formatted + " VNĐ");
+    }
+
+    // Cập nhật số lượng ghế đã chọn
+    private void updateSelectedSeatsCount() {
         if (tvNumSelectedSeats != null) {
-            tvNumSelectedSeats.setText(selectedSeatsInfoMap.size() + " Ghế đã chọn");
+            tvNumSelectedSeats.setText(selectedSeatsInfoMap.size() + " ghế đã chọn");
         }
     }
 
@@ -330,35 +446,60 @@ public class ChooseSeatsActivity extends AppCompatActivity {
             return;
         }
 
-        // Chuyển danh sách ghế đã chọn sang List
+        // Chuyển sang màn hình đặt vé
         ArrayList<SelectedSeatInfo> seatsToBook = new ArrayList<>(selectedSeatsInfoMap.values());
-
-        // Chuyển sang màn hình BookingFormActivity
         Intent intent = new Intent(this, BookingFormActivity.class);
         intent.putExtra("flightId", flightId);
         intent.putExtra("selectedSeatsList", seatsToBook);
         startActivity(intent);
     }
 
-    // Xử lý lỗi từ phản hồi của server
+    // Xử lý lỗi từ server
     private void handleErrorResponse(Response<SeatMapDto> response) {
         String errorMessage = "Không thể tải bản đồ ghế";
-        if (response.errorBody() != null) {
-            try {
-                // Thông báo lỗi từ server
-                errorMessage = response.errorBody().string();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        // Kiểm tra mã lỗi từ server
+
         if (response.code() == 400) {
-            errorMessage = "Yêu cầu không hợp lệ: " + errorMessage;
+            errorMessage = "Yêu cầu không hợp lệ";
+        } else if (response.code() == 401) {
+            errorMessage = "Phiên đăng nhập hết hạn";
+            redirectToLogin();
+            return;
         } else if (response.code() == 404) {
-            errorMessage = "Không tìm thấy chuyến bay: " + errorMessage;
+            errorMessage = "Không tìm thấy chuyến bay";
         } else if (response.code() >= 500) {
-            errorMessage = "Lỗi server, vui lòng thử lại sau: " + errorMessage;
+            errorMessage = "Lỗi server, vui lòng thử lại sau";
         }
+
         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    // Chuyển về màn hình đăng nhập
+    private void redirectToLogin() {
+        Intent intent = new Intent(this, Login.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void showExitDialog() {
+        // Hiện dialog hỏi người dùng có muốn thoát không
+        new AlertDialog.Builder(this)
+                .setTitle("Xác nhận thoát")
+                .setMessage("Bạn có muốn thoát không? Thông tin chưa lưu sẽ bị mất.")
+                .setPositiveButton("Có", (dialog, which) -> finish())
+                .setNegativeButton("Không", (dialog, which) -> {
+                    // Nếu chọn không thì đóng dialog, không thoát
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Kiểm tra trạng thái đăng nhập khi quay lại màn hình
+        if (!sharedPreferences.getBoolean("is_logged_in", false)) {
+            redirectToLogin();
+        }
     }
 }

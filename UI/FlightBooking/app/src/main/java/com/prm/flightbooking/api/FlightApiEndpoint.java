@@ -23,7 +23,7 @@ public interface FlightApiEndpoint {
     Call<List<FlightResponseDto>> searchFlights(@Body FlightSearchDto searchDto);
 
     @GET("Flights/{flightId}/seats")
-    Call<SeatMapDto> getSeatMap(@Path("flightId") int flightId);
+    Call<SeatMapDto> getSeatMap(@Path("flightId") int flightId, @Query("userId") int userId);
 
     @GET("admin/Flights")
     Call<List<AdminFlightResponseDto>> getAllFlights(@Query("page") int page, @Query("pageSize") int pageSize);

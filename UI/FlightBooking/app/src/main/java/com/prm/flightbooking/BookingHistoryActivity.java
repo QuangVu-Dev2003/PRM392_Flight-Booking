@@ -52,6 +52,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
     private BookingApiEndpoint bookingApi;
     private BookingHistoryAdapter adapter;
     private List<UserBookingHistoryDto> bookingList, filteredList;
+    private SharedPreferences sharedPreferences;
     private int userId;
     private int currentPage = 1;
     private final int PAGE_SIZE = 10;
@@ -62,11 +63,13 @@ public class BookingHistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking_history);
 
-        // Khởi tạo API service
+        // Khởi tạo API và SharedPreferences
         bookingApi = ApiServiceProvider.getBookingApi();
+        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
 
-        // Lấy userId từ SharedPreferences
-        if (!getUserIdFromPreferences()) {
+        // Kiểm tra đăng nhập và lấy userId
+        if (!isLoggedIn()) {
+            redirectToLogin();
             return;
         }
 
@@ -74,19 +77,6 @@ public class BookingHistoryActivity extends AppCompatActivity {
         bindingAction();
         setupRecyclerView();
         fetchBookingHistory();
-    }
-
-    private boolean getUserIdFromPreferences() {
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        userId = prefs.getInt("user_id", -1);
-        Log.d("BookingHistory", "Retrieved userId: " + userId);
-
-        if (userId == -1) {
-            Toast.makeText(this, "Người dùng chưa đăng nhập", Toast.LENGTH_SHORT).show();
-            finish();
-            return false;
-        }
-        return true;
     }
 
     private void bindingView() {
@@ -114,6 +104,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
         chipCompleted.setOnClickListener(this::onChipCompletedClick);
         chipCancelled.setOnClickListener(this::onChipCancelledClick);
 
+        // Tìm kiếm theo thời gian thực
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -126,42 +117,43 @@ public class BookingHistoryActivity extends AppCompatActivity {
         });
     }
 
+    // Quay lại màn hình trước
     private void onBtnBackClick(View view) {
         finish();
     }
 
-    // Hiển/ẩn bộ lọc tìm kiếm
+    // Hiển thị hoặc ẩn bộ lọc
     private void onBtnFilterClick(View view) {
         toggleSearchFilter();
     }
 
-    // Chuyển sang màn hình đặt vé
+    // Chuyển sang màn hình đặt vé mới
     private void onBtnBookFlightClick(View view) {
         Intent intent = new Intent(this, BookingActivity.class);
         startActivity(intent);
     }
 
-    // Lọc tất cả
+    // Lọc tất cả đặt vé
     private void onChipAllClick(View view) {
         setFilter("Tất cả");
     }
 
-    // Lọc chuyến bay sắp tới
+    // Lọc vé sắp bay
     private void onChipUpcomingClick(View view) {
         setFilter("Sắp tới");
     }
 
-    // Lọc chuyến bay đã hoàn thành
+    // Lọc vé đã bay
     private void onChipCompletedClick(View view) {
         setFilter("Đã hoàn thành");
     }
 
-    // Lọc chuyến bay đã hủy
+    // Lọc vé đã hủy
     private void onChipCancelledClick(View view) {
         setFilter("Đã hủy");
     }
 
-    // Hiển/ẩn container tìm kiếm và lọc
+    // Hiển thị hoặc ẩn thanh tìm kiếm
     private void toggleSearchFilter() {
         if (searchFilterContainer.getVisibility() == View.VISIBLE) {
             searchFilterContainer.setVisibility(View.GONE);
@@ -170,10 +162,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
         }
     }
 
-    /*
-     - Khởi tạo RecyclerView
-     - Thiết lập adapter và layout manager
-     */
+    // Thiết lập danh sách hiển thị
     private void setupRecyclerView() {
         bookingList = new ArrayList<>();
         filteredList = new ArrayList<>();
@@ -182,19 +171,18 @@ public class BookingHistoryActivity extends AppCompatActivity {
         rvBookingHistory.setAdapter(adapter);
     }
 
-    /*
-     - Thiết lập filter theo trạng thái
-     - Cập nhật UI cho các chip filter
-     */
+    // Thiết lập bộ lọc theo trạng thái
     private void setFilter(String filter) {
         currentFilter = filter;
         updateChipStyles();
         filterBookings(etSearch.getText().toString());
     }
 
-    // Cập nhật màu sắc và trạng thái của các chip filter
+    // Cập nhật giao diện cho các nút lọc
     private void updateChipStyles() {
-        int textColor = getResources().getColor(R.color.white);
+        int activeColor = getResources().getColor(R.color.blue_500);
+        int inactiveColor = getResources().getColor(R.color.grey_200);
+        int activeTextColor = getResources().getColor(R.color.white);
         int inactiveTextColor = getResources().getColor(R.color.grey_600);
 
         TextView tvAll = chipAll.findViewById(R.id.tv_chip_all);
@@ -202,29 +190,31 @@ public class BookingHistoryActivity extends AppCompatActivity {
         TextView tvCompleted = chipCompleted.findViewById(R.id.tv_chip_completed);
         TextView tvCancelled = chipCancelled.findViewById(R.id.tv_chip_cancelled);
 
-        chipAll.setCardBackgroundColor(getResources().getColor(currentFilter.equals("Tất cả") ? R.color.blue_500 : R.color.grey_200));
-        chipUpcoming.setCardBackgroundColor(getResources().getColor(currentFilter.equals("Sắp tới") ? R.color.blue_500 : R.color.grey_200));
-        chipCompleted.setCardBackgroundColor(getResources().getColor(currentFilter.equals("Đã hoàn thành") ? R.color.blue_500 : R.color.grey_200));
-        chipCancelled.setCardBackgroundColor(getResources().getColor(currentFilter.equals("Đã hủy") ? R.color.blue_500 : R.color.grey_200));
+        // Cập nhật màu nền cho các chip
+        chipAll.setCardBackgroundColor(currentFilter.equals("Tất cả") ? activeColor : inactiveColor);
+        chipUpcoming.setCardBackgroundColor(currentFilter.equals("Sắp tới") ? activeColor : inactiveColor);
+        chipCompleted.setCardBackgroundColor(currentFilter.equals("Đã hoàn thành") ? activeColor : inactiveColor);
+        chipCancelled.setCardBackgroundColor(currentFilter.equals("Đã hủy") ? activeColor : inactiveColor);
 
-        if (tvAll != null) tvAll.setTextColor(currentFilter.equals("Tất cả") ? textColor : inactiveTextColor);
-        if (tvUpcoming != null) tvUpcoming.setTextColor(currentFilter.equals("Sắp tới") ? textColor : inactiveTextColor);
-        if (tvCompleted != null) tvCompleted.setTextColor(currentFilter.equals("Đã hoàn thành") ? textColor : inactiveTextColor);
-        if (tvCancelled != null) tvCancelled.setTextColor(currentFilter.equals("Đã hủy") ? textColor : inactiveTextColor);
+        // Cập nhật màu chữ cho các chip
+        if (tvAll != null) tvAll.setTextColor(currentFilter.equals("Tất cả") ? activeTextColor : inactiveTextColor);
+        if (tvUpcoming != null) tvUpcoming.setTextColor(currentFilter.equals("Sắp tới") ? activeTextColor : inactiveTextColor);
+        if (tvCompleted != null) tvCompleted.setTextColor(currentFilter.equals("Đã hoàn thành") ? activeTextColor : inactiveTextColor);
+        if (tvCancelled != null) tvCancelled.setTextColor(currentFilter.equals("Đã hủy") ? activeTextColor : inactiveTextColor);
     }
 
-    /*
-     - Lọc danh sách booking theo filter và search query
-     - Cập nhật adapter và empty state
-     */
+    // Lọc danh sách đặt vé theo điều kiện
     private void filterBookings(String query) {
         filteredList.clear();
+
         for (UserBookingHistoryDto booking : bookingList) {
+            // Kiểm tra trạng thái đặt vé
             boolean matchesFilter = currentFilter.equals("Tất cả") ||
                     (currentFilter.equals("Sắp tới") && booking.getBookingStatus().equalsIgnoreCase("Confirmed")) ||
                     (currentFilter.equals("Đã hoàn thành") && booking.getBookingStatus().equalsIgnoreCase("Completed")) ||
                     (currentFilter.equals("Đã hủy") && booking.getBookingStatus().equalsIgnoreCase("Cancelled"));
 
+            // Kiểm tra từ khóa tìm kiếm
             boolean matchesQuery = query.isEmpty() ||
                     booking.getRoute().toLowerCase().contains(query.toLowerCase()) ||
                     booking.getBookingReference().toLowerCase().contains(query.toLowerCase()) ||
@@ -234,34 +224,36 @@ public class BookingHistoryActivity extends AppCompatActivity {
                 filteredList.add(booking);
             }
         }
+
         adapter.notifyDataSetChanged();
         updateEmptyState();
     }
 
-    /*
-     - Gọi API để lấy lịch sử đặt vé
-     - Xử lý response và cập nhật UI
-     */
+    // Gọi API để lấy lịch sử đặt vé
     private void fetchBookingHistory() {
+        userId = sharedPreferences.getInt("user_id", -1);
+
+        if (userId <= 0) {
+            Toast.makeText(this, "Lỗi: Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+            redirectToLogin();
+            return;
+        }
+
         progressBar.setVisibility(View.VISIBLE);
         emptyState.setVisibility(View.GONE);
 
         Call<List<UserBookingHistoryDto>> call = bookingApi.getBookingHistory(userId, currentPage, PAGE_SIZE);
-        Log.d("BookingHistory", "Calling API for userId: " + userId + ", page: " + currentPage + ", pageSize: " + PAGE_SIZE);
-
         call.enqueue(new Callback<List<UserBookingHistoryDto>>() {
             @Override
             public void onResponse(Call<List<UserBookingHistoryDto>> call, Response<List<UserBookingHistoryDto>> response) {
                 progressBar.setVisibility(View.GONE);
-                Log.d("BookingHistory", "API Response Code: " + response.code());
 
                 if (response.isSuccessful() && response.body() != null) {
                     List<UserBookingHistoryDto> bookings = response.body();
-                    Log.d("BookingHistory", "Bookings count: " + bookings.size());
+
                     bookingList.addAll(bookings);
                     filterBookings(etSearch.getText().toString());
                 } else {
-                    // Xử lý lỗi từ server
                     handleErrorResponse(response);
                 }
             }
@@ -269,48 +261,82 @@ public class BookingHistoryActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<UserBookingHistoryDto>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                Log.e("BookingHistory", "API call failed: " + t.getMessage());
                 Toast.makeText(BookingHistoryActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("BookingHistory", "Lỗi gọi API: " + t.getMessage());
             }
         });
     }
 
-    // Xử lý các lỗi response từ server
+    // Xử lý lỗi từ server
     private void handleErrorResponse(Response<List<UserBookingHistoryDto>> response) {
         try {
             String errorMessage = "Không thể tải lịch sử đặt vé";
 
             if (response.code() == 401) {
-                errorMessage = "Phiên đăng nhập đã hết hạn";
+                errorMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+                performLogout();
             } else if (response.code() == 400) {
                 errorMessage = "Yêu cầu không hợp lệ";
+            } else if (response.code() == 404) {
+                errorMessage = "Không tìm thấy lịch sử đặt vé";
             } else if (response.code() >= 500) {
                 errorMessage = "Lỗi server, vui lòng thử lại sau";
             }
 
             Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
-            Log.d("BookingHistory", "Response failed: " + response.message());
 
         } catch (Exception e) {
             Toast.makeText(this, "Đã có lỗi xảy ra", Toast.LENGTH_SHORT).show();
         }
     }
 
-    /*
-     - Cập nhật trạng thái empty state
-     - Hiển thị/ẩn RecyclerView và empty state
-     */
+    // Hiển thị thông báo khi không có dữ liệu
     private void updateEmptyState() {
-        emptyState.setVisibility(filteredList.isEmpty() ? View.VISIBLE : View.GONE);
-        rvBookingHistory.setVisibility(filteredList.isEmpty() ? View.GONE : View.VISIBLE);
+        if (filteredList.isEmpty()) {
+            emptyState.setVisibility(View.VISIBLE);
+            rvBookingHistory.setVisibility(View.GONE);
+        } else {
+            emptyState.setVisibility(View.GONE);
+            rvBookingHistory.setVisibility(View.VISIBLE);
+        }
     }
 
-    // Adapter cho RecyclerView
+    // Đăng xuất người dùng
+    private void performLogout() {
+        sharedPreferences.edit().clear().apply();
+        Toast.makeText(this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
+        redirectToLogin();
+    }
+
+    // Kiểm tra trạng thái đăng nhập
+    private boolean isLoggedIn() {
+        return sharedPreferences.getBoolean("is_logged_in", false);
+    }
+
+    // Chuyển về màn hình đăng nhập
+    private void redirectToLogin() {
+        Intent intent = new Intent(this, Login.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isLoggedIn()) {
+            fetchBookingHistory();
+        } else {
+            redirectToLogin();
+        }
+    }
+
+    // Adapter cho RecyclerView hiển thị lịch sử đặt vé
     private static class BookingHistoryAdapter extends RecyclerView.Adapter<BookingHistoryAdapter.ViewHolder> {
 
         private final List<UserBookingHistoryDto> bookings;
-        private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("EEEE, dd/MM/yyyy, HH:mm", Locale.getDefault());
-        private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("EEEE, dd/MM/yyyy, HH:mm", new Locale("vi", "VN"));
+        private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", new Locale("vi", "VN"));
         private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
 
         BookingHistoryAdapter(List<UserBookingHistoryDto> bookings) {
@@ -328,28 +354,32 @@ public class BookingHistoryActivity extends AppCompatActivity {
         public void onBindViewHolder(ViewHolder holder, int position) {
             UserBookingHistoryDto booking = bookings.get(position);
 
-            // Hiển thị trạng thái booking
+            // Hiển thị trạng thái đặt vé
             String status = booking.getBookingStatus();
             holder.tvStatus.setText(getStatusText(status));
             holder.statusLayout.setBackgroundColor(getStatusColor(holder.itemView.getContext(), status));
             holder.tvBookingId.setText("Mã đặt vé: " + booking.getBookingReference());
 
-            // Thông tin hãng bay
+            // Thông tin chuyến bay
             holder.tvAirline.setText(booking.getAirlineName());
             holder.tvFlightDetails.setText("Chuyến bay " + booking.getFlightNumber());
 
-            // Xử lý giá tiền theo định dạng VND
+            // Hiển thị giá vé
             BigDecimal totalAmount = booking.getTotalAmount();
             String formattedPrice = currencyFormat.format(totalAmount);
             holder.tvPrice.setText(formattedPrice);
 
-            // Thông tin tuyến đường
-            String route = booking.getRoute().replace("→", "to").trim();
-            String[] routeParts = route.split(" to ");
-            holder.tvFromCity.setText(routeParts.length > 0 ? routeParts[0].trim() : "Không xác định");
-            holder.tvToCity.setText(routeParts.length > 1 ? routeParts[1].trim() : "Không xác định");
-            holder.tvFromCode.setText(routeParts.length > 0 ? routeParts[0].substring(0, 3).toUpperCase() : "Không xác định");
-            holder.tvToCode.setText(routeParts.length > 1 ? routeParts[1].substring(0, 3).toUpperCase() : "Không xác định");
+            // Thông tin tuyến bay
+            String route = booking.getRoute().replace("→", " đến ").trim();
+            String[] routeParts = route.split(" đến ");
+            holder.tvFromCity.setText(routeParts.length > 0 ? routeParts[0].trim() : "Chưa xác định");
+            holder.tvToCity.setText(routeParts.length > 1 ? routeParts[1].trim() : "Chưa xác định");
+
+            // Mã sân bay
+            holder.tvFromCode.setText(routeParts.length > 0 ? routeParts[0].substring(0, 3).toUpperCase() : "---");
+            holder.tvToCode.setText(routeParts.length > 1 ? routeParts[1].substring(0, 3).toUpperCase() : "---");
+
+            // Thời gian bay
             holder.tvFromTime.setText(timeFormat.format(booking.getDepartureTime()));
             holder.tvToTime.setText(timeFormat.format(booking.getArrivalTime()));
             holder.tvDate.setText(dateTimeFormat.format(booking.getBookingDate()));
@@ -358,24 +388,32 @@ public class BookingHistoryActivity extends AppCompatActivity {
             long durationMillis = booking.getArrivalTime().getTime() - booking.getDepartureTime().getTime();
             long hours = durationMillis / (1000 * 60 * 60);
             long minutes = (durationMillis / (1000 * 60)) % 60;
-            holder.tvDuration.setText(String.format(Locale.getDefault(), "%dg %dm", hours, minutes));
+            holder.tvDuration.setText(String.format(new Locale("vi", "VN"), "%d giờ %d phút", hours, minutes));
 
-            // Các nút hành động
-            holder.btnViewDetail.setText(status.equalsIgnoreCase("Cancelled") ? "Xem chi tiết" : "Xem chi tiết");
-            holder.btnCheckin.setText(status.equalsIgnoreCase("Confirmed") ? "Check-in" :
-                    status.equalsIgnoreCase("Completed") ? "Đặt lại" : "Xem chi tiết");
-            holder.btnCheckin.setVisibility(status.equalsIgnoreCase("Cancelled") ? View.GONE : View.VISIBLE);
+            // Nút hành động
+            holder.btnViewDetail.setText("Xem chi tiết");
 
+            if (status.equalsIgnoreCase("Confirmed")) {
+                holder.btnCheckin.setText("Check-in");
+                holder.btnCheckin.setVisibility(View.VISIBLE);
+            } else if (status.equalsIgnoreCase("Completed")) {
+                holder.btnCheckin.setText("Đặt lại");
+                holder.btnCheckin.setVisibility(View.VISIBLE);
+            } else {
+                holder.btnCheckin.setVisibility(View.GONE);
+            }
+
+            // Sự kiện click cho nút xem chi tiết
             holder.btnViewDetail.setOnClickListener(v -> {
                 Intent intent = new Intent(holder.itemView.getContext(), BookingDetailActivity.class);
                 intent.putExtra("bookingId", booking.getBookingId());
                 holder.itemView.getContext().startActivity(intent);
             });
 
-            // OnClickListener cho nút "Check-in"
+            // Sự kiện click cho nút thứ hai
             holder.btnCheckin.setOnClickListener(v -> {
                 if (status.equalsIgnoreCase("Confirmed")) {
-                    // Chuyển sang PayActivity khi check-in
+                    // Chuyển sang màn hình thanh toán
                     Intent intent = new Intent(holder.itemView.getContext(), PayActivity.class);
                     intent.putExtra("bookingId", booking.getBookingId());
                     intent.putExtra("bookingReference", booking.getBookingReference());
@@ -384,33 +422,42 @@ public class BookingHistoryActivity extends AppCompatActivity {
                     intent.putExtra("route", booking.getRoute());
                     holder.itemView.getContext().startActivity(intent);
                 } else if (status.equalsIgnoreCase("Completed")) {
-                    // Chuyển sang BookingActivity để đặt lại
+                    // Chuyển sang màn hình đặt vé mới
                     Intent intent = new Intent(holder.itemView.getContext(), BookingActivity.class);
-                    holder.itemView.getContext().startActivity(intent);
-                } else {
-                    // Xem chi tiết cho các trạng thái khác
-                    Intent intent = new Intent(holder.itemView.getContext(), BookingDetailActivity.class);
-                    intent.putExtra("bookingId", booking.getBookingId());
                     holder.itemView.getContext().startActivity(intent);
                 }
             });
 
-            // Điều chỉnh độ mờ cho booking đã hủy
+            // Làm mờ các vé đã hủy
             holder.itemView.setAlpha(status.equalsIgnoreCase("Cancelled") ? 0.7f : 1.0f);
         }
 
+        // Chuyển đổi trạng thái sang tiếng Việt
         private String getStatusText(String status) {
-            if (status.equalsIgnoreCase("Confirmed")) return "✅ Đã xác nhận";
-            if (status.equalsIgnoreCase("Completed")) return "✈️ Đã hoàn thành";
-            if (status.equalsIgnoreCase("Cancelled")) return "❌ Đã hủy";
-            return status;
+            switch (status.toLowerCase()) {
+                case "confirmed":
+                    return "✅ Đã xác nhận";
+                case "completed":
+                    return "✈️ Đã hoàn thành";
+                case "cancelled":
+                    return "❌ Đã hủy";
+                default:
+                    return status;
+            }
         }
 
+        // Lấy màu theo trạng thái
         private int getStatusColor(android.content.Context context, String status) {
-            if (status.equalsIgnoreCase("Confirmed")) return context.getResources().getColor(R.color.green_100);
-            if (status.equalsIgnoreCase("Completed")) return context.getResources().getColor(R.color.blue_100);
-            if (status.equalsIgnoreCase("Cancelled")) return context.getResources().getColor(R.color.red_100);
-            return context.getResources().getColor(R.color.grey_100);
+            switch (status.toLowerCase()) {
+                case "confirmed":
+                    return context.getResources().getColor(R.color.green_100);
+                case "completed":
+                    return context.getResources().getColor(R.color.blue_100);
+                case "cancelled":
+                    return context.getResources().getColor(R.color.red_100);
+                default:
+                    return context.getResources().getColor(R.color.grey_100);
+            }
         }
 
         @Override
@@ -418,6 +465,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
             return bookings.size();
         }
 
+        // ViewHolder cho từng item trong danh sách
         static class ViewHolder extends RecyclerView.ViewHolder {
             LinearLayout statusLayout;
             TextView tvStatus, tvBookingId, tvAirline, tvFlightDetails, tvPrice;

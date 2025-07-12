@@ -38,6 +38,9 @@ public class SeatDto {
     @SerializedName("totalPrice")
     private BigDecimal totalPrice;
 
+    @SerializedName("isBookedByCurrentUser")
+    private boolean isBookedByCurrentUser;
+
     public SeatDto() {
     }
 
@@ -53,6 +56,21 @@ public class SeatDto {
         this.extraFee = extraFee;
         this.isAvailable = isAvailable;
         this.totalPrice = totalPrice;
+    }
+
+    public SeatDto(int seatId, String seatNumber, int seatRow, String seatColumn, String seatClassName, boolean isWindow, boolean isAisle, boolean isEmergencyExit, BigDecimal extraFee, boolean isAvailable, BigDecimal totalPrice, boolean isBookedByCurrentUser) {
+        this.seatId = seatId;
+        this.seatNumber = seatNumber;
+        this.seatRow = seatRow;
+        this.seatColumn = seatColumn;
+        this.seatClassName = seatClassName;
+        this.isWindow = isWindow;
+        this.isAisle = isAisle;
+        this.isEmergencyExit = isEmergencyExit;
+        this.extraFee = extraFee;
+        this.isAvailable = isAvailable;
+        this.totalPrice = totalPrice;
+        this.isBookedByCurrentUser = isBookedByCurrentUser;
     }
 
     public int getSeatId() {
@@ -141,5 +159,13 @@ public class SeatDto {
 
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public boolean isBookedByCurrentUser() {
+        return isBookedByCurrentUser;
+    }
+
+    public void setBookedByCurrentUser(boolean bookedByCurrentUser) {
+        isBookedByCurrentUser = bookedByCurrentUser;
     }
 }

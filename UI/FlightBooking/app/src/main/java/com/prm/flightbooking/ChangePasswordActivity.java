@@ -37,9 +37,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private View strengthBar1, strengthBar2, strengthBar3, strengthBar4;
     private ImageView checkLength, checkUppercase, checkLowercase, checkNumber, checkSpecial;
     private AuthApiEndpoint authApi;
-    private SharedPreferences userPrefs;
+    private SharedPreferences sharedPreferences;
 
-    // Password requirements patterns
+    // Các pattern kiểm tra mật khẩu
     private static final Pattern LENGTH_PATTERN = Pattern.compile(".{8,}");
     private static final Pattern UPPERCASE_PATTERN = Pattern.compile("[A-Z]");
     private static final Pattern LOWERCASE_PATTERN = Pattern.compile("[a-z]");
@@ -51,17 +51,16 @@ public class ChangePasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
 
-        // Initialize API service and SharedPreferences
+        // Khởi tạo API
         authApi = ApiServiceProvider.getAuthApi();
-        userPrefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
 
-        // Check login status
+        // Kiểm tra trạng thái đăng nhập
         if (!isLoggedIn()) {
             redirectToLogin();
             return;
         }
 
-        // Bind views and actions
         bindingView();
         bindingAction();
     }
@@ -89,17 +88,19 @@ public class ChangePasswordActivity extends AppCompatActivity {
     }
 
     private void bindingAction() {
-        btnBack.setOnClickListener(v -> finish());
-        btnHelp.setOnClickListener(v -> Toast.makeText(this, "Help: Coming soon", Toast.LENGTH_SHORT).show());
-        btnChangePassword.setOnClickListener(v -> performChangePassword());
+        btnBack.setOnClickListener(this::onBackClick);
+        btnHelp.setOnClickListener(this::onHelpClick);
+        btnChangePassword.setOnClickListener(this::onChangePasswordClick);
 
-        // Real-time password strength validation
+        // Theo dõi thay đổi mật khẩu mới
         etNewPassword.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -108,13 +109,15 @@ public class ChangePasswordActivity extends AppCompatActivity {
             }
         });
 
-        // Real-time confirm password validation
+        // Theo dõi thay đổi xác nhận mật khẩu
         etConfirmPassword.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -123,12 +126,15 @@ public class ChangePasswordActivity extends AppCompatActivity {
             }
         });
 
+        // Theo dõi thay đổi mật khẩu hiện tại
         etCurrentPassword.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -137,6 +143,22 @@ public class ChangePasswordActivity extends AppCompatActivity {
         });
     }
 
+    // Nút quay lại
+    private void onBackClick(View view) {
+        finish();
+    }
+
+    // Nút trợ giúp
+    private void onHelpClick(View view) {
+        Toast.makeText(this, "Tính năng trợ giúp sẽ có sớm", Toast.LENGTH_SHORT).show();
+    }
+
+    // Nút đổi mật khẩu
+    private void onChangePasswordClick(View view) {
+        performChangePassword();
+    }
+
+    // Kiểm tra độ mạnh mật khẩu
     private void validatePassword(String password) {
         int strength = 0;
         boolean hasLength = LENGTH_PATTERN.matcher(password).matches();
@@ -145,14 +167,14 @@ public class ChangePasswordActivity extends AppCompatActivity {
         boolean hasNumber = NUMBER_PATTERN.matcher(password).find();
         boolean hasSpecial = SPECIAL_PATTERN.matcher(password).find();
 
-        // Update requirement icons
+        // Cập nhật các biểu tượng yêu cầu
         checkLength.setImageResource(hasLength ? R.drawable.ic_check_circle_filled : R.drawable.ic_check_circle_outline);
         checkUppercase.setImageResource(hasUppercase ? R.drawable.ic_check_circle_filled : R.drawable.ic_check_circle_outline);
         checkLowercase.setImageResource(hasLowercase ? R.drawable.ic_check_circle_filled : R.drawable.ic_check_circle_outline);
         checkNumber.setImageResource(hasNumber ? R.drawable.ic_check_circle_filled : R.drawable.ic_check_circle_outline);
         checkSpecial.setImageResource(hasSpecial ? R.drawable.ic_check_circle_filled : R.drawable.ic_check_circle_outline);
 
-        // Calculate strength
+        // Tính toán độ mạnh mật khẩu
         if (!hasLength) {
             strength = 0; // Không đủ 8 ký tự thì strength = 0
         } else {
@@ -163,11 +185,12 @@ public class ChangePasswordActivity extends AppCompatActivity {
             if (hasSpecial) strength++;
         }
 
-        // Update strength bars and text
+        // Cập nhật thanh độ mạnh và văn bản
         updateStrengthBars(strength);
         updateStrengthText(strength);
     }
 
+    // Cập nhật thanh hiển thị độ mạnh mật khẩu
     private void updateStrengthBars(int strength) {
         int colorWeak = getResources().getColor(R.color.weak_password);
         int colorMedium = getResources().getColor(R.color.medium_password);
@@ -180,39 +203,42 @@ public class ChangePasswordActivity extends AppCompatActivity {
         strengthBar4.setBackgroundColor(strength >= 4 ? colorStrong : colorDefault);
     }
 
+    // Cập nhật văn bản hiển thị độ mạnh mật khẩu
     private void updateStrengthText(int strength) {
         if (strength == 0) {
-            tvPasswordStrength.setText("Enter password to check strength");
+            tvPasswordStrength.setText("Nhập mật khẩu để kiểm tra độ mạnh");
             tvPasswordStrength.setTextColor(getResources().getColor(R.color.grey));
         } else if (strength <= 2) {
-            tvPasswordStrength.setText("Weak");
+            tvPasswordStrength.setText("Yếu");
             tvPasswordStrength.setTextColor(getResources().getColor(R.color.weak_password));
         } else if (strength <= 3) {
-            tvPasswordStrength.setText("Medium");
+            tvPasswordStrength.setText("Trung bình");
             tvPasswordStrength.setTextColor(getResources().getColor(R.color.medium_password));
         } else {
-            tvPasswordStrength.setText("Strong");
+            tvPasswordStrength.setText("Mạnh");
             tvPasswordStrength.setTextColor(getResources().getColor(R.color.strong_password));
         }
     }
 
+    // Kiểm tra xác nhận mật khẩu
     private void validateConfirmPassword() {
         String newPassword = etNewPassword.getText().toString();
         String confirmPassword = etConfirmPassword.getText().toString();
 
         if (!confirmPassword.isEmpty() && !confirmPassword.equals(newPassword)) {
-            tilConfirmPassword.setError("Passwords do not match");
+            tilConfirmPassword.setError("Mật khẩu không khớp");
         } else {
             tilConfirmPassword.setError(null);
         }
     }
 
+    // Cập nhật trạng thái nút đổi mật khẩu
     private void updateChangeButtonState() {
         String currentPassword = etCurrentPassword.getText().toString().trim();
         String newPassword = etNewPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
-      /*  boolean isValidPassword = LENGTH_PATTERN.matcher(newPassword).matches() &&
+        /*  boolean isValidPassword = LENGTH_PATTERN.matcher(newPassword).matches() &&
                 UPPERCASE_PATTERN.matcher(newPassword).matches() &&
                 LOWERCASE_PATTERN.matcher(newPassword).matches() &&
                 NUMBER_PATTERN.matcher(newPassword).matches() &&
@@ -231,55 +257,68 @@ public class ChangePasswordActivity extends AppCompatActivity {
         btnChangePassword.setAlpha(isEnabled ? 1.0f : 0.5f);
     }
 
+    // Thực hiện đổi mật khẩu
     private void performChangePassword() {
         String currentPassword = etCurrentPassword.getText().toString().trim();
         String newPassword = etNewPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
-        int userId = userPrefs.getInt("user_id", -1);
+        int userId = sharedPreferences.getInt("user_id", -1);
 
-        // Kiểm tra các trường bắt buộc
+        // Kiểm tra các trường nhập liệu
         if (userId <= 0) {
-            Toast.makeText(this, "Error: Invalid user ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Lỗi: ID người dùng không hợp lệ", Toast.LENGTH_SHORT).show();
             redirectToLogin();
             return;
         }
 
         if (currentPassword.isEmpty()) {
-            tilCurrentPassword.setError("Please enter current password");
+            tilCurrentPassword.setError("Vui lòng nhập mật khẩu hiện tại");
             etCurrentPassword.requestFocus();
             return;
         }
 
         if (newPassword.isEmpty()) {
-            tilNewPassword.setError("Please enter new password");
+            tilNewPassword.setError("Vui lòng nhập mật khẩu mới");
             etNewPassword.requestFocus();
             return;
         }
 
         if (confirmPassword.isEmpty()) {
-            tilConfirmPassword.setError("Please confirm new password");
+            tilConfirmPassword.setError("Vui lòng xác nhận mật khẩu mới");
             etConfirmPassword.requestFocus();
             return;
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            tilConfirmPassword.setError("Passwords do not match");
+            tilConfirmPassword.setError("Mật khẩu không khớp");
             etConfirmPassword.requestFocus();
             return;
         }
 
-        // Tính strength mật khẩu
-        int strength = 0;
-        boolean hasLength = LENGTH_PATTERN.matcher(newPassword).matches();
-        boolean hasUppercase = UPPERCASE_PATTERN.matcher(newPassword).find();
-        boolean hasLowercase = LOWERCASE_PATTERN.matcher(newPassword).find();
-        boolean hasNumber = NUMBER_PATTERN.matcher(newPassword).find();
-        boolean hasSpecial = SPECIAL_PATTERN.matcher(newPassword).find();
+        // Kiểm tra độ mạnh mật khẩu
+        int strength = calculatePasswordStrength(newPassword);
 
-        if (!hasLength) {
-            Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_LONG).show();
+        if (!LENGTH_PATTERN.matcher(newPassword).matches()) {
+            Toast.makeText(this, "Mật khẩu phải có ít nhất 8 ký tự", Toast.LENGTH_LONG).show();
             return;
         }
+
+        // Hiển thị cảnh báo nếu mật khẩu yếu
+        if (strength <= 3) {
+            showWeakPasswordDialog(userId, currentPassword, newPassword);
+        } else {
+            callChangePasswordApi(userId, currentPassword, newPassword);
+        }
+    }
+
+    // Tính toán độ mạnh mật khẩu
+    private int calculatePasswordStrength(String password) {
+        int strength = 0;
+        boolean hasLength = LENGTH_PATTERN.matcher(password).matches();
+        boolean hasUppercase = UPPERCASE_PATTERN.matcher(password).find();
+        boolean hasLowercase = LOWERCASE_PATTERN.matcher(password).find();
+        boolean hasNumber = NUMBER_PATTERN.matcher(password).find();
+        boolean hasSpecial = SPECIAL_PATTERN.matcher(password).find();
 
         if (hasLength) {
             if (hasUppercase) strength++;
@@ -288,82 +327,102 @@ public class ChangePasswordActivity extends AppCompatActivity {
             if (hasSpecial) strength++;
         }
 
-        // Nếu mật khẩu yếu hoặc trung bình thì cảnh báo nhưng vẫn cho phép đổi
-        if (strength <= 3) {
-            new androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("Cảnh báo mật khẩu yếu")
-                    .setMessage("Mật khẩu bạn nhập khá yếu, bạn có chắc chắn muốn tiếp tục đổi mật khẩu không?")
-                    .setPositiveButton("Có", (dialog, which) -> {
-                        // Người dùng đồng ý, gọi API đổi mật khẩu
-                        callChangePasswordApi(userId, currentPassword, newPassword);
-                    })
-                    .setNegativeButton("Không", (dialog, which) -> {
-                        // Người dùng hủy, đóng dialog
-                        dialog.dismiss();
-                    })
-                    .setCancelable(false)
-                    .show();
-        } else {
-            // Mật khẩu đủ mạnh, gọi API luôn
-            callChangePasswordApi(userId, currentPassword, newPassword);
-        }
+        return strength;
     }
 
-    private void callChangePasswordApi(int userId, String currentPassword, String newPassword) {
-        btnChangePassword.setEnabled(false);
-        btnChangePassword.setText("Updating...");
+    // Hiển thị dialog cảnh báo mật khẩu yếu
+    private void showWeakPasswordDialog(int userId, String currentPassword, String newPassword) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Cảnh báo mật khẩu yếu")
+                .setMessage("Mật khẩu bạn nhập khá yếu. Bạn có chắc chắn muốn tiếp tục đổi mật khẩu không?")
+                .setPositiveButton("Có", (dialog, which) -> {
+                    callChangePasswordApi(userId, currentPassword, newPassword);
+                })
+                .setNegativeButton("Không", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .setCancelable(false)
+                .show();
+    }
 
+    // Gọi API đổi mật khẩu
+    private void callChangePasswordApi(int userId, String currentPassword, String newPassword) {
+        // Disable button để tránh click nhiều lần
+        btnChangePassword.setEnabled(false);
+        btnChangePassword.setText("Đang cập nhật...");
+
+        // Tạo DTO và gọi API
         ChangePasswordDto changePasswordDto = new ChangePasswordDto(currentPassword, newPassword);
         Call<Map<String, String>> call = authApi.changePassword(userId, changePasswordDto);
+
         call.enqueue(new Callback<Map<String, String>>() {
             @Override
             public void onResponse(Call<Map<String, String>> call, Response<Map<String, String>> response) {
+                // Enable lại button sau khi nhận response
                 btnChangePassword.setEnabled(true);
-                btnChangePassword.setText("UPDATE PASSWORD");
+                btnChangePassword.setText("CẬP NHẬT MẬT KHẨU");
 
                 if (response.isSuccessful() && response.body() != null) {
                     Map<String, String> result = response.body();
-                    Toast.makeText(ChangePasswordActivity.this, result.get("message"), Toast.LENGTH_LONG).show();
-                    if ("Password changed successfully".equals(result.get("message"))) {
-                        performLogout();
-                    }
+                    String message = result.get("message");
+
+                    // Hiển thị thông báo thành công
+                    Toast.makeText(ChangePasswordActivity.this,
+                            "Đổi mật khẩu thành công! Vui lòng đăng nhập lại.", Toast.LENGTH_LONG).show();
+
+                    // Đăng xuất và chuyển về màn hình login
+                    performLogout();
                 } else {
-                    String errorMessage = "Failed to change password";
-                    try {
-                        if (response.code() == 401) {
-                            errorMessage = "Incorrect current password";
-                            tilCurrentPassword.setError(errorMessage);
-                            etCurrentPassword.requestFocus();
-                        } else if (response.code() == 400) {
-                            errorMessage = response.errorBody().string();
-                            tilNewPassword.setError(errorMessage);
-                            etNewPassword.requestFocus();
-                        } else if (response.code() == 404) {
-                            errorMessage = "User not found";
-                            redirectToLogin();
-                        } else if (response.code() >= 500) {
-                            errorMessage = "Server error, please try again later";
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Toast.makeText(ChangePasswordActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                    // Xử lý lỗi từ server
+                    handleErrorResponse(response);
                 }
             }
 
             @Override
             public void onFailure(Call<Map<String, String>> call, Throwable t) {
+                // Enable lại button khi có lỗi network
                 btnChangePassword.setEnabled(true);
-                btnChangePassword.setText("UPDATE PASSWORD");
-                Toast.makeText(ChangePasswordActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                btnChangePassword.setText("CẬP NHẬT MẬT KHẨU");
+
+                // Xử lý lỗi network
+                Toast.makeText(ChangePasswordActivity.this,
+                        "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    private boolean isLoggedIn() {
-        return userPrefs.getBoolean("is_logged_in", false);
+    // Xử lý các lỗi response từ server
+    private void handleErrorResponse(Response<Map<String, String>> response) {
+        String errorMessage = "Đổi mật khẩu thất bại";
+
+        try {
+            if (response.code() == 401) {
+                errorMessage = "Mật khẩu hiện tại không đúng";
+                tilCurrentPassword.setError(errorMessage);
+                etCurrentPassword.requestFocus();
+            } else if (response.code() == 400) {
+                errorMessage = "Thông tin mật khẩu không hợp lệ";
+                tilNewPassword.setError(errorMessage);
+                etNewPassword.requestFocus();
+            } else if (response.code() == 404) {
+                errorMessage = "Không tìm thấy người dùng";
+                redirectToLogin();
+            } else if (response.code() >= 500) {
+                errorMessage = "Lỗi server, vui lòng thử lại sau";
+            }
+        } catch (Exception e) {
+            errorMessage = "Đã có lỗi xảy ra";
+        }
+
+        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
     }
 
+    // Kiểm tra trạng thái đăng nhập
+    private boolean isLoggedIn() {
+        return sharedPreferences.getBoolean("is_logged_in", false);
+    }
+
+    // Chuyển về màn hình đăng nhập
     private void redirectToLogin() {
         Intent intent = new Intent(this, Login.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -371,9 +430,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
         finish();
     }
 
+    // Thực hiện đăng xuất
     private void performLogout() {
-        userPrefs.edit().clear().apply();
-        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+        sharedPreferences.edit().clear().apply();
+        Toast.makeText(this, "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
         redirectToLogin();
     }
 }

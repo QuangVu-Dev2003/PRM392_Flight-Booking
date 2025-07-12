@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -26,6 +27,7 @@ public class BookingActivity extends AppCompatActivity {
 
     private RecyclerView rvFlights;
     private ProgressBar progressBar;
+    private ImageButton btnBack;
     private FlightApiEndpoint flightApi;
     private FlightAdapter flightAdapter;
     private List<AdminFlightResponseDto> flightList;
@@ -41,15 +43,21 @@ public class BookingActivity extends AppCompatActivity {
         bindingView();
         bindingAction();
 
-        // Gọi hàm lấy danh sách chuyến bay
-        performFetchFlights();
+        // Kiểm tra trạng thái đăng nhập và gọi API lấy danh sách chuyến bay
+        checkLoginAndFetchFlights();
     }
 
+    // Bind các view từ layout
     private void bindingView() {
         rvFlights = findViewById(R.id.rv_flights);
         progressBar = findViewById(R.id.progress_bar);
+        btnBack = findViewById(R.id.btn_back);
     }
 
+    /*
+     - Thiết lập adapter, layout manager và các sự kiện cho RecyclerView
+     - Khởi tạo danh sách chuyến bay rỗng
+     */
     private void bindingAction() {
         // Khởi tạo danh sách chuyến bay và adapter
         flightList = new ArrayList<>();
@@ -58,9 +66,27 @@ public class BookingActivity extends AppCompatActivity {
         // Thiết lập layout và adapter cho RecyclerView
         rvFlights.setLayoutManager(new LinearLayoutManager(this));
         rvFlights.setAdapter(flightAdapter);
+        btnBack.setOnClickListener(v -> finish());
     }
 
-    // Xử lý khi click vào một chuyến bay
+    /*
+    - Kiểm tra trạng thái đăng nhập, nếu chưa đăng nhập thì chuyển sang màn hình Login
+    - Nếu đã đăng nhập thì gọi API lấy danh sách chuyến bay
+    */
+    private void checkLoginAndFetchFlights() {
+        // Lấy userId từ SharedPreferences để kiểm tra đăng nhập
+        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+
+        if (userId <= 0) {
+            Toast.makeText(this, "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
+            redirectToLogin();
+        } else {
+            performFetchFlights();
+        }
+    }
+
+    // Xử lý khi click vào một chuyến bay trong danh sách
     private void onFlightItemClick(int flightId) {
         // Khi click vào chuyến bay, chuyển sang màn hình chọn ghế
         Intent intent = new Intent(BookingActivity.this, ChooseSeatsActivity.class);
@@ -70,19 +96,6 @@ public class BookingActivity extends AppCompatActivity {
 
     // Gọi API lấy danh sách chuyến bay
     private void performFetchFlights() {
-        // Lấy userId từ SharedPreferences để kiểm tra đăng nhập
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        int userId = prefs.getInt("user_id", -1);
-
-        // Kiểm tra xem người dùng đã đăng nhập chưa
-        if (userId <= 0) {
-            Toast.makeText(this, "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, Login.class);
-            startActivity(intent);
-            finish();
-            return;
-        }
-
         // Hiển thị ProgressBar khi đang tải dữ liệu
         progressBar.setVisibility(View.VISIBLE);
 
@@ -129,5 +142,12 @@ public class BookingActivity extends AppCompatActivity {
             errorMessage = "Lỗi server, vui lòng thử lại sau";
         }
         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    // Chuyển sang màn hình đăng nhập và kết thúc activity hiện tại
+    private void redirectToLogin() {
+        Intent intent = new Intent(this, Login.class);
+        startActivity(intent);
+        finish();
     }
 }

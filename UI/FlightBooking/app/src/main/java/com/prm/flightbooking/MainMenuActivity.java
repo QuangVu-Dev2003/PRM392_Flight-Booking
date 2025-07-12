@@ -3,6 +3,7 @@ package com.prm.flightbooking;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -28,15 +29,19 @@ public class MainMenuActivity extends AppCompatActivity {
     private Button btnBannerBook;
     private LinearLayout menuBookFlight, menuMyTrips, menuNotifications, menuProfile;
     private BottomNavigationView bottomNavigation;
-    private SharedPreferences userPrefs;
     private TextView tvNotificationsBadge;
+
+    // API và SharedPreferences
+    private NotificationApiEndpoint notificationApi;
+    private SharedPreferences userPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
 
-        // Khởi tạo SharedPreferences
+        // Khởi tạo API và SharedPreferences
+        notificationApi = ApiServiceProvider.getNotificationApi();
         userPrefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
 
         // Kiểm tra trạng thái đăng nhập
@@ -48,32 +53,28 @@ public class MainMenuActivity extends AppCompatActivity {
         bindingView();
         bindingAction();
         loadUserInfo();
+        setupBackPressHandler();
     }
 
     private void bindingView() {
         tvWelcome = findViewById(R.id.tv_welcome);
         tvUsername = findViewById(R.id.tv_username);
         ivAvatar = findViewById(R.id.iv_avatar);
-
         btnBannerBook = findViewById(R.id.btn_banner_book);
-
         menuBookFlight = findViewById(R.id.menu_book_flight);
         menuMyTrips = findViewById(R.id.menu_my_trips);
         menuNotifications = findViewById(R.id.menu_notifications);
         menuProfile = findViewById(R.id.menu_profile);
-
         bottomNavigation = findViewById(R.id.bottom_navigation);
         tvNotificationsBadge = findViewById(R.id.tv_notifications_badge);
     }
 
     private void bindingAction() {
         btnBannerBook.setOnClickListener(this::onBannerBookClick);
-
         menuBookFlight.setOnClickListener(this::onBookFlightClick);
         menuMyTrips.setOnClickListener(this::onMyTripsClick);
         menuNotifications.setOnClickListener(this::onNotificationsClick);
         menuProfile.setOnClickListener(this::onProfileClick);
-
         ivAvatar.setOnClickListener(this::onAvatarClick);
 
         bottomNavigation.setOnItemSelectedListener(item -> {
@@ -83,33 +84,49 @@ public class MainMenuActivity extends AppCompatActivity {
         });
     }
 
+    private void setupBackPressHandler() {
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                showExitDialog();
+            }
+        });
+    }
+
+    // Xử lý click banner đặt vé
     private void onBannerBookClick(View view) {
         navigateToActivity(BookingActivity.class);
     }
 
+    // Xử lý click menu đặt chuyến bay
     private void onBookFlightClick(View view) {
         navigateToActivity(BookingActivity.class);
     }
 
+    // Xử lý click menu chuyến đi của tôi
     private void onMyTripsClick(View view) {
         navigateToActivity(BookingHistoryActivity.class);
     }
 
+    // Xử lý click menu thông báo
     private void onNotificationsClick(View view) {
         navigateToActivity(NotificationActivity.class);
     }
 
+    // Xử lý click menu hồ sơ
     private void onProfileClick(View view) {
         navigateToActivity(Profile.class);
     }
 
+    // Xử lý click avatar
     private void onAvatarClick(View view) {
         navigateToActivity(Profile.class);
     }
 
+    // Xử lý navigation dưới cùng
     private void handleBottomNavigation(int itemId) {
         if (itemId == R.id.nav_home) {
-            // Home, do nothing
+            // Trang chủ - không làm gì
         } else if (itemId == R.id.nav_search) {
             navigateToActivity(SearchFlightActivity.class);
         } else if (itemId == R.id.nav_trips) {
@@ -121,14 +138,10 @@ public class MainMenuActivity extends AppCompatActivity {
         }
     }
 
-    private void navigateToActivity(Class<?> targetActivity) {
-        Intent intent = new Intent(this, targetActivity);
-        startActivity(intent);
-    }
-
+    // Tải thông tin người dùng từ SharedPreferences
     private void loadUserInfo() {
         String fullName = userPrefs.getString("user_name", "");
-        String username = userPrefs.getString("username", "User");
+        String username = userPrefs.getString("username", "Người dùng");
 
         // Hiển thị tên người dùng
         if (!fullName.isEmpty()) {
@@ -138,25 +151,76 @@ public class MainMenuActivity extends AppCompatActivity {
             tvWelcome.setText("Chào mừng,");
             tvUsername.setText(username);
         }
+    }
 
-        // Hình đại diện
-        String avatarPath = userPrefs.getString("avatar_path", "");
-        if (!avatarPath.isEmpty()) {
+    // Tải số lượng thông báo chưa đọc từ API
+    private void loadUnreadNotificationCount() {
+        int userId = userPrefs.getInt("user_id", -1);
+
+        if (userId <= 0) {
+            Log.e("MainMenuActivity", "ID người dùng không hợp lệ: " + userId);
+            return;
+        }
+
+        Call<Integer> call = notificationApi.getUnreadCount(userId);
+        call.enqueue(new Callback<Integer>() {
+            @Override
+            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    updateNotificationsBadge(response.body());
+                } else {
+                    handleNotificationError(response);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Integer> call, Throwable t) {
+                Log.e("MainMenuActivity", "Lỗi khi tải thông báo: " + t.getMessage());
+            }
+        });
+    }
+
+    // Cập nhật badge thông báo
+    private void updateNotificationsBadge(int unreadCount) {
+        if (unreadCount > 0) {
+            tvNotificationsBadge.setVisibility(View.VISIBLE);
+            if (unreadCount > 99) {
+                tvNotificationsBadge.setText("99+");
+            } else {
+                tvNotificationsBadge.setText(String.valueOf(unreadCount));
+            }
+        } else {
+            tvNotificationsBadge.setVisibility(View.GONE);
         }
     }
 
+    // Xử lý lỗi khi tải thông báo
+    private void handleNotificationError(Response<Integer> response) {
+        String errorMessage = "Không thể tải thông báo";
+
+        if (response.code() == 401) {
+            errorMessage = "Phiên đăng nhập hết hạn";
+            performLogout();
+        } else if (response.code() >= 500) {
+            errorMessage = "Lỗi server, vui lòng thử lại sau";
+        }
+
+        Log.e("MainMenuActivity", errorMessage + " - Mã lỗi: " + response.code());
+    }
+
+    // Hiển thị dialog tùy chọn thêm
     private void showMoreOptionsDialog() {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
         View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_more_options, null);
         bottomSheetDialog.setContentView(bottomSheetView);
 
-        // Các tùy chọn
+        // Các tùy chọn trong dialog
         LinearLayout optionProfile = bottomSheetView.findViewById(R.id.option_profile);
         LinearLayout optionNotifications = bottomSheetView.findViewById(R.id.option_notifications);
         LinearLayout optionSupport = bottomSheetView.findViewById(R.id.option_support);
         LinearLayout optionLogout = bottomSheetView.findViewById(R.id.option_logout);
 
-        // Set click
+        // Xử lý click các tùy chọn
         optionProfile.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
             navigateToActivity(Profile.class);
@@ -169,7 +233,7 @@ public class MainMenuActivity extends AppCompatActivity {
 
         optionSupport.setOnClickListener(v -> {
             bottomSheetDialog.dismiss();
-            Toast.makeText(this, "Support coming soon", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Tính năng hỗ trợ sẽ sớm có", Toast.LENGTH_SHORT).show();
         });
 
         optionLogout.setOnClickListener(v -> {
@@ -180,6 +244,7 @@ public class MainMenuActivity extends AppCompatActivity {
         bottomSheetDialog.show();
     }
 
+    // Hiển thị dialog xác nhận đăng xuất
     private void showLogoutDialog() {
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Đăng xuất")
@@ -189,6 +254,7 @@ public class MainMenuActivity extends AppCompatActivity {
                 .show();
     }
 
+    // Thực hiện đăng xuất
     private void performLogout() {
         // Xóa thông tin đăng nhập
         userPrefs.edit().clear().apply();
@@ -199,10 +265,12 @@ public class MainMenuActivity extends AppCompatActivity {
         redirectToLogin();
     }
 
+    // Kiểm tra trạng thái đăng nhập
     private boolean isLoggedIn() {
         return userPrefs.getBoolean("is_logged_in", false);
     }
 
+    // Chuyển đến màn hình đăng nhập
     private void redirectToLogin() {
         Intent intent = new Intent(MainMenuActivity.this, Login.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -210,50 +278,32 @@ public class MainMenuActivity extends AppCompatActivity {
         finish();
     }
 
+    // Điều hướng đến activity khác
+    private void navigateToActivity(Class<?> targetActivity) {
+        Intent intent = new Intent(this, targetActivity);
+        startActivity(intent);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        // Cập nhật thông tin user khi quay lại màn hình
+
+        // Kiểm tra trạng thái đăng nhập khi quay lại màn hình
         if (isLoggedIn()) {
             loadUserInfo();
-            loadUnreadNotificationCountFromApi();
+            loadUnreadNotificationCount();
             bottomNavigation.setSelectedItemId(R.id.nav_home);
         } else {
             redirectToLogin();
         }
     }
 
-    private void loadUnreadNotificationCountFromApi() {
-        NotificationApiEndpoint notificationApi = ApiServiceProvider.getNotificationApi();
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        int userId = prefs.getInt("user_id", -1);
-        if (userId <= 0) return;
-
-        notificationApi.getUnreadCount(userId).enqueue(new Callback<Integer>() {
-            @Override
-            public void onResponse(Call<Integer> call, Response<Integer> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    updateNotificationsBadge(response.body());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Integer> call, Throwable t) {
-                // Xử lý lỗi
-            }
-        });
-    }
-
-    private void updateNotificationsBadge(int unreadCount) {
-        if (unreadCount > 0) {
-            tvNotificationsBadge.setVisibility(View.VISIBLE);
-            if (unreadCount > 99) {
-                tvNotificationsBadge.setText("99+");
-            } else {
-                tvNotificationsBadge.setText(String.valueOf(unreadCount));
-            }
-        } else {
-            tvNotificationsBadge.setVisibility(View.GONE);
-        }
+    private void showExitDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Thoát")
+                .setMessage("Bạn có chắc chắn muốn thoát?")
+                .setPositiveButton("Thoát", (dialog, which) -> finish())
+                .setNegativeButton("Hủy", null)
+                .show();
     }
 }

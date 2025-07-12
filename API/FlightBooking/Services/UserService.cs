@@ -226,10 +226,14 @@ namespace FlightBooking.Services
         public async Task<bool> CancelBookingAsync(int userId, int bookingId)
         {
             var booking = await _context.Bookings
-                .Include(b => b.Flight)
-                .Include(b => b.BookingSeats)
-                    .ThenInclude(bs => bs.Seat)
-                .FirstOrDefaultAsync(b => b.BookingId == bookingId && b.UserId == userId);
+                    .Include(b => b.User)
+                    .Include(b => b.Flight)
+                        .ThenInclude(f => f.DepartureAirport)
+                    .Include(b => b.Flight)
+                        .ThenInclude(f => f.ArrivalAirport)
+                    .Include(b => b.BookingSeats)
+                        .ThenInclude(bs => bs.Seat)
+                    .FirstOrDefaultAsync(b => b.BookingId == bookingId && b.UserId == userId);
 
             if (booking == null)
                 throw new ArgumentException("Booking not found");

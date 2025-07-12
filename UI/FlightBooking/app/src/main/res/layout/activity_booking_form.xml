@@ -6,42 +6,42 @@
     android:layout_height="match_parent"
     android:background="#F5F5F5">
 
-    <!-- Header Section -->
+    <!-- Phần tiêu đề -->
     <FrameLayout
         android:id="@+id/header_section"
         android:layout_width="0dp"
-        android:layout_height="140dp"
+        android:layout_height="90dp"
         android:background="@drawable/confirm_booking_header_bg"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:padding="20dp">
 
-        <!-- Overlay luôn nằm dưới cùng -->
+        <!-- Lớp phủ gradient -->
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/header_overlay_gradient"/>
 
-        <!-- Nội dung header gom trong ConstraintLayout  -->
+        <!-- Nội dung tiêu đề -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- Back button -->
+            <!-- Nút quay lại -->
             <ImageButton
                 android:id="@+id/btn_back"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:background="@drawable/btn_back_white_circle"
                 android:src="@drawable/ic_arrow_back"
-                android:contentDescription="Back"
+                android:contentDescription="Quay lại"
                 android:padding="10dp"
                 android:scaleType="centerInside"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
-            <!-- Nhóm Icon + Title -->
+            <!-- Nhóm biểu tượng và tiêu đề -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
                     android:id="@+id/tv_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Confirm Booking"
+                    android:text="Xác nhận đặt vé"
                     android:textSize="24sp"
                     android:textStyle="bold"
                     android:textColor="#FFFFFF"/>
@@ -70,8 +70,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>
 
-
-    <!-- Main Content ScrollView -->
+    <!-- Nội dung chính trong ScrollView -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -87,11 +86,11 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Booking Summary Card -->
+            <!-- Card tóm tắt đặt vé -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-30dp"
+                android:layout_marginTop="0dp"
                 android:layout_marginBottom="20dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="12dp">
@@ -102,7 +101,7 @@
                     android:orientation="vertical"
                     android:padding="24dp">
 
-                    <!-- Card Header -->
+                    <!-- Tiêu đề card -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -119,26 +118,26 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Flight Details"
+                            android:text="Chi tiết chuyến bay"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="#1A1A1A" />
 
                     </LinearLayout>
 
-                    <!-- Booking Summary TextView (giữ nguyên ID) -->
+                    <!-- TextView hiển thị tóm tắt đặt vé -->
                     <TextView
                         android:id="@+id/tv_booking_summary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Booking Details will appear here."
+                        android:text="Chi tiết đặt vé sẽ hiển thị ở đây."
                         android:textSize="16sp"
                         android:textColor="#333333"
                         android:lineSpacingExtra="4dp"
                         android:background="@drawable/booking_summary_bg"
                         android:padding="16dp" />
 
-                    <!-- Price Summary -->
+                    <!-- Tóm tắt giá -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -152,15 +151,16 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Total Amount"
+                            android:text="Tổng tiền"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="#1A1A1A" />
 
                         <TextView
+                            android:id="@+id/tv_total_price"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="$450.00"
+                            android:text="0 VNĐ"
                             android:textSize="20sp"
                             android:textStyle="bold"
                             android:textColor="@color/travel_orange" />
@@ -171,7 +171,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Additional Notes Card -->
+            <!-- Card ghi chú bổ sung -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -185,7 +185,7 @@
                     android:orientation="vertical"
                     android:padding="24dp">
 
-                    <!-- Notes Header -->
+                    <!-- Tiêu đề ghi chú -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -202,14 +202,14 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Additional Notes"
+                            android:text="Ghi chú bổ sung"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="#1A1A1A" />
 
                     </LinearLayout>
 
-                    <!-- Notes Input (giữ nguyên ID) -->
+                    <!-- Trường nhập ghi chú -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_notes"
                         android:layout_width="match_parent"
@@ -229,7 +229,7 @@
                             android:id="@+id/et_notes"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Notes (Optional)"
+                            android:hint="Ghi chú (Tùy chọn)"
                             android:inputType="textMultiLine"
                             android:minLines="3"
                             android:maxLines="5"
@@ -242,7 +242,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Add any special requests or preferences"
+                        android:text="Thêm các yêu cầu đặc biệt hoặc ghi chú"
                         android:textSize="12sp"
                         android:textColor="#666666"
                         android:layout_marginTop="8dp" />
@@ -251,7 +251,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Terms and Agreement -->
+            <!-- Điều khoản và đồng ý -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -283,7 +283,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="I agree to the Terms Conditions"
+                            android:text="Tôi đồng ý với Điều khoản và Điều kiện"
                             android:textSize="14sp"
                             android:textStyle="bold"
                             android:textColor="#E65100" />
@@ -291,7 +291,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="and cancellation policy"
+                            android:text="và chính sách hủy vé"
                             android:textSize="12sp"
                             android:textColor="#BF360C" />
 
@@ -301,12 +301,12 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Book Now Button (giữ nguyên ID) -->
+            <!-- Nút đặt vé -->
             <Button
                 android:id="@+id/btn_book"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="🎉 CONFIRM &amp; BOOK NOW"
+                android:text="🎉 XÁC NHẬN &amp; ĐẶT VÉ NGAY"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -314,7 +314,7 @@
                 android:elevation="8dp"
                 android:layout_marginBottom="20dp" />
 
-            <!-- Security Notice -->
+            <!-- Thông báo bảo mật -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -331,7 +331,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Your booking is secure and protected"
+                    android:text="Vé của bạn được bảo mật và an toàn"
                     android:textSize="12sp"
                     android:textColor="#666666" />
 
@@ -341,7 +341,7 @@
 
     </ScrollView>
 
-    <!-- Progress Bar Overlay (giữ nguyên ID) -->
+    <!-- Lớp phủ ProgressBar -->
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -373,7 +373,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Processing your booking..."
+                android:text="Đang xử lý đặt vé..."
                 android:textSize="14sp"
                 android:textColor="#1A1A1A"
                 android:textStyle="bold" />
@@ -381,7 +381,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Please wait while we confirm your flight"
+                android:text="Vui lòng đợi trong khi chúng tôi xác nhận chuyến bay"
                 android:textSize="12sp"
                 android:textColor="#666666"
                 android:layout_marginTop="4dp" />
