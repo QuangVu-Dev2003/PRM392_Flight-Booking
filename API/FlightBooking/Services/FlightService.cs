@@ -46,12 +46,15 @@ namespace FlightBooking.Services
             }).ToList();
         }
 
-        public async Task<SeatMapDto> GetSeatMapAsync(int flightId)
+        public async Task<SeatMapDto> GetSeatMapAsync(int flightId, int userId)
         {
             var flight = await _context.Flights
                 .Include(f => f.AircraftType)
                 .Include(f => f.Seats)
                     .ThenInclude(s => s.Class)
+                .Include(f => f.Seats)
+                    .ThenInclude(s => s.BookingSeats)
+                        .ThenInclude(bs => bs.Booking)
                 .FirstOrDefaultAsync(f => f.FlightId == flightId);
 
             if (flight == null)
@@ -75,7 +78,8 @@ namespace FlightBooking.Services
                     IsEmergencyExit = s.IsEmergencyExit ?? false,
                     ExtraFee = s.ExtraFee ?? 0m,
                     IsAvailable = s.IsAvailable ?? false,
-                    TotalPrice = flight.BasePrice * (s.Class.PriceMultiplier ?? 1.0m) + (s.ExtraFee ?? 0m)
+                    TotalPrice = flight.BasePrice * (s.Class.PriceMultiplier ?? 1.0m) + (s.ExtraFee ?? 0m),
+                    IsBookedByCurrentUser = s.BookingSeats.Any(bs => bs.Booking.UserId == userId && bs.Booking.BookingStatus == "CONFIRMED")
                 }).OrderBy(s => s.SeatRow).ThenBy(s => s.SeatColumn).ToList()
             };
 

@@ -18,7 +18,7 @@
     <item
         android:id="@+id/nav_flights"
         android:icon="@drawable/ic_flight_ticket"
-        android:title="Flights" />
+        android:title="Đặt vé" />
 
     <item
         android:id="@+id/nav_more"

@@ -40,45 +40,38 @@ import retrofit2.Response;
 public class BookingFormActivity extends AppCompatActivity {
 
     private TextInputEditText etNotes;
-    private TextView tvBookingSummary;
-    private TextView tvTotalPrice;
+    private TextView tvBookingSummary, tvTotalPrice;
     private Button btnBook;
     private CheckBox cbTerms;
     private ProgressBar progressBar;
+
     private BookingApiEndpoint bookingApi;
+    private SharedPreferences sharedPreferences;
     private List<SelectedSeatInfo> selectedSeatsList;
-    private int flightId;
+    private int flightId, userId;
+    private int notificationId = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking_form);
 
-        // Khởi tạo API service để gọi API
+        // Khởi tạo API và SharedPreferences
         bookingApi = ApiServiceProvider.getBookingApi();
-
-        // Lấy dữ liệu từ Intent và SharedPreferences
-        selectedSeatsList = (List<SelectedSeatInfo>) getIntent().getSerializableExtra("selectedSeatsList");
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        flightId = prefs.getInt("flightId", -1);
-        int userId = prefs.getInt("user_id", -1);
+        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
 
         // Kiểm tra dữ liệu hợp lệ
-        if (flightId == -1 || userId <= 0 || selectedSeatsList == null || selectedSeatsList.isEmpty()) {
-            Toast.makeText(this, "Dữ liệu phiên không hợp lệ hoặc chưa chọn ghế.", Toast.LENGTH_SHORT).show();
-            finish();
+        if (!validateSessionData()) {
             return;
         }
 
-        // Gọi các hàm khởi tạo view, hành động và hiển thị tóm tắt
         bindingView();
         bindingAction();
         displayBookingSummary();
     }
 
-    // Hàm này để liên kết các view trong layout với code
+    // Liên kết các view trong layout
     private void bindingView() {
-        // Tìm và gán các view từ layout
         etNotes = findViewById(R.id.et_notes);
         tvBookingSummary = findViewById(R.id.tv_booking_summary);
         tvTotalPrice = findViewById(R.id.tv_total_price);
@@ -87,174 +80,212 @@ public class BookingFormActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress_bar);
     }
 
-    // Hàm này để gán các hành động cho view (như click)
+    // Gán sự kiện cho các view
     private void bindingAction() {
-        // Gán sự kiện click cho nút đặt vé
         btnBook.setOnClickListener(this::onBtnBookClick);
     }
 
-    // Hàm xử lý khi click nút đặt vé
+    // Xử lý khi nhấn nút đặt vé
     private void onBtnBookClick(View view) {
-        // Thực hiện đặt vé
         performBooking();
     }
 
-    // Hàm hiển thị tóm tắt thông tin các ghế đã chọn
+    // Kiểm tra dữ liệu phiên làm việc
+    private boolean validateSessionData() {
+        selectedSeatsList = (List<SelectedSeatInfo>) getIntent().getSerializableExtra("selectedSeatsList");
+        flightId = sharedPreferences.getInt("flightId", -1);
+        userId = sharedPreferences.getInt("user_id", -1);
+
+        if (flightId == -1 || userId <= 0 || selectedSeatsList == null || selectedSeatsList.isEmpty()) {
+            Toast.makeText(this, "Dữ liệu không hợp lệ hoặc chưa chọn ghế", Toast.LENGTH_SHORT).show();
+            finish();
+            return false;
+        }
+        return true;
+    }
+
+    // Hiển thị tóm tắt thông tin đặt vé
     private void displayBookingSummary() {
         StringBuilder summary = new StringBuilder("Chi tiết đặt vé:\n\n");
         BigDecimal totalPrice = BigDecimal.ZERO;
+
         for (SelectedSeatInfo seat : selectedSeatsList) {
             summary.append("Ghế: ").append(seat.getSeatNumber())
                     .append(" (").append(seat.getSeatClassName()).append(")\n")
                     .append("  Hành khách: ").append(seat.getPassengerName()).append("\n")
                     .append("  CMND/CCCD: ").append(seat.getPassengerIdNumber()).append("\n");
+
             if (seat.getTotalPrice() != null) {
                 totalPrice = totalPrice.add(seat.getTotalPrice());
             }
         }
+
         summary.append("\nTổng số ghế: ").append(selectedSeatsList.size());
-
-        // Định dạng tiền Việt Nam
-        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
-        symbols.setGroupingSeparator('.');
-        DecimalFormat decimalFormat = new DecimalFormat("#,###", symbols);
-        String formattedPrice = decimalFormat.format(totalPrice) + " VNĐ";
-
+        String formattedPrice = formatCurrency(totalPrice);
         summary.append("\nTổng giá: ").append(formattedPrice);
+
         tvBookingSummary.setText(summary.toString());
         tvTotalPrice.setText(formattedPrice);
     }
 
-    // Hàm thực hiện gọi API để đặt vé
+    // Định dạng tiền tệ Việt Nam
+    private String formatCurrency(BigDecimal amount) {
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("vi", "VN"));
+        symbols.setGroupingSeparator('.');
+        DecimalFormat decimalFormat = new DecimalFormat("#,###", symbols);
+        return decimalFormat.format(amount) + " VNĐ";
+    }
+
+    // Thực hiện đặt vé
     private void performBooking() {
-        // Kiểm tra xem người dùng đã đồng ý với điều khoản chưa
-        if (!cbTerms.isChecked()) {
-            Toast.makeText(this, "Vui lòng đồng ý với Điều khoản và Điều kiện.", Toast.LENGTH_SHORT).show();
+        if (!validateBookingInput()) {
             return;
         }
 
-        // Lấy userId từ SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        int userId = prefs.getInt("user_id", -1);
-        if (userId <= 0) {
-            Toast.makeText(this, "Bạn chưa đăng nhập!", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
+        // Hiển thị trạng thái đang xử lý
+        setBookingInProgress(true);
 
-        // Hiển thị ProgressBar và vô hiệu hóa nút đặt vé
-        progressBar.setVisibility(View.VISIBLE);
-        btnBook.setEnabled(false);
+        // Tạo dữ liệu đặt vé
+        CreateBookingDto bookingDto = createBookingData();
 
-        // Lấy ghi chú từ người dùng, nếu rỗng thì dùng giá trị mặc định
-        String notes = etNotes.getText().toString().trim();
-        if (notes.isEmpty()) {
-            notes = "Người dùng không yêu cầu gì thêm";
-        }
-
-        // Tạo danh sách BookingSeatDto từ selectedSeatsList
-        List<BookingSeatDto> seats = new ArrayList<>();
-        for (SelectedSeatInfo info : selectedSeatsList) {
-            BookingSeatDto seatDto = new BookingSeatDto(info.getSeatId(), info.getPassengerName(), info.getPassengerIdNumber());
-            seats.add(seatDto);
-        }
-
-        // Tạo CreateBookingDto với thông tin đặt vé
-        CreateBookingDto bookingDto = new CreateBookingDto(userId, flightId, seats, notes);
-
-        // Gọi API để đặt vé
+        // Gọi API đặt vé
         Call<BookingResponseDto> call = bookingApi.createBooking(bookingDto);
         call.enqueue(new Callback<BookingResponseDto>() {
             @Override
             public void onResponse(Call<BookingResponseDto> call, Response<BookingResponseDto> response) {
-                // Ẩn ProgressBar và kích hoạt lại nút
-                progressBar.setVisibility(View.GONE);
-                btnBook.setEnabled(true);
+                setBookingInProgress(false);
 
-                // Kiểm tra xem API có trả về thành công không
                 if (response.isSuccessful() && response.body() != null) {
-                    BookingResponseDto bookingResponse = response.body();
-                    String successMessage = "Đặt vé thành công! Mã tham chiếu: " + bookingResponse.getBookingReference();
-                    Toast.makeText(BookingFormActivity.this, successMessage, Toast.LENGTH_LONG).show();
-
-                    // Gửi notification hiển thị trên thanh thông báo
-                    sendBookingSuccessNotification(bookingResponse.getBookingReference());
-
-                    // Chuyển về MainMenuActivity và xóa back stack
-                    Intent intent = new Intent(BookingFormActivity.this, MainMenuActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
+                    handleBookingSuccess(response.body());
                 } else {
-                    // Xử lý lỗi nếu API thất bại
                     handleErrorResponse(response);
                 }
             }
 
             @Override
             public void onFailure(Call<BookingResponseDto> call, Throwable t) {
-                // Ẩn ProgressBar và kích hoạt lại nút khi có lỗi mạng
-                progressBar.setVisibility(View.GONE);
-                btnBook.setEnabled(true);
+                setBookingInProgress(false);
                 Toast.makeText(BookingFormActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Hàm xử lý lỗi từ phản hồi của server
+    // Kiểm tra dữ liệu đầu vào
+    private boolean validateBookingInput() {
+        if (!cbTerms.isChecked()) {
+            Toast.makeText(this, "Vui lòng đồng ý với điều khoản và điều kiện", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    // Tạo dữ liệu đặt vé
+    private CreateBookingDto createBookingData() {
+        String notes = etNotes.getText().toString().trim();
+        if (notes.isEmpty()) {
+            notes = "Không có yêu cầu đặc biệt";
+        }
+
+        List<BookingSeatDto> seats = new ArrayList<>();
+        for (SelectedSeatInfo info : selectedSeatsList) {
+            BookingSeatDto seatDto = new BookingSeatDto(
+                    info.getSeatId(),
+                    info.getPassengerName(),
+                    info.getPassengerIdNumber()
+            );
+            seats.add(seatDto);
+        }
+
+        return new CreateBookingDto(userId, flightId, seats, notes);
+    }
+
+    // Thiết lập trạng thái đang xử lý
+    private void setBookingInProgress(boolean inProgress) {
+        progressBar.setVisibility(inProgress ? View.VISIBLE : View.GONE);
+        btnBook.setEnabled(!inProgress);
+        btnBook.setText(inProgress ? "Đang xử lý..." : "XÁC NHẬN ĐẶT VÉ");
+    }
+
+    // Xử lý khi đặt vé thành công
+    private void handleBookingSuccess(BookingResponseDto bookingResponse) {
+        String bookingReference = bookingResponse.getBookingReference();
+        int bookingId = bookingResponse.getBookingId();
+        String successMessage = "Đặt vé thành công! Mã tham chiếu: " + bookingReference;
+
+        Toast.makeText(this, successMessage, Toast.LENGTH_LONG).show();
+
+        // Gửi thông báo
+        sendBookingSuccessNotification(bookingReference, bookingId);
+
+        // Chuyển về màn hình chính
+        navigateToMainMenu();
+    }
+
+    // Xử lý lỗi từ server
     private void handleErrorResponse(Response<BookingResponseDto> response) {
         String errorMessage = "Đặt vé thất bại";
-        if (response.errorBody() != null) {
-            try {
-                errorMessage = response.errorBody().string();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        // Kiểm tra mã lỗi từ server
+
         if (response.code() == 400) {
-            errorMessage = "Thông tin đặt vé không hợp lệ: " + errorMessage;
+            errorMessage = "Thông tin đặt vé không hợp lệ";
         } else if (response.code() == 404) {
-            errorMessage = "Không tìm thấy chuyến bay hoặc ghế: " + errorMessage;
+            errorMessage = "Không tìm thấy chuyến bay hoặc ghế";
         } else if (response.code() == 409) {
-            errorMessage = "Ghế đã được đặt bởi người khác: " + errorMessage;
+            errorMessage = "Ghế đã được đặt bởi người khác";
         } else if (response.code() >= 500) {
-            errorMessage = "Lỗi server, vui lòng thử lại sau: " + errorMessage;
+            errorMessage = "Lỗi server, vui lòng thử lại sau";
         }
-        // Hiển thị thông báo lỗi
+
         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
     }
 
-    private int notificationId = 1000; // id cho notification, có thể tăng dần nếu muốn nhiều notification
-
-    private void sendBookingSuccessNotification(String bookingReference) {
+    // Gửi thông báo đặt vé thành công
+    private void sendBookingSuccessNotification(String bookingReference, int bookingId) {
         String channelId = "BookingChannelId";
-        String channelName = "Booking Notifications";
+        String channelName = "Thông báo đặt vé";
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        // Tạo NotificationChannel cho Android 8.0 trở lên
+        // Tạo kênh thông báo cho Android 8.0 trở lên
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel channel = new NotificationChannel(
+                    channelId,
+                    channelName,
+                    NotificationManager.IMPORTANCE_HIGH
+            );
             notificationManager.createNotificationChannel(channel);
         }
 
-        // Tạo intent khi người dùng nhấn vào notification sẽ mở app (hoặc trang chi tiết booking nếu có)
-        Intent intent = new Intent(this, MainMenuActivity.class); // hoặc BookingDetailActivity nếu có
+        // Tạo intent khi nhấn vào thông báo
+        Intent intent = new Intent(this, BookingDetailActivity.class);
+        intent.putExtra("bookingId", bookingId);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
 
-        // Xây dựng notification
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                bookingId,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
+        );
+
+        // Xây dựng thông báo
         Notification notification = new NotificationCompat.Builder(this, channelId)
                 .setContentTitle("Đặt vé thành công")
                 .setContentText("Mã đặt chỗ: " + bookingReference)
-                .setSmallIcon(R.drawable.ic_notifications) // icon bạn dùng trong project
+                .setSmallIcon(R.drawable.ic_notifications)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText("Mã đặt chỗ: " + bookingReference))
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Mã đặt chỗ: " + bookingReference))
                 .build();
 
-        // Hiển thị notification
         notificationManager.notify(notificationId++, notification);
+    }
+
+    // Chuyển về màn hình chính
+    private void navigateToMainMenu() {
+        Intent intent = new Intent(this, MainMenuActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 }

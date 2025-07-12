@@ -22,5 +22,6 @@
         public decimal ExtraFee { get; set; }
         public bool IsAvailable { get; set; }
         public decimal TotalPrice { get; set; }
+        public bool IsBookedByCurrentUser { get; set; }
     }
 }

@@ -489,7 +489,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🔐 Account Security"
+                        android:text="🔐 Bảo mật tài khoản"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="#1A1A1A"
@@ -518,7 +518,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Change Password"
+                            android:text="Đổi mật khẩu"
                             android:textSize="14sp"
                             android:textColor="#1A1A1A" />
 
@@ -551,7 +551,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Delete Account"
+                            android:text="Xóa tài khoản"
                             android:textSize="14sp"
                             android:textColor="#F44336" />
 

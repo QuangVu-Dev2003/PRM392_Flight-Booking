@@ -32,13 +32,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/btn_back_white_circle"
+        android:src="@drawable/ic_arrow_back"
+        android:contentDescription="Quay lại"
+        android:padding="10dp"
+        android:scaleType="centerInside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="46dp"/>
+
     <TextView
         android:id="@+id/user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:text="Guest"
-        android:textColor="#FFFFFF"
+        android:textColor="#FF6600"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@id/user_avatar"
@@ -84,7 +98,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="From"
+                        android:text="Điểm đi"
                         android:textColor="#666666"
                         android:textSize="14sp" />
 
@@ -96,7 +110,9 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingStart="16dp"
-                        android:paddingEnd="16dp">
+                        android:paddingEnd="16dp"
+                        android:clickable="true"
+                        android:focusable="true">
 
                         <ImageView
                             android:layout_width="20dp"
@@ -109,14 +125,15 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Select departure city"
+                            android:text="Chọn điểm khởi hành"
                             android:textColor="#1A1A1A"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:inputType="textAutoComplete"
                             android:imeOptions="actionDone"
                             android:completionThreshold="1"
-                            android:dropDownHeight="200dp" />
+                            android:dropDownHeight="200dp"
+                            android:background="@null" />
 
                         <ImageView
                             android:layout_width="16dp"
@@ -130,7 +147,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="To"
+                        android:text="Điểm đến"
                         android:textColor="#666666"
                         android:textSize="14sp" />
 
@@ -142,7 +159,9 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingStart="16dp"
-                        android:paddingEnd="16dp">
+                        android:paddingEnd="16dp"
+                        android:clickable="true"
+                        android:focusable="true">
 
                         <ImageView
                             android:layout_width="20dp"
@@ -155,14 +174,15 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Select arrival city"
+                            android:text="Chọn điểm đến"
                             android:textColor="#1A1A1A"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:inputType="textAutoComplete"
                             android:imeOptions="actionDone"
                             android:completionThreshold="1"
-                            android:dropDownHeight="200dp" />
+                            android:dropDownHeight="200dp"
+                            android:background="@null" />
 
                         <ImageView
                             android:layout_width="16dp"
@@ -176,7 +196,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        android:text="Passengers"
+                        android:text="Hành khách"
                         android:textColor="#666666"
                         android:textSize="14sp" />
 
@@ -206,7 +226,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Adults"
+                                android:text="Người lớn"
                                 android:textColor="#1A1A1A"
                                 android:textSize="16sp"
                                 android:textStyle="normal" />
@@ -274,7 +294,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="8dp"
-                                android:text="Departure date"
+                                android:text="Ngày đi"
                                 android:textColor="#666666"
                                 android:textSize="14sp" />
 
@@ -298,7 +318,7 @@
                                     android:id="@+id/tv_departure_date"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Select date"
+                                    android:text="Chọn ngày"
                                     android:textColor="#1A1A1A"
                                     android:textSize="14sp" />
 
@@ -318,7 +338,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="8dp"
-                                android:text="Return date"
+                                android:text="Ngày về"
                                 android:textColor="#666666"
                                 android:textSize="14sp" />
 
@@ -342,7 +362,7 @@
                                     android:id="@+id/tv_return_date"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Select date"
+                                    android:text="Chọn ngày"
                                     android:textColor="#1A1A1A"
                                     android:textSize="14sp" />
 
@@ -357,7 +377,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
-                        android:text="Class"
+                        android:text="Hạng ghế"
                         android:textColor="#666666"
                         android:textSize="14sp" />
 
@@ -384,7 +404,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Select class"
+                            android:text="Chọn hạng ghế"
                             android:textColor="#1A1A1A"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -403,7 +423,7 @@
                         android:layout_height="56dp"
                         android:background="@drawable/btn_search"
                         android:elevation="2dp"
-                        android:text="Search Flights"
+                        android:text="Tìm chuyến bay"
                         android:textColor="#FFFFFF"
                         android:textSize="16sp"
                         android:textStyle="bold" />

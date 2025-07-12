@@ -1,5 +1,6 @@
 package com.prm.flightbooking;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +24,7 @@ import com.prm.flightbooking.dto.booking.PassengerSeatDto;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import retrofit2.Call;
@@ -31,34 +33,41 @@ import retrofit2.Response;
 
 public class BookingDetailActivity extends AppCompatActivity {
 
+    // Khai báo các view components
     private TextView tvBookingReference, tvStatus, tvPaymentStatus, tvPrice, tvBookingDate;
     private TextView tvFlightNumber, tvAirline, tvAircraftModel, tvDepartureAirport, tvArrivalAirport;
     private TextView tvDepartureTime, tvArrivalTime, tvGate, tvNotes;
-    private LinearLayout passengerContainer;
-    private LinearLayout seatSummaryContainer;
+    private LinearLayout passengerContainer, seatSummaryContainer;
     private ProgressBar progressBar;
+    private Button btnCancelBooking;
+    private ImageButton btnBack, btnDownload;
+
+    // API service và dữ liệu
     private BookingApiEndpoint bookingApi;
+    private SharedPreferences sharedPreferences;
     private int userId;
     private int bookingId;
-    private Button btnCancelBooking;
-    private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd MMM yyyy, HH:mm", new Locale("vi", "VN"));
-    private final NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+
+    // Format hiển thị
+    private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("EEEE, dd 'Th'MM 'năm' yyyy, 'lúc' HH:mm", new Locale("vi", "VN"));
+    private final NumberFormat currencyFormat = NumberFormat.getInstance(new Locale("vi", "VN"));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking_detail);
 
+        // Khởi tạo API service và SharedPreferences
         bookingApi = ApiServiceProvider.getBookingApi();
+        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
 
-        SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
-        userId = prefs.getInt("user_id", -1);
-        if (userId == -1) {
-            Toast.makeText(this, "Người dùng chưa đăng nhập", Toast.LENGTH_SHORT).show();
-            finish();
+        // Kiểm tra trạng thái đăng nhập
+        if (!checkLoginStatus()) {
+            redirectToLogin();
             return;
         }
 
+        // Lấy booking ID từ intent
         bookingId = getIntent().getIntExtra("bookingId", -1);
         if (bookingId == -1) {
             Toast.makeText(this, "Không tìm thấy mã đặt vé", Toast.LENGTH_SHORT).show();
@@ -66,11 +75,14 @@ public class BookingDetailActivity extends AppCompatActivity {
             return;
         }
 
-        bindViews();
+        bindingView();
+        bindingAction();
         fetchBookingDetail();
     }
 
-    private void bindViews() {
+    // Liên kết các view từ layout
+    private void bindingView() {
+        btnBack = findViewById(R.id.btn_back);
         tvBookingReference = findViewById(R.id.tv_booking_reference);
         tvStatus = findViewById(R.id.tv_status);
         tvPaymentStatus = findViewById(R.id.tv_payment_status);
@@ -89,205 +101,430 @@ public class BookingDetailActivity extends AppCompatActivity {
         seatSummaryContainer = findViewById(R.id.seat_summary_container);
         progressBar = findViewById(R.id.progress_bar);
         btnCancelBooking = findViewById(R.id.btn_cancel_booking);
+        btnDownload = findViewById(R.id.btn_download);
     }
 
+    // Liên kết các sự kiện click
+    private void bindingAction() {
+        btnBack.setOnClickListener(this::onBackClick);
+        btnCancelBooking.setOnClickListener(this::onCancelBookingClick);
+        btnDownload.setOnClickListener(this::onDownloadTicketClick);
+
+        // Ẩn nút hủy vé mặc định
+        btnCancelBooking.setVisibility(View.GONE);
+    }
+
+    // Xử lý sự kiện click nút quay lại
+    private void onBackClick(View view) {
+        finish();
+    }
+
+    // Xử lý sự kiện click nút hủy vé
+    private void onCancelBookingClick(View view) {
+        showCancelConfirmationDialog();
+    }
+
+    private void onDownloadTicketClick(View view) {
+        Toast.makeText(this, "Coming sôn", Toast.LENGTH_SHORT).show();
+    }
+
+    // Kiểm tra trạng thái đăng nhập
+    private boolean checkLoginStatus() {
+        userId = sharedPreferences.getInt("user_id", -1);
+        boolean isLoggedIn = sharedPreferences.getBoolean("is_logged_in", false);
+
+        if (userId <= 0 || !isLoggedIn) {
+            Toast.makeText(this, "Vui lòng đăng nhập để xem chi tiết đặt vé", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    // Chuyển hướng về màn hình đăng nhập
+    private void redirectToLogin() {
+        Intent intent = new Intent(this, Login.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    // Gọi API lấy chi tiết đặt vé
     private void fetchBookingDetail() {
         progressBar.setVisibility(View.VISIBLE);
 
         Call<BookingDetailDto> call = bookingApi.getBookingDetail(userId, bookingId);
-        Log.d("BookingDetail", "Lấy chi tiết đặt vé với bookingId: " + bookingId);
+        Log.d("BookingDetailActivity", "Đang tải chi tiết đặt vé với ID: " + bookingId);
+
         call.enqueue(new Callback<BookingDetailDto>() {
             @Override
             public void onResponse(Call<BookingDetailDto> call, Response<BookingDetailDto> response) {
                 progressBar.setVisibility(View.GONE);
+
                 if (response.isSuccessful() && response.body() != null) {
-                    populateBookingDetail(response.body());
+                    BookingDetailDto bookingDetail = response.body();
+                    Log.d("BookingDetailActivity", "Tải chi tiết đặt vé thành công - " + bookingDetail.toString());
+                    updateBookingDetailUI(bookingDetail);
                 } else {
-                    Toast.makeText(BookingDetailActivity.this, "Không tải được chi tiết đặt vé", Toast.LENGTH_SHORT).show();
-                    finish();
+                    handleErrorResponse(response);
                 }
             }
 
             @Override
             public void onFailure(Call<BookingDetailDto> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(BookingDetailActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                finish();
+                Toast.makeText(BookingDetailActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void populateBookingDetail(BookingDetailDto detail) {
-        tvBookingReference.setText("Mã đặt vé: " + detail.getBookingReference());
+    // Cập nhật giao diện với thông tin chi tiết đặt vé
+    private void updateBookingDetailUI(BookingDetailDto bookingDetail) {
+        // Hiển thị thông tin đặt vé cơ bản
+        displayBookingInfo(bookingDetail);
 
-        String status = detail.getBookingStatus();
-        switch (status.toUpperCase()) {
-            case "CONFIRMED":
-                tvStatus.setText("✅ Đã xác nhận");
-                break;
-            case "CANCELLED":
-                tvStatus.setText("❌ Đã hủy");
-                break;
-            case "PENDING":
-                tvStatus.setText("⏳ Đang chờ");
-                break;
-            default:
-                tvStatus.setText(status);
-                break;
-        }
-
-        String paymentStatus = detail.getPaymentStatus();
-        switch (paymentStatus.toUpperCase()) {
-            case "PAID":
-                tvPaymentStatus.setText("Đã thanh toán");
-                break;
-            case "PENDING":
-                tvPaymentStatus.setText("Chưa thanh toán");
-                break;
-            default:
-                tvPaymentStatus.setText(paymentStatus);
-                break;
-        }
-
-        BigDecimal amount = detail.getTotalAmount();
-        if (amount != null) {
-            tvPrice.setText(currencyFormat.format(amount));
-        } else {
-            tvPrice.setText("N/A");
-        }
-
-        tvBookingDate.setText(detail.getBookingDate() != null ? dateTimeFormat.format(detail.getBookingDate()) : "N/A");
-        tvNotes.setText(detail.getNotes() != null ? detail.getNotes() : "Không có ghi chú");
-
-        FlightDetailDto flight = detail.getFlight();
-        if (flight != null) {
-            tvFlightNumber.setText(flight.getFlightNumber());
-            tvAirline.setText("Hãng bay: " + flight.getAirlineName());
-            tvAircraftModel.setText("Loại máy bay: " + flight.getAircraftModel());
-            tvDepartureAirport.setText(flight.getDepartureAirport());
-            tvArrivalAirport.setText(flight.getArrivalAirport());
-            tvDepartureTime.setText(flight.getDepartureTime() != null ? dateTimeFormat.format(flight.getDepartureTime()) : "N/A");
-            tvArrivalTime.setText(flight.getArrivalTime() != null ? dateTimeFormat.format(flight.getArrivalTime()) : "N/A");
-            tvGate.setText(flight.getGate() != null ? "Cổng: " + flight.getGate() : "N/A");
-        }
+        // Hiển thị thông tin chuyến bay
+        displayFlightInfo(bookingDetail.getFlight());
 
         // Hiển thị danh sách hành khách
-        passengerContainer.removeAllViews();
-        if (detail.getPassengers() != null && !detail.getPassengers().isEmpty()) {
-            for (PassengerSeatDto passenger : detail.getPassengers()) {
-                View passengerView = getLayoutInflater().inflate(R.layout.item_passenger_detail, passengerContainer, false);
+        displayPassengerInfo(bookingDetail);
 
-                TextView tvPassengerName = passengerView.findViewById(R.id.tv_passenger_name);
-                TextView tvSeatNumber = passengerView.findViewById(R.id.tv_seat_number);
-                TextView tvSeatClass = passengerView.findViewById(R.id.tv_seat_class);
-                TextView tvSeatPrice = passengerView.findViewById(R.id.tv_seat_price);
-                TextView tvSeatType = passengerView.findViewById(R.id.tv_seat_type);
+        // Hiển thị tóm tắt ghế
+        displaySeatSummary(bookingDetail);
 
-                tvPassengerName.setText(passenger.getPassengerName());
-                tvSeatNumber.setText(passenger.getSeatNumber());
-                tvSeatClass.setText(passenger.getSeatClass());
-                BigDecimal seatPrice = passenger.getSeatPrice();
-                tvSeatPrice.setText(seatPrice != null ? currencyFormat.format(seatPrice) : "N/A");
+        // Hiển thị nút hủy vé nếu có thể hủy
+        updateCancelButton(bookingDetail.getBookingStatus());
+    }
 
-                String seatType = "Ghế giữa";
-                if (passenger.isWindow()) seatType = "Ghế cửa sổ";
-                else if (passenger.isAisle()) seatType = "Ghế lối đi";
-                tvSeatType.setText(seatType);
+    // Hiển thị thông tin đặt vé cơ bản
+    private void displayBookingInfo(BookingDetailDto bookingDetail) {
+        tvBookingReference.setText("Mã đặt vé: " + bookingDetail.getBookingReference());
+        tvStatus.setText(formatBookingStatus(bookingDetail.getBookingStatus()));
+        tvPaymentStatus.setText(formatPaymentStatus(bookingDetail.getPaymentStatus()));
 
-                passengerContainer.addView(passengerView);
-
-                ImageButton btnOptions = passengerView.findViewById(R.id.btn_passenger_options);
-                LinearLayout detailLayout = passengerView.findViewById(R.id.layout_passenger_detail);
-
-                // Mặc định mở phần chi tiết
-                detailLayout.setVisibility(View.VISIBLE);
-                btnOptions.setRotation(180);
-
-                btnOptions.setOnClickListener(v -> {
-                    if (detailLayout.getVisibility() == View.VISIBLE) {
-                        detailLayout.setVisibility(View.GONE);
-                        btnOptions.setRotation(0);
-                    } else {
-                        detailLayout.setVisibility(View.VISIBLE);
-                        btnOptions.setRotation(180);
-                    }
-                });
-            }
+        // Hiển thị giá tiền
+        BigDecimal totalAmount = bookingDetail.getTotalAmount();
+        if (totalAmount != null) {
+            tvPrice.setText(currencyFormat.format(totalAmount) + " VNĐ");
         } else {
-            TextView noPassenger = new TextView(this);
-            noPassenger.setText("Không có hành khách");
-            passengerContainer.addView(noPassenger);
+            tvPrice.setText("Chưa có thông tin giá");
         }
 
-        seatSummaryContainer.removeAllViews();
-        if (detail.getPassengers() != null && !detail.getPassengers().isEmpty()) {
-            for (PassengerSeatDto passenger : detail.getPassengers()) {
-                // Tạo TextView cho mỗi hành khách
-                TextView tvSummary = new TextView(this);
-                tvSummary.setLayoutParams(new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT));
-                tvSummary.setTextSize(14f);
-                tvSummary.setTextColor(getResources().getColor(android.R.color.black));
-
-                // Nội dung: Tên hành khách - Số ghế - Loại ghế
-                String seatType = "Ghế giữa";
-                if (passenger.isWindow()) seatType = "Ghế cửa sổ";
-                else if (passenger.isAisle()) seatType = "Ghế lối đi";
-
-                String text = String.format("%s - Ghế %s - %s",
-                        passenger.getPassengerName(),
-                        passenger.getSeatNumber(),
-                        passenger.getSeatClass() + " / " + seatType);
-
-                tvSummary.setText(text);
-
-                seatSummaryContainer.addView(tvSummary);
-            }
+        // Hiển thị ngày đặt vé
+        if (bookingDetail.getBookingDate() != null) {
+            tvBookingDate.setText(dateTimeFormat.format(bookingDetail.getBookingDate()));
         } else {
+            tvBookingDate.setText("Chưa có thông tin ngày");
+        }
+
+        // Hiển thị ghi chú
+        String notes = bookingDetail.getNotes();
+        tvNotes.setText(notes != null && !notes.isEmpty() ? notes : "Không có ghi chú");
+    }
+
+    // Hiển thị thông tin chuyến bay
+    private void displayFlightInfo(FlightDetailDto flight) {
+        if (flight == null) {
+            tvFlightNumber.setText("Không có thông tin chuyến bay");
+            return;
+        }
+
+        String departureAirport = flight.getDepartureAirport();
+        TextView tvDepartureAirportName = findViewById(R.id.tv_departure_airport_name);
+        String arrivalAirport = flight.getArrivalAirport();
+        TextView tvArrivalAirportName = findViewById(R.id.tv_arrival_airport_name);
+
+        tvFlightNumber.setText(flight.getFlightNumber());
+        tvAirline.setText("Hãng bay: " + (flight.getAirlineName() != null ? flight.getAirlineName() : "Chưa có thông tin"));
+        tvAircraftModel.setText("Loại máy bay: " + (flight.getAircraftModel() != null ? flight.getAircraftModel() : "Chưa có thông tin"));
+        tvDepartureAirport.setText(getAirportCode(departureAirport));
+        tvDepartureAirportName.setText(getAirportName(departureAirport));
+        tvArrivalAirport.setText(getAirportCode(arrivalAirport));
+        tvArrivalAirportName.setText(getAirportName(arrivalAirport));
+
+        // Hiển thị thời gian khởi hành và đến
+        if (flight.getDepartureTime() != null) {
+            tvDepartureTime.setText(formatTime(flight.getDepartureTime()));
+            TextView tvDepartureDate = findViewById(R.id.tv_departure_date);
+            tvDepartureDate.setText(formatDate(flight.getDepartureTime()));
+        } else {
+            tvDepartureTime.setText("Chưa có thông tin");
+            TextView tvDepartureDate = findViewById(R.id.tv_departure_date);
+            tvDepartureDate.setText("");
+        }
+
+        if (flight.getArrivalTime() != null) {
+            tvArrivalTime.setText(formatTime(flight.getArrivalTime()));
+            TextView tvArrivalDate = findViewById(R.id.tv_arrival_date);
+            tvArrivalDate.setText(formatDate(flight.getArrivalTime()));
+        } else {
+            tvArrivalTime.setText("Chưa có thông tin");
+            TextView tvArrivalDate = findViewById(R.id.tv_arrival_date);
+            tvArrivalDate.setText("");
+        }
+
+        // Hiển thị cổng
+        String gate = flight.getGate();
+        tvGate.setText(gate != null && !gate.isEmpty() ? "Cổng: " + gate : "Chưa có thông tin cổng");
+    }
+
+    // Hiển thị thông tin hành khách
+    private void displayPassengerInfo(BookingDetailDto bookingDetail) {
+        passengerContainer.removeAllViews();
+
+        if (bookingDetail.getPassengers() == null || bookingDetail.getPassengers().isEmpty()) {
+            TextView noPassenger = new TextView(this);
+            noPassenger.setText("Không có thông tin hành khách");
+            noPassenger.setTextColor(getResources().getColor(android.R.color.darker_gray));
+            passengerContainer.addView(noPassenger);
+            return;
+        }
+
+        for (PassengerSeatDto passenger : bookingDetail.getPassengers()) {
+            View passengerView = getLayoutInflater().inflate(R.layout.item_passenger_detail, passengerContainer, false);
+
+            TextView tvPassengerName = passengerView.findViewById(R.id.tv_passenger_name);
+            TextView tvSeatNumber = passengerView.findViewById(R.id.tv_seat_number);
+            TextView tvSeatClass = passengerView.findViewById(R.id.tv_seat_class);
+            TextView tvSeatPrice = passengerView.findViewById(R.id.tv_seat_price);
+            TextView tvSeatType = passengerView.findViewById(R.id.tv_seat_type);
+
+            // Cập nhật thông tin hành khách
+            tvPassengerName.setText(passenger.getPassengerName());
+            tvSeatNumber.setText(passenger.getSeatNumber());
+            tvSeatClass.setText(passenger.getSeatClass());
+
+            // Hiển thị giá ghế
+            BigDecimal seatPrice = passenger.getSeatPrice();
+            if (seatPrice != null) {
+                tvSeatPrice.setText(currencyFormat.format(seatPrice) + " VNĐ");
+            } else {
+                tvSeatPrice.setText("Chưa có thông tin giá");
+            }
+
+            // Hiển thị loại ghế
+            tvSeatType.setText(formatSeatType(passenger));
+
+            // Xử lý nút mở rộng thông tin
+            setupPassengerExpandButton(passengerView);
+
+            passengerContainer.addView(passengerView);
+        }
+    }
+
+    // Thiết lập nút mở rộng thông tin hành khách
+    private void setupPassengerExpandButton(View passengerView) {
+        ImageButton btnOptions = passengerView.findViewById(R.id.btn_passenger_options);
+        LinearLayout detailLayout = passengerView.findViewById(R.id.layout_passenger_detail);
+
+        // Mặc định hiển thị thông tin chi tiết
+        detailLayout.setVisibility(View.VISIBLE);
+        btnOptions.setRotation(180);
+
+        btnOptions.setOnClickListener(v -> {
+            if (detailLayout.getVisibility() == View.VISIBLE) {
+                detailLayout.setVisibility(View.GONE);
+                btnOptions.setRotation(0);
+            } else {
+                detailLayout.setVisibility(View.VISIBLE);
+                btnOptions.setRotation(180);
+            }
+        });
+    }
+
+    // Hiển thị tóm tắt ghế
+    private void displaySeatSummary(BookingDetailDto bookingDetail) {
+        seatSummaryContainer.removeAllViews();
+
+        if (bookingDetail.getPassengers() == null || bookingDetail.getPassengers().isEmpty()) {
             TextView noSeatSummary = new TextView(this);
             noSeatSummary.setText("Không có thông tin ghế");
             noSeatSummary.setTextColor(getResources().getColor(android.R.color.darker_gray));
             seatSummaryContainer.addView(noSeatSummary);
+            return;
         }
 
-        // Hiển thị nút Hủy chuyến bay nếu trạng thái là CONFIRMED
-        if ("CONFIRMED".equalsIgnoreCase(detail.getBookingStatus())) {
+        for (PassengerSeatDto passenger : bookingDetail.getPassengers()) {
+            TextView tvSummary = new TextView(this);
+            tvSummary.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+            tvSummary.setTextSize(14f);
+            tvSummary.setTextColor(getResources().getColor(android.R.color.black));
+            tvSummary.setPadding(0, 8, 0, 8);
+
+            String seatInfo = String.format("%s - Ghế %s - %s / %s",
+                    passenger.getPassengerName(),
+                    passenger.getSeatNumber(),
+                    passenger.getSeatClass(),
+                    formatSeatType(passenger));
+
+            tvSummary.setText(seatInfo);
+            seatSummaryContainer.addView(tvSummary);
+        }
+    }
+
+    // Cập nhật nút hủy vé
+    private void updateCancelButton(String bookingStatus) {
+        if ("CONFIRMED".equalsIgnoreCase(bookingStatus)) {
             btnCancelBooking.setVisibility(View.VISIBLE);
-            btnCancelBooking.setOnClickListener(v -> showCancelConfirmationDialog());
+            btnCancelBooking.setText("Hủy vé");
         } else {
             btnCancelBooking.setVisibility(View.GONE);
         }
     }
 
-    private void cancelBooking() {
+    // Format trạng thái đặt vé
+    private String formatBookingStatus(String status) {
+        if (status == null || status.isEmpty()) return "Chưa có thông tin";
+
+        switch (status.toUpperCase()) {
+            case "CONFIRMED":
+                return "✅ Đã xác nhận";
+            case "CANCELLED":
+                return "❌ Đã hủy";
+            case "PENDING":
+                return "⏳ Đang chờ xử lý";
+            default:
+                return status;
+        }
+    }
+
+    // Format trạng thái thanh toán
+    private String formatPaymentStatus(String paymentStatus) {
+        if (paymentStatus == null || paymentStatus.isEmpty()) return "Chưa có thông tin";
+
+        switch (paymentStatus.toUpperCase()) {
+            case "PAID":
+                return "💳 Đã thanh toán";
+            case "PENDING":
+                return "⏳ Chưa thanh toán";
+            case "REFUNDED":
+                return "💰 Đã hoàn tiền";
+            default:
+                return paymentStatus;
+        }
+    }
+
+    // Format loại ghế
+    private String formatSeatType(PassengerSeatDto passenger) {
+        if (passenger.isWindow()) {
+            return "Ghế cửa sổ";
+        } else if (passenger.isAisle()) {
+            return "Ghế lối đi";
+        } else {
+            return "Ghế giữa";
+        }
+    }
+
+    // Hiển thị dialog xác nhận hủy vé
+    private void showCancelConfirmationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Xác nhận hủy vé")
+                .setMessage("Bạn có chắc chắn muốn hủy vé này không? Hành động này không thể hoàn tác.")
+                .setPositiveButton("Hủy vé", (dialog, which) -> performCancelBooking())
+                .setNegativeButton("Không", null)
+                .show();
+    }
+
+    // Thực hiện hủy vé
+    private void performCancelBooking() {
         progressBar.setVisibility(View.VISIBLE);
-        bookingApi.cancelBookingUser(userId, bookingId).enqueue(new Callback<Void>() {
+        btnCancelBooking.setEnabled(false);
+        btnCancelBooking.setText("Đang hủy vé...");
+
+        Call<Void> call = bookingApi.cancelBookingUser(userId, bookingId);
+        call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 progressBar.setVisibility(View.GONE);
+                btnCancelBooking.setEnabled(true);
+                btnCancelBooking.setText("Hủy vé");
+
                 if (response.isSuccessful()) {
                     Toast.makeText(BookingDetailActivity.this, "Hủy vé thành công", Toast.LENGTH_SHORT).show();
-                    fetchBookingDetail(); // Cập nhật lại thông tin vé
+                    fetchBookingDetail(); // Làm mới thông tin đặt vé
                 } else {
-                    Toast.makeText(BookingDetailActivity.this, "Không thể hủy vé. Vui lòng thử lại.", Toast.LENGTH_SHORT).show();
+                    handleCancelErrorResponse(response);
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(BookingDetailActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                btnCancelBooking.setEnabled(true);
+                btnCancelBooking.setText("Hủy vé");
+                Toast.makeText(BookingDetailActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void showCancelConfirmationDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("Xác nhận hủy vé")
-                .setMessage("Bạn có chắc chắn muốn hủy vé này không?")
-                .setPositiveButton("Hủy vé", (dialog, which) -> cancelBooking())
-                .setNegativeButton("Thoát", null)
-                .show();
+    // Xử lý lỗi khi tải chi tiết đặt vé
+    private void handleErrorResponse(Response<BookingDetailDto> response) {
+        String errorMessage = "Không thể tải chi tiết đặt vé";
+
+        if (response.code() == 401) {
+            errorMessage = "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.";
+            redirectToLogin();
+        } else if (response.code() == 404) {
+            errorMessage = "Không tìm thấy thông tin đặt vé";
+        } else if (response.code() >= 500) {
+            errorMessage = "Lỗi server, vui lòng thử lại sau";
+        }
+
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    // Xử lý lỗi khi hủy vé
+    private void handleCancelErrorResponse(Response<Void> response) {
+        String errorMessage = "Không thể hủy vé";
+
+        if (response.code() == 400) {
+            errorMessage = "Vé này không thể hủy";
+        } else if (response.code() == 401) {
+            errorMessage = "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.";
+            redirectToLogin();
+        } else if (response.code() == 404) {
+            errorMessage = "Không tìm thấy thông tin đặt vé";
+        } else if (response.code() >= 500) {
+            errorMessage = "Lỗi server, vui lòng thử lại sau";
+        }
+
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+    }
+
+    /* Tách chuỗi */
+    private String getAirportName(String airportStr) {
+        if (airportStr == null) return "Chưa có thông tin";
+        int idx = airportStr.lastIndexOf(" (");
+        if (idx > 0) {
+            return airportStr.substring(0, idx);
+        } else {
+            return airportStr;
+        }
+    }
+
+    private String getAirportCode(String airportStr) {
+        if (airportStr == null) return "";
+        int start = airportStr.lastIndexOf("(");
+        int end = airportStr.lastIndexOf(")");
+        if (start >= 0 && end > start) {
+            return airportStr.substring(start + 1, end);
+        } else {
+            return airportStr;
+        }
+    }
+
+    // Hàm tách giờ phút
+    private String formatTime(Date date) {
+        if (date == null) return "";
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        return timeFormat.format(date);
+    }
+
+    // Hàm tách ngày tháng năm theo định dạng "dd ThMM, yyyy"
+    private String formatDate(Date date) {
+        if (date == null) return "";
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd 'Th'MM, yyyy", Locale.getDefault());
+        return dateFormat.format(date);
     }
 }

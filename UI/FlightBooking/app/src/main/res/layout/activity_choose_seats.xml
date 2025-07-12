@@ -10,7 +10,7 @@
     <RelativeLayout
         android:id="@+id/header_choose_seats"
         android:layout_width="0dp"
-        android:layout_height="240dp"
+        android:layout_height="150dp"
         android:background="@drawable/travel_scene_bg"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,7 +22,7 @@
             android:layout_height="50dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="40dp"
-            android:background="@drawable/btn_back_circle"
+            android:background="@drawable/circle_orange"
             android:src="@drawable/ic_arrow_back"
             android:contentDescription="Back" />
 
@@ -31,9 +31,9 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="45dp"
-            android:text="Choose seats"
+            android:text="Chọn Ghế"
             android:textColor="#000000"
-            android:textSize="18sp"
+            android:textSize="34sp"
             android:textStyle="bold" />
 
         <ImageView
@@ -80,7 +80,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Business Class"
+                    android:text="Hạng Thương Gia"
                     android:textSize="12sp"
                     android:textColor="#666666"
                     android:textStyle="bold"
@@ -104,7 +104,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Economy Class"
+                    android:text="Hạng Phổ Thông"
                     android:textSize="12sp"
                     android:textColor="#666666"
                     android:textStyle="bold"
@@ -144,7 +144,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Available"
+                        android:text="Có thể chọn"
                         android:textSize="12sp"
                         android:textColor="#666666" />
 
@@ -166,7 +166,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Selected"
+                        android:text="Đã chọn"
                         android:textSize="12sp"
                         android:textColor="#666666" />
 
@@ -188,7 +188,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="unavailable"
+                        android:text="Không thể chọn"
                         android:textSize="12sp"
                         android:textColor="#666666" />
 
@@ -237,7 +237,7 @@
                     android:id="@+id/tv_num_selected_seats"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0 Seats Selected"
+                    android:text="0 ghế đã chọn"
                     android:textSize="14sp"
                     android:textColor="#666666" />
 
@@ -256,7 +256,7 @@
                 android:id="@+id/tv_total_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="$0.00"
+                android:text="0 VNĐ"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 android:textColor="#2196F3" />
@@ -267,7 +267,7 @@
             android:id="@+id/btn_confirm_seats"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="CONFIRM SEATS"
+            android:text="Đặt Vé"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
