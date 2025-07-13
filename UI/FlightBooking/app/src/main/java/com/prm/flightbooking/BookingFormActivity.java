@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,7 +45,7 @@ public class BookingFormActivity extends AppCompatActivity {
     private Button btnBook;
     private CheckBox cbTerms;
     private ProgressBar progressBar;
-
+    private ImageButton btnBack;
     private BookingApiEndpoint bookingApi;
     private SharedPreferences sharedPreferences;
     private List<SelectedSeatInfo> selectedSeatsList;
@@ -72,6 +73,7 @@ public class BookingFormActivity extends AppCompatActivity {
 
     // Liên kết các view trong layout
     private void bindingView() {
+        btnBack = findViewById(R.id.btn_back);
         etNotes = findViewById(R.id.et_notes);
         tvBookingSummary = findViewById(R.id.tv_booking_summary);
         tvTotalPrice = findViewById(R.id.tv_total_price);
@@ -82,6 +84,7 @@ public class BookingFormActivity extends AppCompatActivity {
 
     // Gán sự kiện cho các view
     private void bindingAction() {
+        btnBack.setOnClickListener(v -> finish());
         btnBook.setOnClickListener(this::onBtnBookClick);
     }
 
@@ -106,26 +109,40 @@ public class BookingFormActivity extends AppCompatActivity {
 
     // Hiển thị tóm tắt thông tin đặt vé
     private void displayBookingSummary() {
-        StringBuilder summary = new StringBuilder("Chi tiết đặt vé:\n\n");
-        BigDecimal totalPrice = BigDecimal.ZERO;
+        StringBuilder summary = new StringBuilder();
+        BigDecimal overallTotalPrice = BigDecimal.ZERO;
+        summary.append("Thông tin đặt vé:\n\n");
 
-        for (SelectedSeatInfo seat : selectedSeatsList) {
-            summary.append("Ghế: ").append(seat.getSeatNumber())
-                    .append(" (").append(seat.getSeatClassName()).append(")\n")
-                    .append("  Hành khách: ").append(seat.getPassengerName()).append("\n")
-                    .append("  CMND/CCCD: ").append(seat.getPassengerIdNumber()).append("\n");
+        // Hiển thị chi tiết từng ghế
+        for (int i = 0; i < selectedSeatsList.size(); i++) {
+            SelectedSeatInfo seat = selectedSeatsList.get(i);
+            summary.append("🔵 Ghế số: ")
+                    .append(seat.getSeatNumber())
+                    .append(" (").append(seat.getSeatClassName()).append(")\n");
+            summary.append("   - Hành khách: ").append(seat.getPassengerName()).append("\n");
+            summary.append("   - CMND/CCCD: ").append(seat.getPassengerIdNumber()).append("\n");
 
             if (seat.getTotalPrice() != null) {
-                totalPrice = totalPrice.add(seat.getTotalPrice());
+                String seatFormattedPrice = formatCurrency(seat.getTotalPrice());
+                summary.append("   - Giá ghế: ").append(seatFormattedPrice).append("\n"); // Hiển thị giá từng ghế
+                overallTotalPrice = overallTotalPrice.add(seat.getTotalPrice()); // Vẫn cộng vào tổng để hiển thị ở tvTotalPrice
+            } else {
+                summary.append("   - Giá ghế: N/A\n"); // Xử lý trường hợp giá không có
+            }
+
+            // Thêm dấu phân cách giữa các ghế nếu không phải ghế cuối cùng
+            if (i < selectedSeatsList.size() - 1) {
+                summary.append("-----------------------------------------------------\n");
             }
         }
 
-        summary.append("\nTổng số ghế: ").append(selectedSeatsList.size());
-        String formattedPrice = formatCurrency(totalPrice);
-        summary.append("\nTổng giá: ").append(formattedPrice);
+        summary.append("\n📊 Tổng số ghế đã chọn: ")
+                .append(selectedSeatsList.size()).append(" ghế");
+
+        String overallFormattedPrice = formatCurrency(overallTotalPrice);
 
         tvBookingSummary.setText(summary.toString());
-        tvTotalPrice.setText(formattedPrice);
+        tvTotalPrice.setText(overallFormattedPrice);
     }
 
     // Định dạng tiền tệ Việt Nam
