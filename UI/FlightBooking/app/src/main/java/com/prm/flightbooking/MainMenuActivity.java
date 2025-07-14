@@ -27,7 +27,7 @@ public class MainMenuActivity extends AppCompatActivity {
     private TextView tvWelcome, tvUsername;
     private ImageView ivAvatar;
     private Button btnBannerBook;
-    private LinearLayout menuBookFlight, menuMyTrips, menuNotifications, menuProfile;
+    private LinearLayout menuBookFlight, menuMyTrips, menuNotifications, menuProfile, menuAIPlan;
     private BottomNavigationView bottomNavigation;
     private TextView tvNotificationsBadge;
 
@@ -67,6 +67,7 @@ public class MainMenuActivity extends AppCompatActivity {
         menuProfile = findViewById(R.id.menu_profile);
         bottomNavigation = findViewById(R.id.bottom_navigation);
         tvNotificationsBadge = findViewById(R.id.tv_notifications_badge);
+        menuAIPlan = findViewById((R.id.menu_ai_plan));
     }
 
     private void bindingAction() {
@@ -76,12 +77,16 @@ public class MainMenuActivity extends AppCompatActivity {
         menuNotifications.setOnClickListener(this::onNotificationsClick);
         menuProfile.setOnClickListener(this::onProfileClick);
         ivAvatar.setOnClickListener(this::onAvatarClick);
-
+        menuAIPlan.setOnClickListener(this::OnAITripPlan);
         bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             handleBottomNavigation(itemId);
             return true;
         });
+    }
+
+    private void OnAITripPlan(View view) {
+        navigateToActivity(AIPlannerActivity.class);
     }
 
     private void setupBackPressHandler() {
@@ -125,10 +130,13 @@ public class MainMenuActivity extends AppCompatActivity {
 
     // Xử lý navigation dưới cùng
     private void handleBottomNavigation(int itemId) {
-        if (itemId == R.id.nav_home) {
+      /*  if (itemId == R.id.nav_home) {
             // Trang chủ - không làm gì
-        } else if (itemId == R.id.nav_search) {
+        } else*/
+            if (itemId == R.id.nav_search) {
             navigateToActivity(SearchFlightActivity.class);
+        } else if (itemId == R.id.nav_ai_plan) {
+            navigateToActivity(AIPlannerActivity.class);
         } else if (itemId == R.id.nav_trips) {
             navigateToActivity(BookingHistoryActivity.class);
         } else if (itemId == R.id.nav_flights) {
@@ -292,7 +300,7 @@ public class MainMenuActivity extends AppCompatActivity {
         if (isLoggedIn()) {
             loadUserInfo();
             loadUnreadNotificationCount();
-            bottomNavigation.setSelectedItemId(R.id.nav_home);
+            //bottomNavigation.setSelectedItemId(R.id.nav_home);
         } else {
             redirectToLogin();
         }
