@@ -154,7 +154,7 @@ namespace FlightBooking.Services
 
         private string GenerateBookingReference()
         {
-            return $"FB{DateTime.Now:yyyyMMdd}{new Random().Next(1000, 9999)}";
+            return $"VN{DateTime.Now:ddMMyyyy}{new Random().Next(1000, 9999)}";
         }
 
         private async Task<BookingResponseDto> GetBookingByIdAsync(int bookingId)

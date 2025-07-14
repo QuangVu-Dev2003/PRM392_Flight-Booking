@@ -38,6 +38,8 @@ dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("com.google.android.material:material:1.12.0")
     implementation("io.github.chaosleung:pinview:1.4.4")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("io.noties.markwon:core:4.6.2")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

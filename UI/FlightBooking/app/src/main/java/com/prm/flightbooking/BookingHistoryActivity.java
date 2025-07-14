@@ -57,6 +57,7 @@ public class BookingHistoryActivity extends AppCompatActivity {
     private int currentPage = 1;
     private final int PAGE_SIZE = 10;
     private String currentFilter = "Tất cả";
+    private boolean isFetching = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +77,9 @@ public class BookingHistoryActivity extends AppCompatActivity {
         bindingView();
         bindingAction();
         setupRecyclerView();
-        fetchBookingHistory();
+        if (bookingList.isEmpty() && !isFetching) {
+            fetchBookingHistory();
+        }
     }
 
     private void bindingView() {
@@ -231,17 +234,30 @@ public class BookingHistoryActivity extends AppCompatActivity {
 
     // Gọi API để lấy lịch sử đặt vé
     private void fetchBookingHistory() {
+        if (isFetching) {
+            Log.d("BookingHistory", "Fetch already in progress, skipping");
+            return;
+        }
+        isFetching = true;
+
         userId = sharedPreferences.getInt("user_id", -1);
 
         if (userId <= 0) {
             Toast.makeText(this, "Lỗi: Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
             redirectToLogin();
+            isFetching = false;
             return;
         }
 
         progressBar.setVisibility(View.VISIBLE);
         emptyState.setVisibility(View.GONE);
 
+        // Clear lists to prevent duplicates
+        bookingList.clear();
+        filteredList.clear();
+        adapter.notifyDataSetChanged();
+
+        Log.d("BookingHistory", "Before fetch: bookingList size = " + bookingList.size());
         Call<List<UserBookingHistoryDto>> call = bookingApi.getBookingHistory(userId, currentPage, PAGE_SIZE);
         call.enqueue(new Callback<List<UserBookingHistoryDto>>() {
             @Override
@@ -250,9 +266,14 @@ public class BookingHistoryActivity extends AppCompatActivity {
 
                 if (response.isSuccessful() && response.body() != null) {
                     List<UserBookingHistoryDto> bookings = response.body();
-
+                    Log.d("BookingHistory", "Fetched bookings size = " + bookings.size());
+                    for (UserBookingHistoryDto booking : bookings) {
+                        Log.d("BookingHistory", "Booking ID: " + booking.getBookingId() + ", Reference: " + booking.getBookingReference());
+                    }
                     bookingList.addAll(bookings);
+                    Log.d("BookingHistory", "After fetch: bookingList size = " + bookingList.size());
                     filterBookings(etSearch.getText().toString());
+                    Log.d("BookingHistory", "After filter: filteredList size = " + filteredList.size());
                 } else {
                     handleErrorResponse(response);
                 }
@@ -324,10 +345,10 @@ public class BookingHistoryActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (isLoggedIn()) {
-            fetchBookingHistory();
-        } else {
+        if (!isLoggedIn()) {
             redirectToLogin();
+        } else if (bookingList.isEmpty() && !isFetching) {
+            fetchBookingHistory();
         }
     }
 
