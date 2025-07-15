@@ -2061,6 +2061,14 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         ],
         "responses": {
@@ -4304,6 +4312,9 @@
           "totalPrice": {
             "type": "number",
             "format": "double"
+          },
+          "isBookedByCurrentUser": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

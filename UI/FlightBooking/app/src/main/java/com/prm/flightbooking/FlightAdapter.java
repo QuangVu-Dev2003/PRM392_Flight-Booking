@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -85,7 +86,18 @@ public class FlightAdapter extends RecyclerView.Adapter<FlightAdapter.FlightView
 
         // Gán sự kiện click cho item nếu listener không null
         if (listener != null) {
-            holder.itemView.setOnClickListener(v -> listener.onFlightClick(flight.getFlightId()));
+            String status = flight.getStatus();
+            if ("COMPLETED".equalsIgnoreCase(status)
+                    || "PREPARING".equalsIgnoreCase(status)
+                    || "DEPARTED".equalsIgnoreCase(status)) {
+                // Nếu trạng thái là 1 trong 3 trạng thái trên
+                holder.itemView.setOnClickListener(v -> {
+                    Toast.makeText(holder.itemView.getContext(), "Chuyến bay không thể đặt vé vì trạng thái: " + convertStatusToVietnamese(status), Toast.LENGTH_SHORT).show();
+                });
+            } else {
+                // Cho phép click bình thường
+                holder.itemView.setOnClickListener(v -> listener.onFlightClick(flight.getFlightId()));
+            }
         } else {
             holder.itemView.setOnClickListener(null); // Tránh lỗi nếu listener null
         }
@@ -127,6 +139,10 @@ public class FlightAdapter extends RecyclerView.Adapter<FlightAdapter.FlightView
                 return "Bị hoãn";
             case "COMPLETED":
                 return "Đã hoàn thành";
+            case "PREPARING":
+                return "Chuẩn bị khởi hành";
+            case "DEPARTED":
+                return "Đã khởi hành";
             default:
                 return status; // Trả về nguyên trạng nếu không có mapping
         }

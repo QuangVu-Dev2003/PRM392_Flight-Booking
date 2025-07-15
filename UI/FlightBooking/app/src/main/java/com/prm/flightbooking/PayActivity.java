@@ -2,16 +2,24 @@ package com.prm.flightbooking;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 import com.prm.flightbooking.api.ApiServiceProvider;
 import com.prm.flightbooking.api.BookingApiEndpoint;
 import com.prm.flightbooking.dto.booking.BookingDetailDto;
@@ -75,6 +83,26 @@ public class PayActivity extends AppCompatActivity {
         // Bind views
         bindingView();
         bindingAction();
+
+        // Lấy dữ liệu để tạo mã vạch & mã QR
+   /*     String barcodeText = "321654687"; // Hoặc bookingDetail.getBookingReference() khi đã có dữ liệu
+        Bitmap barcodeBitmap = generateBarcode(barcodeText, ivBarcode.getWidth() > 0 ? ivBarcode.getWidth() : 800, 200);
+        if (barcodeBitmap != null) {
+            ivBarcode.setImageBitmap(barcodeBitmap);
+        }
+
+        // Sinh QR chuyển khoản VietQR động nếu muốn
+        // Thay các chuỗi này bằng thông tin đặt vé phù hợp
+        String accountNumber = "0123456789";
+        String bankBin = "970436";
+        String accountName = "NGUYEN VAN A";
+        String amount = "150000";
+        String addInfo = "Thanh toan hoa don 001";
+        String vietQRData = generateVietQR(accountNumber, bankBin, accountName, amount, addInfo);
+        Bitmap qrBitmap = generateQRCode(vietQRData, 400);
+        if (qrBitmap != null) {
+            ivQrCode.setImageBitmap(qrBitmap);
+        }*/
 
         // Fetch booking details
         fetchBookingDetail();
@@ -240,6 +268,33 @@ public class PayActivity extends AppCompatActivity {
 
         // Update payment button visibility based on payment status
         updatePaymentButtons(bookingDetail.getPaymentStatus());
+
+        // Hiển thị mã vạch booking reference
+        String bookingRef = bookingDetail.getBookingReference();
+        Bitmap barcodeBitmap = generateBarcode(bookingRef, ivBarcode.getWidth() > 0 ? ivBarcode.getWidth() : 800, 200);
+        if (barcodeBitmap != null) {
+            ivBarcode.setImageBitmap(barcodeBitmap);
+        }
+
+        /*// Tạo chuỗi VietQR chuyển khoản sử dụng thông tin MB Bank, người nhận, số tiền, nội dung
+        String accountNumber = "555508122003";
+        String bankBin = "970405";
+        String accountName = "LUONG QUANG VU";
+
+        // Lấy số tiền từ tổng trong booking, chuỗi số, ko có dấu
+        totalAmount = bookingDetail.getTotalAmount();
+        String amount = (totalAmount != null) ? totalAmount.toBigInteger().toString() : "0";
+
+        String addInfo = "Thanh toan ve may bay";
+
+        // Tạo mã QR theo booking
+
+        String vietQRData = generateVietQR(accountNumber, bankBin, accountName, amount, addInfo);
+
+        Bitmap qrBitmap = generateQRCode(vietQRData, 400);
+        if (qrBitmap != null) {
+            ivQrCode.setImageBitmap(qrBitmap);
+        }*/
     }
 
     // Update payment button visibility
@@ -296,5 +351,51 @@ public class PayActivity extends AppCompatActivity {
     private String formatDate(Date date) {
         if (date == null) return "";
         return dateFormat.format(date);
+    }
+
+    // Tạo barcode (mã vạch)
+    private Bitmap generateBarcode(String text, int width, int height) {
+        try {
+            MultiFormatWriter writer = new MultiFormatWriter();
+            BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.CODE_128, width, height);
+            BarcodeEncoder encoder = new BarcodeEncoder();
+            return encoder.createBitmap(bitMatrix);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // Tạo mã QR
+    private Bitmap generateQRCode(String text, int size) {
+        try {
+            QRCodeWriter writer = new QRCodeWriter();
+            BitMatrix bitMatrix = writer.encode(text, BarcodeFormat.QR_CODE, size, size);
+            BarcodeEncoder encoder = new BarcodeEncoder();
+            return encoder.createBitmap(bitMatrix);
+        } catch (WriterException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // Tạo dữ liệu VietQR (nếu muốn dùng QR cho chuyển khoản)
+    private String generateVietQR(String accountNumber, String bankBin, String accountName, String amount, String addInfo) {
+        StringBuilder qr = new StringBuilder();
+        qr.append("000201"); // Phiên bản QR
+        qr.append("010212"); // Loại giao dịch chuyển khoản
+        String bankInfo = "0010A000000727";
+        qr.append("38").append(String.format("%02d", bankInfo.length() + 8 + accountNumber.length()))
+                .append(bankInfo)
+                .append("0208").append(bankBin)
+                .append("03").append(String.format("%02d", accountNumber.length())).append(accountNumber);
+        qr.append("52040000");
+        qr.append("5303704");
+        qr.append("54").append(String.format("%02d", amount.length())).append(amount);
+        qr.append("5802VN");
+        qr.append("59").append(String.format("%02d", accountName.length())).append(accountName);
+        qr.append("62").append(String.format("%02d", addInfo.length() + 4))
+                .append("08").append(String.format("%02d", addInfo.length())).append(addInfo);
+        return qr.toString();
     }
 }
