@@ -39,7 +39,7 @@ public class AIPlannerActivity extends AppCompatActivity {
     private OkHttpClient client;
     private Gson gson;
 
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyCcoMmf9Vvs2PgjatvhhM6EaKMpeECgKYM";
+    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDEWRFkEX5k-dFx_nppoLdwH5ge5LxGaHQ";
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     @SuppressLint("MissingInflatedId")

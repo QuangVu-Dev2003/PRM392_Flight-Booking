@@ -11,8 +11,14 @@ public class CreateBookingDto {
     @SerializedName("flightId")
     private int flightId;
 
-    @SerializedName("seats")
-    private List<BookingSeatDto> seats;
+    @SerializedName("seatClassId")
+    private int seatClassId;
+
+    @SerializedName("passengers")
+    private int passengers;
+
+    @SerializedName("passengerDetails")
+    private List<PassengerInfoDto> passengerDetails;
 
     @SerializedName("notes")
     private String notes;
@@ -20,13 +26,16 @@ public class CreateBookingDto {
     public CreateBookingDto() {
     }
 
-    public CreateBookingDto(int userId, int flightId, List<BookingSeatDto> seats, String notes) {
+    public CreateBookingDto(int userId, int flightId, int seatClassId, int passengers, List<PassengerInfoDto> passengerDetails, String notes) {
         this.userId = userId;
         this.flightId = flightId;
-        this.seats = seats;
+        this.seatClassId = seatClassId;
+        this.passengers = passengers;
+        this.passengerDetails = passengerDetails;
         this.notes = notes;
     }
 
+    // Getters and Setters
     public int getUserId() {
         return userId;
     }
@@ -43,12 +52,28 @@ public class CreateBookingDto {
         this.flightId = flightId;
     }
 
-    public List<BookingSeatDto> getSeats() {
-        return seats;
+    public int getSeatClassId() {
+        return seatClassId;
     }
 
-    public void setSeats(List<BookingSeatDto> seats) {
-        this.seats = seats;
+    public void setSeatClassId(int seatClassId) {
+        this.seatClassId = seatClassId;
+    }
+
+    public int getPassengers() {
+        return passengers;
+    }
+
+    public void setPassengers(int passengers) {
+        this.passengers = passengers;
+    }
+
+    public List<PassengerInfoDto> getPassengerDetails() {
+        return passengerDetails;
+    }
+
+    public void setPassengerDetails(List<PassengerInfoDto> passengerDetails) {
+        this.passengerDetails = passengerDetails;
     }
 
     public String getNotes() {
