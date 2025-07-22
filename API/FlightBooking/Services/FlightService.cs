@@ -1,6 +1,10 @@
 ﻿using FlightBooking.DTOs;
 using FlightBooking.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FlightBooking.Services
 {
@@ -27,6 +31,11 @@ namespace FlightBooking.Services
                          && f.DepartureTime.Date == searchDto.DepartureDate.Date
                          && f.Status == "SCHEDULED");
 
+            if (!string.IsNullOrEmpty(searchDto.SeatClass))
+            {
+                query = query.Where(f => f.Seats.Any(s => s.Class.ClassName == searchDto.SeatClass && s.IsAvailable == true));
+            }
+
             var flights = await query.ToListAsync();
 
             return flights.Select(f => new FlightResponseDto
@@ -42,7 +51,7 @@ namespace FlightBooking.Services
                 BasePrice = f.BasePrice,
                 Status = f.Status,
                 Gate = f.Gate,
-                AvailableSeats = f.Seats.Count(s => s.IsAvailable ?? false)
+                AvailableSeats = f.Seats.Count(s => s.IsAvailable == true && (string.IsNullOrEmpty(searchDto.SeatClass) || s.Class.ClassName == searchDto.SeatClass))
             }).ToList();
         }
 
@@ -88,23 +97,49 @@ namespace FlightBooking.Services
 
         public async Task<BookingResponseDto> CreateBookingAsync(CreateBookingDto bookingDto)
         {
+            // Validate passenger details count matches passengers
+            if (bookingDto.PassengerDetails.Count != bookingDto.Passengers)
+            {
+                throw new ArgumentException($"The number of passenger details ({bookingDto.PassengerDetails.Count}) does not match the number of passengers ({bookingDto.Passengers}).");
+            }
+
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                // Tạo booking reference
+                // Validate flight and seat class
+                var flight = await _context.Flights
+                    .Include(f => f.Seats)
+                        .ThenInclude(s => s.Class)
+                    .FirstOrDefaultAsync(f => f.FlightId == bookingDto.FlightId);
+
+                if (flight == null)
+                    throw new ArgumentException("Flight not found");
+
+                // Validate seat class
+                var seatClass = await _context.SeatClasses
+                    .FirstOrDefaultAsync(sc => sc.ClassId == bookingDto.SeatClassId);
+
+                if (seatClass == null)
+                    throw new ArgumentException("Seat class not found");
+
+                // Get available seats for the selected class
+                var availableSeats = flight.Seats
+                    .Where(s => s.ClassId == bookingDto.SeatClassId && s.IsAvailable == true)
+                    .ToList();
+
+                if (availableSeats.Count < bookingDto.Passengers)
+                    throw new InvalidOperationException($"Not enough available seats in the {seatClass.ClassName} class. Requested: {bookingDto.Passengers}, Available: {availableSeats.Count}");
+
+                // Randomly select seats
+                var random = new Random();
+                var selectedSeats = availableSeats.OrderBy(x => random.Next()).Take(bookingDto.Passengers).ToList();
+
+                // Calculate total amount
+                var totalAmount = selectedSeats.Sum(s => flight.BasePrice * (s.Class.PriceMultiplier ?? 1.0m) + (s.ExtraFee ?? 0m));
+
+                // Create booking
                 var bookingReference = GenerateBookingReference();
-
-                // Tính tổng tiền
-                var flight = await _context.Flights.FindAsync(bookingDto.FlightId);
-                var seats = await _context.Seats
-                    .Include(s => s.Class)
-                    .Where(s => bookingDto.Seats.Select(bs => bs.SeatId).Contains(s.SeatId))
-                    .ToListAsync();
-
-                var totalAmount = seats.Sum(s => flight.BasePrice * (s.Class.PriceMultiplier ?? 1.0m) + (s.ExtraFee ?? 0m));
-
-                // Tạo booking
                 var booking = new Booking
                 {
                     BookingReference = bookingReference,
@@ -117,32 +152,33 @@ namespace FlightBooking.Services
                 _context.Bookings.Add(booking);
                 await _context.SaveChangesAsync();
 
-                // Tạo booking seats
-                foreach (var seatDto in bookingDto.Seats)
+                // Create booking seats with individual passenger details
+                for (int i = 0; i < selectedSeats.Count; i++)
                 {
-                    var seat = seats.First(s => s.SeatId == seatDto.SeatId);
+                    var seat = selectedSeats[i];
+                    var passenger = bookingDto.PassengerDetails[i];
                     var bookingSeat = new BookingSeat
                     {
                         BookingId = booking.BookingId,
-                        SeatId = seatDto.SeatId,
-                        PassengerName = seatDto.PassengerName,
-                        PassengerIdNumber = seatDto.PassengerIdNumber,
+                        SeatId = seat.SeatId,
+                        PassengerName = passenger.PassengerName,
+                        PassengerIdNumber = passenger.PassengerIdNumber,
                         SeatPrice = flight.BasePrice * (seat.Class.PriceMultiplier ?? 1.0m) + (seat.ExtraFee ?? 0m)
                     };
 
                     _context.BookingSeats.Add(bookingSeat);
 
-                    // Cập nhật trạng thái ghế
+                    // Update seat availability
                     seat.IsAvailable = false;
                 }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                // Gửi notification đặt vé thành công
+                // Send notification
                 await _notificationService.SendBookingConfirmationAsync(booking.BookingId);
 
-                // Trả về thông tin booking
+                // Return booking details
                 return await GetBookingByIdAsync(booking.BookingId);
             }
             catch
@@ -168,6 +204,9 @@ namespace FlightBooking.Services
                     .ThenInclude(bs => bs.Seat)
                         .ThenInclude(s => s.Class)
                 .FirstOrDefaultAsync(b => b.BookingId == bookingId);
+
+            if (booking == null)
+                throw new ArgumentException("Booking not found");
 
             return new BookingResponseDto
             {
@@ -251,9 +290,7 @@ namespace FlightBooking.Services
             payment.Status = "COMPLETED";
             await _context.SaveChangesAsync();
 
-            // Gửi notification thanh toán thành công
             await _notificationService.SendPaymentConfirmationAsync(paymentId);
-
             return true;
         }
     }

@@ -1,6 +1,8 @@
 ﻿using FlightBooking.DTOs;
 using FlightBooking.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace FlightBooking.Controllers
 {
@@ -23,9 +25,17 @@ namespace FlightBooking.Controllers
                 var booking = await _flightService.CreateBookingAsync(bookingDto);
                 return CreatedAtAction(nameof(GetUserBookings), new { userId = bookingDto.UserId }, booking);
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while processing your request.", detail = ex.Message });
             }
         }
 
@@ -39,7 +49,7 @@ namespace FlightBooking.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return StatusCode(500, new { message = "An error occurred while retrieving bookings.", detail = ex.Message });
             }
         }
     }

@@ -24,14 +24,15 @@
             android:layout_marginTop="40dp"
             android:background="@drawable/circle_orange"
             android:src="@drawable/ic_arrow_back"
-            android:contentDescription="Back" />
+            android:contentDescription="Back"
+            android:scaleType="centerInside" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="45dp"
-            android:text="Chọn Ghế"
+            android:text="Chọn Hạng Ghế"
             android:textColor="#000000"
             android:textSize="34sp"
             android:textStyle="bold" />
@@ -50,6 +51,7 @@
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/header_choose_seats"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,140 +63,72 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Airplane Container -->
+            <!-- Flight Info -->
+            <TextView
+                android:id="@+id/tv_flight_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chuyến bay: Đang tải..."
+                android:textSize="16sp"
+                android:textColor="#1A1A1A"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Seat Class Selection -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_seat_class"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Chọn hạng ghế"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/travel_orange"
+                app:hintTextColor="@color/travel_orange"
+                android:layout_marginBottom="16dp">
+
+                <Spinner
+                    android:id="@+id/spinner_seat_class"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Seat Class Price -->
+            <TextView
+                android:id="@+id/tv_seat_class_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Giá: N/A"
+                android:textSize="16sp"
+                android:textColor="#1A1A1A"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Passenger Count -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Số lượng hành khách"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="@color/travel_orange"
+                app:hintTextColor="@color/travel_orange"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_passenger_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:imeOptions="actionDone"
+                    android:padding="12dp" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Passenger Details -->
             <LinearLayout
+                android:id="@+id/ll_passenger_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/airplane_body_bg"
-                android:padding="24dp"
-                android:layout_marginBottom="20dp">
-
-                <View
-                    android:layout_width="80dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/airplane_nose"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="20dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hạng Thương Gia"
-                    android:textSize="12sp"
-                    android:textColor="#666666"
-                    android:textStyle="bold"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="12dp" />
-
-                <LinearLayout
-                    android:id="@+id/ll_business_seats"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal"
-                    android:layout_marginBottom="30dp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#E0E0E0"
-                    android:layout_marginVertical="16dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hạng Phổ Thông"
-                    android:textSize="12sp"
-                    android:textColor="#666666"
-                    android:textStyle="bold"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="12dp" />
-
-                <LinearLayout
-                    android:id="@+id/ll_economy_seats"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center_horizontal" />
-
-            </LinearLayout>
-
-            <!-- Legend -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginBottom="20dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <View
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:background="@drawable/seat_available"
-                        android:layout_marginEnd="6dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Có thể chọn"
-                        android:textSize="12sp"
-                        android:textColor="#666666" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <View
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:background="@drawable/seat_selected"
-                        android:layout_marginEnd="6dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Đã chọn"
-                        android:textSize="12sp"
-                        android:textColor="#666666" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <View
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:background="@drawable/seat_unavailable"
-                        android:layout_marginEnd="6dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Không thể chọn"
-                        android:textSize="12sp"
-                        android:textColor="#666666" />
-
-                </LinearLayout>
-
-            </LinearLayout>
+                android:layout_marginBottom="20dp" />
 
         </LinearLayout>
 
@@ -213,61 +147,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_airline_seat"
-                android:layout_marginEnd="12dp" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <!-- Thêm ID này vào đây -->
-                <TextView
-                    android:id="@+id/tv_num_selected_seats"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 ghế đã chọn"
-                    android:textSize="14sp"
-                    android:textColor="#666666" />
-
-                <TextView
-                    android:id="@+id/tv_selected_seats"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#1A1A1A" />
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tv_total_price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0 VNĐ"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="#2196F3" />
-
-        </LinearLayout>
-
         <Button
             android:id="@+id/btn_confirm_seats"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Đặt Vé"
+            android:text="Tiếp Tục"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"

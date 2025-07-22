@@ -88,10 +88,21 @@ public class BookingActivity extends AppCompatActivity {
 
     // Xử lý khi click vào một chuyến bay trong danh sách
     private void onFlightItemClick(int flightId) {
-        // Khi click vào chuyến bay, chuyển sang màn hình chọn ghế
-        Intent intent = new Intent(BookingActivity.this, ChooseSeatsActivity.class);
-        intent.putExtra("flightId", flightId);
-        startActivity(intent);
+        // Tìm chuyến bay được chọn
+        AdminFlightResponseDto selectedFlight = flightList.stream()
+                .filter(flight -> flight.getFlightId() == flightId)
+                .findFirst()
+                .orElse(null);
+
+        if (selectedFlight != null && selectedFlight.getBasePrice() > 0) {
+            // Khi click vào chuyến bay, chuyển sang màn hình chọn ghế và truyền basePrice
+            Intent intent = new Intent(BookingActivity.this, ChooseSeatsActivity.class);
+            intent.putExtra("flightId", flightId);
+            intent.putExtra("basePrice", String.valueOf(selectedFlight.getBasePrice()));
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Giá cơ bản không hợp lệ hoặc không tìm thấy chuyến bay", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // Gọi API lấy danh sách chuyến bay

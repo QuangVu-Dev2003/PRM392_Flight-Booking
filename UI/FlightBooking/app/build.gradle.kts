@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace = "com.prm.flightbooking"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.prm.flightbooking"
-        minSdk = 27
-        targetSdk = 35
+        minSdk = 26
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -49,4 +49,8 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.zxing:core:3.4.1")
+    implementation("org.apache.poi:poi:5.3.0")
+    implementation("org.apache.poi:poi-ooxml:5.3.0")
+    implementation("org.apache.xmlbeans:xmlbeans:5.2.1")
+    implementation("org.apache.logging.log4j:log4j-api:2.13.3")
 }

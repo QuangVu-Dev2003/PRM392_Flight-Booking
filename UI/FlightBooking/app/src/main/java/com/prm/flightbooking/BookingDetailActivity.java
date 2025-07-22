@@ -479,7 +479,7 @@ public class BookingDetailActivity extends AppCompatActivity {
         String errorMessage = "Không thể hủy vé";
 
         if (response.code() == 400) {
-            errorMessage = "Vé này không thể hủy";
+            errorMessage = "Vé này không thể hủy đặt chỗ trước ít hơn 24 giờ trước khi khởi hành";
         } else if (response.code() == 401) {
             errorMessage = "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.";
             redirectToLogin();

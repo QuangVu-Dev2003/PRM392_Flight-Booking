@@ -1,10 +1,26 @@
-﻿namespace FlightBooking.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FlightBooking.DTOs
 {
     public class CreateBookingDto
     {
+        [Required]
         public int UserId { get; set; }
+
+        [Required]
         public int FlightId { get; set; }
-        public List<BookingSeatDto> Seats { get; set; } = new List<BookingSeatDto>();
+
+        [Required]
+        public int SeatClassId { get; set; }
+
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "At least one passenger is required.")]
+        public int Passengers { get; set; } = 1;
+
+        [Required]
+        [MinLength(1, ErrorMessage = "Passenger details must be provided for each passenger.")]
+        public List<PassengerInfoDto> PassengerDetails { get; set; } = new List<PassengerInfoDto>();
+
         public string? Notes { get; set; }
     }
 
@@ -12,6 +28,16 @@
     {
         public int SeatId { get; set; }
         public string PassengerName { get; set; }
+        public string? PassengerIdNumber { get; set; }
+    }
+
+    public class PassengerInfoDto
+    {
+        [Required]
+        [StringLength(100, ErrorMessage = "Passenger name cannot exceed 100 characters.")]
+        public string PassengerName { get; set; }
+
+        [StringLength(50, ErrorMessage = "Passenger ID number cannot exceed 50 characters.")]
         public string? PassengerIdNumber { get; set; }
     }
 

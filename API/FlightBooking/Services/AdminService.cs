@@ -281,6 +281,35 @@ namespace FlightBooking.Services
             if (flightDto.Gate != null)
                 flight.Gate = flightDto.Gate;
 
+            /*var now = DateTime.Now;
+
+            if (flight.DepartureTime != null && flight.ArrivalTime != null)
+            {
+                if (now >= flight.ArrivalTime)
+                {
+                    // Đã đến hoặc vượt quá giờ hạ cánh
+                    flight.Status = "COMPLETED";
+                }
+                else if (now >= flight.DepartureTime)
+                {
+                    // Đã đến hoặc vượt quá giờ khởi hành nhưng chưa đến giờ hạ cánh
+                    flight.Status = "DEPARTED";
+                }
+                else if (now >= flight.DepartureTime.AddMinutes(-5) && now < flight.DepartureTime)
+                {
+                    // Trong khoảng 5 phút trước giờ khởi hành
+                    flight.Status = "PREPARING";
+                }
+                else
+                {
+                    // Trước khoảng 5 phút khởi hành, giữ nguyên trạng thái hoặc có thể là "SCHEDULED"
+                    if (string.IsNullOrEmpty(flight.Status) || flight.Status == "PREPARING" || flight.Status == "DEPARTED" || flight.Status == "COMPLETED")
+                    {
+                        flight.Status = "SCHEDULED";
+                    }
+                }
+            }*/
+
             await _context.SaveChangesAsync();
             return await GetFlightByIdAsync(flightId);
         }

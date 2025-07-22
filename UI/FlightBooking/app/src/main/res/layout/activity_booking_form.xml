@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#F5F5F5">
 
-    <!-- Phần tiêu đề -->
+    <!-- Header -->
     <FrameLayout
         android:id="@+id/header_section"
         android:layout_width="0dp"
@@ -17,18 +17,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:padding="20dp">
 
-        <!-- Lớp phủ gradient -->
         <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/header_overlay_gradient"/>
 
-        <!-- Nội dung tiêu đề -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- Nút quay lại -->
             <ImageButton
                 android:id="@+id/btn_back"
                 android:layout_width="50dp"
@@ -41,7 +38,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
-            <!-- Nhóm biểu tượng và tiêu đề -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -70,7 +66,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>
 
-    <!-- Nội dung chính trong ScrollView -->
+    <!-- Main Content -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -86,11 +82,10 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Card tóm tắt đặt vé -->
+            <!-- Booking Summary Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
                 android:layout_marginBottom="20dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="12dp">
@@ -101,7 +96,6 @@
                     android:orientation="vertical"
                     android:padding="24dp">
 
-                    <!-- Tiêu đề card -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -125,7 +119,6 @@
 
                     </LinearLayout>
 
-                    <!-- TextView hiển thị tóm tắt đặt vé -->
                     <TextView
                         android:id="@+id/tv_booking_summary"
                         android:layout_width="match_parent"
@@ -137,7 +130,6 @@
                         android:background="@drawable/booking_summary_bg"
                         android:padding="16dp" />
 
-                    <!-- Tóm tắt giá -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -160,7 +152,6 @@
                             android:id="@+id/tv_total_price"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0 VNĐ"
                             android:textSize="20sp"
                             android:textStyle="bold"
                             android:textColor="@color/travel_orange" />
@@ -171,7 +162,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Card ghi chú bổ sung -->
+            <!-- Notes Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -185,7 +176,6 @@
                     android:orientation="vertical"
                     android:padding="24dp">
 
-                    <!-- Tiêu đề ghi chú -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -209,7 +199,6 @@
 
                     </LinearLayout>
 
-                    <!-- Trường nhập ghi chú -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/til_notes"
                         android:layout_width="match_parent"
@@ -251,7 +240,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Điều khoản và đồng ý -->
+            <!-- Terms and Conditions -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -301,7 +290,7 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Nút đặt vé -->
+            <!-- Book Button -->
             <Button
                 android:id="@+id/btn_book"
                 android:layout_width="match_parent"
@@ -314,7 +303,7 @@
                 android:elevation="8dp"
                 android:layout_marginBottom="20dp" />
 
-            <!-- Thông báo bảo mật -->
+            <!-- Security Notice -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -341,8 +330,9 @@
 
     </ScrollView>
 
-    <!-- Lớp phủ ProgressBar -->
+    <!-- ProgressBar Overlay -->
     <FrameLayout
+        android:id="@+id/progress_overlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#80000000"
